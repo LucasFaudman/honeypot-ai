@@ -215,8 +215,6 @@ source:         RIPE # Filtered
 ### VirusTotal [https://www.virustotal.com/gui/ip-address/2.237.57.70/details](https://www.virustotal.com/gui/ip-address/2.237.57.70/details)
 * 2 security vendors flagged this IP address as malicious
 
-* Shodan
-
 ### ISC [https://isc.sans.edu/ipinfo/2.237.57.70](https://isc.sans.edu/ipinfo/2.237.57.70)
 * Network:	2.232.0.0/13 (2.232.0.0-2.239.255.255) 2.240.0.0
 * Reports:	1
