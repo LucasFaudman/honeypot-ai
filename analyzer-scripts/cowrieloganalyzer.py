@@ -1,6 +1,6 @@
 import re
 import hashlib 
-from collections import defaultdict, OrderedDict
+from collections import defaultdict, OrderedDict, Counter
 import os
 import pathlib
 import json
@@ -86,6 +86,7 @@ class Session:
     @property
     def ttylog(self):
         ttylog = "\n".join(self.commands)
+        #return standardize_ttylog(ttylog)
         return ttylog 
             
     @property
@@ -102,16 +103,18 @@ class Session:
 def standardize_ttylog(command):
     regexes = [
         re.compile(r"/bin/busybox (\w+)"),
-        #re.compile(r"/tmp/([\w\d]+)"),
-
+        re.compile(r"/tmp/([\w\d]+)"),
+        re.compile(r"/tmp/[\w\d]+ ([\w/\+]+)"),
+        #re.compile(r"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\:\d{1,5})"),
+        re.compile(r"(\d+\.\d+\.\d+\.\d+[:/]\d+)")
     ]
 
     for regex in regexes:
-        match = regex.search(command)
-        if match:
+        
+        for match in regex.finditer(command):
             random_str = match.group(1)
-            replacement_str = "X" * len(random_str)
-            return command.replace(random_str, replacement_str)
+            replacement_str = "X" #* len(random_str)
+            command = command.replace(random_str, replacement_str)
     
     return command
         
@@ -174,8 +177,16 @@ class SourceIP:
     def all_malware_hashes(self):
         return [malware for session in self.sessions.values() for malware in session.malware]
     
+    @property
+    def all_src_ports(self):
+        return [session.src_port for session in self.sessions.values()]
+    
+    @property
+    def all_dst_ports(self):
+        return [session.dst_port for session in self.sessions.values()]
+
     def __repr__(self):
-        return f"SourceIP {self.ip} with {len(self.sessions)} sessions, {self.successful_logins} successful logins, {self.commands} commands, {self.uploaded_malware} uploads, {self.downloaded_malware} downloads"
+        return f"SourceIP {self.ip} with {len(self.sessions)} sessions, {len(set(self.all_dst_ports))} dst_ports {self.successful_logins} successful logins, {self.commands} commands, {self.uploaded_malware} uploads, {self.downloaded_malware} downloads"
 
 class Attack:
     def __init__(self, attack_id, attack_id_type, source_ip) -> None:
@@ -193,19 +204,17 @@ class Attack:
         if source_ip not in self.source_ips:
             self.source_ips.append(source_ip)
 
+    def __add__(self, other):
+        for source_ip in other.source_ips:
+            self.add_source_ip(source_ip)
+        self.ttylog_hashes.update(other.ttylog_hashes)
+        self.malware_hashes.update(other.malware_hashes)
 
-
+        return self
+    
     @property
     def sessions(self):
         return [session for source_ip in self.source_ips for session in source_ip.sessions.values()]
-    
-    @property
-    def successful_login_pairs(self):
-        return [login_pair for source_ip in self.source_ips for login_pair in source_ip.successful_login_pairs]
-    
-    @property
-    def all_login_pairs(self):
-        return [login_pair for source_ip in self.source_ips for login_pair in source_ip.all_login_pairs]
     
     @property
     def start_time(self):
@@ -214,14 +223,54 @@ class Attack:
     @property
     def end_time(self):
         return max([session.end_time for session in self.sessions])
+
+    @property
+    def successful_login_pairs(self):
+        return [login_pair for source_ip in self.source_ips for login_pair in source_ip.successful_login_pairs]
     
+    @property
+    def all_login_pairs(self):
+        return [login_pair for source_ip in self.source_ips for login_pair in source_ip.all_login_pairs]
+
+    @property
+    def all_usernames(self):
+        return [login_pair[0] for login_pair in self.all_login_pairs]
     
+    @property
+    def all_passwords(self):
+        return [login_pair[1] for login_pair in self.all_login_pairs]
+    
+    @property
+    def successful_usernames(self):
+        return [login_pair[0] for login_pair in self.successful_login_pairs]
+    
+    @property
+    def successful_passwords(self):
+        return [login_pair[1] for login_pair in self.successful_login_pairs]
+
+    @property
+    def all_src_ports(self):
+        return [session.src_port for session in self.sessions]
+    
+    @property
+    def all_dst_ports(self):
+        return [session.dst_port for session in self.sessions]
+    
+    @property
+    def counts(self):
+        counts = defaultdict(Counter)
+        props = ["successful_login_pairs", "successful_usernames", "successful_passwords",
+                 "all_login_pairs", "all_usernames", "all_passwords",
+                 "all_src_ports", "all_dst_ports"]
+        for prop in props:
+            counts[prop].update(getattr(self, prop))
+
+
+
+        return counts
     
     def __repr__(self):
-        return f"Attack ({self.attack_id_type}: {self.attack_id[:10]}) with {len(self.source_ips)} source IPs"    
-
-        #return f"Attack {self.attack_id} with {len(self.source_ips)} source IPs"
-    
+        return f"Attack ({self.attack_id_type}: {self.attack_id[:10]}) with {len(self.source_ips)} source IPs and {len(self.sessions)} sessions, {len(self.successful_login_pairs)} successful logins, {len(self.commands)} commands, {len(self.ttylog_hashes)} ttylog hashes, {len(self.malware_hashes)} malware hashes"    
 
 
 class CowrieLogAnalyzer:
@@ -292,6 +341,8 @@ class CowrieLogAnalyzer:
                         else:
                             self.attacks[attack_id].add_source_ip(source_ip)
 
+        
+        self.manual_merge()
 
         print(f"Number of IPs with successful logins: {len(ips_with_successful_logins)}")
         print(f"Number of IPs with commands: {len(ips_with_commands)}")
@@ -308,12 +359,30 @@ class CowrieLogAnalyzer:
         #for attack in self.attacks.values():
         #    print(attack)
 
+    def manual_merge(self):
+        attack_sigs ={
+            re.compile(r">A@/ X'8ELFXLL"): None,
+            re.compile(r"cat /proc/mounts; /bin/busybox [\w\d]+"): None,
+            re.compile(r"cd /tmp && chmod \+x [\w\d]+ && bash -c ./[\w\d]+"): None,
+        }
+
+
+
+        for attack_id, attack in list(self.attacks.items()):
+            for attack_sig in attack_sigs:
+                if any(attack_sig.match(command) for command in attack.commands):
+                    if not attack_sigs[attack_sig]:
+                        attack_sigs[attack_sig] = attack
+                    else:
+                        attack_sigs[attack_sig] += attack
+                        self.attacks.pop(attack_id)
         
 
         
-la = CowrieLogAnalyzer()
-la.process()
-la.analyze()
+if __name__ == "__main__":
+    la = CowrieLogAnalyzer()
+    la.process()
+    la.analyze()
 
 
 print()
