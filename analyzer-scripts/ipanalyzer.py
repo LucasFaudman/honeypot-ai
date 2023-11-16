@@ -7,7 +7,13 @@ from collections import defaultdict
 import json
 
 class IPAnalyzer:
-    def __init__(self, output_path="tests/attacks", selenium_webdriver_type="chrome", webdriver_path="/Users/lucasfaudman/Documents/SANS/internship/chromedriver") -> None:
+    def __init__(self, db_path="tests/ipdb", output_path="tests/attacks", selenium_webdriver_type="chrome", webdriver_path="/Users/lucasfaudman/Documents/SANS/internship/chromedriver") -> None:
+        
+        self.db_path = pathlib.Path(db_path)
+        if not self.db_path.exists():
+            self.db_path.mkdir(parents=True)
+
+
         self.output_path = pathlib.Path(output_path)
         self.scraper = SoupScraper(selenium_webdriver_type=selenium_webdriver_type, 
                                    selenium_service_kwargs={"executable_path":webdriver_path}, 
@@ -163,16 +169,107 @@ class IPAnalyzer:
         
     #     return output
 
+    def check_shodan(self, ip):
+        url = f"https://www.shodan.io/host/{ip}"
+        self.scraper.goto(url)
+        sleep(5)
+        self.scraper.wait_for_visible_element(By.ID, "ports")
+        soup = self.scraper.soup
+        
+        
+        output = {"sharing_link": url,
+                    "results": defaultdict(dict)}
+
+        if '404: Not Found' in [span.text for span in soup.find_all("span")]:
+            output = 'ERROR: 404: Not Found'
+            return output
+
+        for tr in soup.find("table").find_all("tr"):
+            key_td, val_td = tr.find_all("td")
+            key = key_td.text.strip()    
+            val = val_td.text.strip()
+            output["results"]["general"][key] = val
+        
+        for a in soup.find("div", {"id": "ports"}).find_all("a"):
+            port = a.text.strip()
+            header_elm = soup.find("h6", {"id":port})
+            header_text_list = header_elm.text.split()
+            unix_epoch = int(header_text_list[0])
+            timestamp = header_text_list[2]
+            protocol = header_text_list[-1]
+
+            header_siblings = header_elm.parent.contents
+            port_data_elm = header_siblings[header_siblings.index(header_elm) + 2]
+            
+            try:
+                service_name =  port_data_elm.find("h1").text.strip()
+            except:
+                service_name = "unknown" #port_data_elm.find("h1").text.strip()
+
+            service_data_raw = port_data_elm.find("pre").text.strip()
+            service_dict = {}
+            current_key = "sig"
+            
+
+            for line_num, line in enumerate(service_data_raw.split("\n")):
+                if line_num == 0:
+                    service_dict[current_key] = line
+                    continue
+                
+                if ":" in line:
+                    split_line = line.split(":",1)
+                    key = split_line[0]
+
+                    if len(split_line) > 1 and split_line[1].strip() != "":
+                        val = split_line[1].strip()
+                    else:
+                        val = []
+                    
+                    current_key = key
+                    service_dict[current_key] = val
+
+                elif line == "":
+                     continue
+                
+                elif line.startswith("\t"):
+                    service_dict[current_key].append(line.strip())
+
+                else:
+                     service_dict[current_key] += line
+
+            
+            output["results"]["ports"][port] = {
+                "unix_epoch": unix_epoch,
+                "timestamp": timestamp,
+                "protocol": protocol,
+                "service_name": service_name,
+                "service_data": service_dict,
+                "service_data_raw": service_data_raw
+            }   
+
+        return output
+
+
+
     def get_data(self, ips):
         data = {}
         for ip in ips:
-            data[ip] = {
-                "isc": self.check_isc(ip),
-                "whois": self.check_whois(ip),
-                "cybergordon": self.check_cybergordon(ip),
-                "threatfox": self.check_threatfox(ip),
-                #"virustotal": self.check_virustotal(ip)
-            }
+            ip_file = self.db_path / f"{ip}.json"
+            if ip_file.exists():
+                data[ip] = json.load(ip_file.open())
+            else:
+
+                data[ip] = {
+                    "isc": self.check_isc(ip),
+                    "whois": self.check_whois(ip),
+                    "cybergordon": self.check_cybergordon(ip),
+                    "threatfox": self.check_threatfox(ip),
+                    "shodan": self.check_shodan(ip),
+
+                    #"virustotal": self.check_virustotal(ip)
+                }
+                json.dump(data[ip], ip_file.open("w+"), indent=4)
+
         
         return data
         
@@ -180,16 +277,17 @@ class IPAnalyzer:
 
 if __name__ == "__main__":
     analyzer = IPAnalyzer()
-    #ip = "2.237.57.70"
-    ip = '80.94.92.20'
-   #print(analyzer.check_whois(ip))
-    #print(analyzer.check_isc(ip))
-    #print(analyzer.check_cybergordon(ip))
-    #print(analyzer.check_abuseipdb(ip))
-    #print(analyzer.check_threatfox(ip))
-    #print(analyzer.check_virustotal(ip))
-    data = analyzer.get_data([ip])
-    json.dump(data, open("testipdata.json", "w"), indent=4)
-    print()    
+    ips = ["2.237.57.70",'80.94.92.20']
+    #print(analyzer.check_shodan(ip))
+
+#    #print(analyzer.check_whois(ip))
+#     #print(analyzer.check_isc(ip))
+#     #print(analyzer.check_cybergordon(ip))
+#     #print(analyzer.check_abuseipdb(ip))
+#     #print(analyzer.check_threatfox(ip))
+#     #print(analyzer.check_virustotal(ip))
+    data = analyzer.get_data(ips)
+   
+    print(data)    
     analyzer.scraper.quit()
     print()

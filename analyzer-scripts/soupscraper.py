@@ -38,7 +38,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 
 
-
 SELENIUM_WEBDRIVER_CLASSES = {
     "chrome": (Chrome, ChromeService, ChromeOptions),
     "edge": (Edge, EdgeService, EdgeOptions),
@@ -82,11 +81,11 @@ class SoupScraper(object):
     def quit(self):
         self.webdriver.quit()
     
-    # def wait_until_find_element(self, locator, locator_value, timeout=10.0, poll_frequency=0.5,ignored_exceptions=None):
-    #     wait = WebDriverWait(self.webdriver, timeout, poll_frequency, ignored_exceptions)
-    #     element = wait.until(lambda x: x.find_element(locator, locator_value))
-    #     #element = WebDriverWait(self.webdriver, timeout, poll_frequency, ignored_exceptions).until(lambda x: x.find_element(locator, locator_value))
-    #     return element
+    def wait_until_find_element(self, locator, locator_value, timeout=10.0, poll_frequency=0.5,ignored_exceptions=None):
+        wait = WebDriverWait(self.webdriver, timeout, poll_frequency, ignored_exceptions)
+        element = wait.until(lambda x: x.find_element(locator, locator_value))
+        #element = WebDriverWait(self.webdriver, timeout, poll_frequency, ignored_exceptions).until(lambda x: x.find_element(locator, locator_value))
+        return element
     
     #WAIT FOR ELEMENT METHODS -> element(s)
     def wait_for_element(self, locator, locator_value, expected_condition, timeout=3.0, poll_frequency=0.5, ignored_exceptions=None):
@@ -137,11 +136,11 @@ class SoupScraper(object):
         return text
     
     #_by_class_name SHORTCUT METHODS
-    # def find_elements_by_class_name(self, locator_value):
-    #     return self.find_elements(By.CLASS_NAME, locator_value)
+    def find_elements_by_class_name(self, locator_value):
+        return self.find_elements(By.CLASS_NAME, locator_value)
 
-    # def find_element_by_class_name(self, locator_value):
-    #     return self.find_element(By.CLASS_NAME, locator_value)
+    def find_element_by_class_name(self, locator_value):
+        return self.find_element(By.CLASS_NAME, locator_value)
 
     def get_text_by_class_name(self, locator_value):
         return self.get_element_text(By.CLASS_NAME, locator_value)

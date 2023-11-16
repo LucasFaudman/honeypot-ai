@@ -7,26 +7,34 @@ import json
 from datetime import datetime
 from pprint import pprint
 
-test_logs_path, test_attacks_path = "/Users/lucasfaudman/Documents/SANS/internship/tests/logs", "/Users/lucasfaudman/Documents/SANS/internship/tests/attacks"
+test_logs_path = pathlib.Path("/Users/lucasfaudman/Documents/SANS/internship/tests/logs")
+test_attacks_path = pathlib.Path("/Users/lucasfaudman/Documents/SANS/internship/tests/attacks")
 
 
 class LogReader:
-    def __init__(self, log_path="tests/logs", remove_keys=()):
+    def __init__(self, log_path=test_logs_path, remove_keys=()):
         self.log_path = pathlib.Path(log_path)
         self.remove_keys = remove_keys
+        self._all_logs = []
+        #self.filename_date_re = re.compile(r"(\d{4})-(\d{2})-(\d{2})")
 
 
-    def find_log_filepaths(self, start_path="", pattern="*"):
-        start_path  = self.log_path / start_path
-        for file in start_path.rglob(pattern):
-            if file.is_file():
-                yield file
+    def find_log_filepaths(self, start_path="", pattern="*", sort_fn=None):
+        if callable(sort_fn):
+            yield from sorted(list(self.find_log_filepaths(start_path, pattern)), key=sort_fn)
+
+        else:
+            start_path  = self.log_path / start_path
+            for file in start_path.rglob(pattern):
+                if file.is_file():
+                    yield file
 
 
     def load_json_logs(self, file):
         for n, line in enumerate(file.open()):
             try:
                 event = json.loads(line)
+                #event["line"] = line
                 yield self.standardize(event)
             except json.decoder.JSONDecodeError:
                 print(f"Error decoding: {line}\n(line {n} of {file})")
@@ -34,6 +42,32 @@ class LogReader:
     def standardize(self, event):
         # Implement this in a subclass
         return event
+    
+    @property
+    def all_logs(self):
+        if not self._all_logs:
+            self._all_logs = list(self.find_log_filepaths())
+        yield from self._all_logs
+
+    def get_matching_lines(self, filepath, pattern, flags=0):
+
+        cmpld_pattern =  pattern if isinstance(pattern, re.Pattern) else re.compile(pattern, flags)
+        # read_mode = "r" if isinstance(pattern, str) else "rb"
+        read_mode = "rb"
+
+        with open(filepath, read_mode) as f:
+            for line in f:
+                if cmpld_pattern.search(line):
+                    yield line
+
+
+    def write_matching_lines(self, from_file, to_file, pattern, flags=0):
+        #write_mode = "w+" if isinstance(pattern, str) else "wb+"
+        write_mode = "wb+"
+        with open(to_file, write_mode) as f:
+            for line in self.get_matching_lines(from_file, pattern, flags):
+                f.write(line)
+    
 
 class Cowrie(LogReader):
     TIMESTAMP_EXAMPLE = "2023-11-05T00:18:22.144852Z"
@@ -42,9 +76,21 @@ class Cowrie(LogReader):
 {"eventid":"cowrie.session.connect","src_ip":"120.194.142.48","src_port":57364,"dst_ip":"172.31.5.68","dst_port":2223,"session":"e4c5fd9d8965","protocol":"telnet","message":"New connection: 120.194.142.48:57364 (172.31.5.68:2223) [session: e4c5fd9d8965]","sensor":"","timestamp":"2023-11-05T01:48:52.248601Z"}
 {"eventid":"cowrie.session.closed","duration":30.96518325805664,"message":"Connection lost after 30 seconds","sensor":"","timestamp":"2023-11-05T01:49:23.213678Z","src_ip":"120.194.142.48","session":"e4c5fd9d8965"}
     """
+
+    @staticmethod
+    def sort_cowrie_log_names(file):
+        if "-" in file.name:
+            yr, mo, day = map(int, file.name.split(".")[1].split("-")[:3])
+            return (yr, mo, day)
+        else:
+            return (9999, 99, 99)
+
+
+
     @property
     def logs(self):
-        for file in self.find_log_filepaths("cowrie", "*.json"):
+        for file in self.find_log_filepaths("cowrie", "*.json*", sort_fn=self.sort_cowrie_log_names):
+            #yield file
             yield from self.load_json_logs(file)
 
 
@@ -64,10 +110,20 @@ class WebLog(LogReader):
   
     """
     TIMESTAMP_FORMAT = "2023-10-25T21:59:41.922314"
-    
+
+    @staticmethod
+    def sort_weblog_names(file):
+        if "-" in file.name:
+            yr, mo, day = map(int, file.name.split(".")[0].split("-")[1:4])
+            return (yr, mo, day)
+        else:
+            return (9999, 99, 99)
+
+
     @property
     def logs(self):
-        for file in self.find_log_filepaths("weblogs", "*.json"):
+        for file in self.find_log_filepaths("weblogs", "*.json", sort_fn=self.sort_weblog_names):
+            #yield file
             yield from self.load_json_logs(file)
 
     def standardize(self, event):
@@ -113,3 +169,14 @@ class Dshield(LogReader):
                 continue
                 
         return event
+    
+
+if __name__ == "__main__":
+    cr = Cowrie()
+    for log in cr.logs:
+        print(log)
+
+    wr = WebLog()
+    for log in wr.logs:
+        print(log)
+
