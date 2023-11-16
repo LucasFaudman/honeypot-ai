@@ -1,18 +1,11 @@
-import re
-import hashlib 
-from collections import defaultdict, OrderedDict, Counter
-import os
-import pathlib
-import json
-from datetime import datetime
-from pprint import pprint
+from analyzerbase import *
 
-from logreader import WebLog
+from logparser import WebLogParser
 
 
 class WebLogAnalyzer:
     def __init__(self, output_path="tests/attacks"):
-        self.reader = WebLog()
+        self.logparser = WebLogParser()
         self.events = defaultdict(list)
         self.requests = defaultdict(Counter)
         self.urls = defaultdict(Counter)
@@ -22,7 +15,7 @@ class WebLogAnalyzer:
         #self.headers = defaultdict(list)
 
     def process(self, ip_list):
-        for event in self.reader.logs:
+        for event in self.logparser.logs:
             if event["src_ip"] in ip_list:
                 
 

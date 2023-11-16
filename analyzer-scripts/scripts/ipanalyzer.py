@@ -1,10 +1,8 @@
-import requests
-import pathlib
-
+from analyzerbase import *
 from soupscraper import *
+
+import requests
 from time import sleep
-from collections import defaultdict
-import json
 
 class IPAnalyzer:
     def __init__(self, db_path="tests/ipdb", output_path="tests/attacks", selenium_webdriver_type="chrome", webdriver_path="/Users/lucasfaudman/Documents/SANS/internship/chromedriver") -> None:
@@ -34,6 +32,10 @@ class IPAnalyzer:
         url = f"https://www.whois.com/whois/{ip}"
         self.scraper.goto(url)
         sleep(5)
+        soup = self.scraper.soup
+        if "Invalid domain name" in soup.text:
+            return "ERROR: Invalid domain name"
+
 
         whois_data = self.scraper.wait_for_visible_element(By.ID, "registryData")
         output = {

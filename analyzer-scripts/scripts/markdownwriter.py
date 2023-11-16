@@ -1,7 +1,12 @@
 
-from ipanalyzer import IPAnalyzer, json
+from ipanalyzer import IPAnalyzer
 from cowrieloganalyzer import CowrieLogAnalyzer, Attack
 from openaianalyzer import OpenAIAnalyzer
+
+
+
+
+
 
 h1 = lambda text: f'# {text}\n'
 h2 = lambda text: f'## {text}\n'
@@ -16,10 +21,10 @@ codeblock = lambda text: f'\n```\n{text}\n```\n'
 blockquote = lambda text: f'> {text}\n'
 bullet = lambda text: f'* {text}\n'
 blockbullet = lambda text: f'> * {text}\n'
-
 unordered_list = lambda items: ''.join([f'\n* {item}' for item in items]) + '\n'
 ordered_list = lambda items: ''.join([f'\n{n}. {item}\n' for n,item in enumerate(items)]) + '\n'
 hline = lambda: '---\n'
+
 def table(headers, rows, style_fn=str):
     table = ''
     table += '| ' + ' | '.join(headers) + ' |\n'
@@ -226,7 +231,10 @@ class CowrieAttackMarkdownWriter(MarkdownWriter):
     def add_relevant_logs(self, md, attack: Attack):
         md += h1("Relevant Logs, File or Email")
         md = self.add_attack_summary(md, attack)
+        
 
+        md += h2("Cowrie Logs")
+        md += f""
 
         return md    
 

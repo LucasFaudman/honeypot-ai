@@ -1,22 +1,16 @@
-import re
-import hashlib 
-from collections import defaultdict, OrderedDict
-import os
-import pathlib
-import json
-from datetime import datetime
-from pprint import pprint
-
-test_logs_path = pathlib.Path("/Users/lucasfaudman/Documents/SANS/internship/tests/logs")
-test_attacks_path = pathlib.Path("/Users/lucasfaudman/Documents/SANS/internship/tests/attacks")
+from analyzerbase import *
 
 
-class LogReader:
-    def __init__(self, log_path=test_logs_path, remove_keys=()):
+class LogParser:
+    def __init__(self, log_path=test_logs_path, attacks_path=test_attacks_path, remove_ips=MYIPS, overwrite=True):
+        
         self.log_path = pathlib.Path(log_path)
-        self.remove_keys = remove_keys
+        self.attacks_path = pathlib.Path(attacks_path)
+        self.overwrite = overwrite
+        self.remove_ips = remove_ips
+        
         self._all_logs = []
-        #self.filename_date_re = re.compile(r"(\d{4})-(\d{2})-(\d{2})")
+        
 
 
     def find_log_filepaths(self, start_path="", pattern="*", sort_fn=None):
@@ -50,11 +44,10 @@ class LogReader:
         yield from self._all_logs
 
     def get_matching_lines(self, filepath, pattern, flags=0):
-
-        cmpld_pattern =  pattern if isinstance(pattern, re.Pattern) else re.compile(pattern, flags)
         # read_mode = "r" if isinstance(pattern, str) else "rb"
         read_mode = "rb"
-
+        cmpld_pattern = re.compile(pattern, flags) if not isinstance(pattern, re.Pattern) else pattern
+        
         with open(filepath, read_mode) as f:
             for line in f:
                 if cmpld_pattern.search(line):
@@ -69,7 +62,8 @@ class LogReader:
                 f.write(line)
     
 
-class Cowrie(LogReader):
+
+class CowrieParser(LogParser):
     TIMESTAMP_EXAMPLE = "2023-11-05T00:18:22.144852Z"
     TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
     """
@@ -103,7 +97,8 @@ class Cowrie(LogReader):
         return event
 
 
-class WebLog(LogReader):
+
+class WebLogParser(LogParser):
     """
     EXAMPLE LOG: 
     {"time": "2023-10-25T20:40:18.979518", "headers": {"host": "13.52.76.92:8080", "user-agent": "Mozilla/5.0 (compatible; CensysInspect/1.1; +https://about.censys.io/)", "accept": "*/*", "accept-encoding": "gzip"}, "sip": "162.142.125.12", "dip": "13.52.76.92", "method": "GET", "url": "/", "data": null, "useragent": ["Mozilla/5.0 (compatible; CensysInspect/1.1; +https://about.censys.io/)"], "version": "HTTP/1.1", "response_id": {"comment": null, "headers": {"Server": "Apache/3.2.3", "Access-Control-Allow-Origin": "*", "content-type": "text/plain"}, "status_code": 200}, "signature_id": {"max_score": 72, "rules": [{"attribute": "method", "condition": "equals", "value": "GET", "score": 2, "required": false}, {"attribute": "headers", "condition": "absent", "value": "user-agents", "score": 70, "required": false}]}}
@@ -132,7 +127,9 @@ class WebLog(LogReader):
         event["dst_ip"] = event.pop("dip")
         return event
 
-class Dshield(LogReader):
+
+
+class DshieldParser(LogParser):
     """
     EXAMPLE LOG: 
     1699144322 BigDshield kernel:[39210.572534]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=162.216.150.90 DST=172.31.5.68 LEN=44 TOS=0x00 PREC=0x00 TTL=244 ID=54321 PROTO=TCP SPT=52388 DPT=50001 WINDOW=65535 RES=0x00 SYN URGP=0 
@@ -172,11 +169,11 @@ class Dshield(LogReader):
     
 
 if __name__ == "__main__":
-    cr = Cowrie()
+    cr = CowrieParser()
     for log in cr.logs:
         print(log)
 
-    wr = WebLog()
+    wr = WebLogParser()
     for log in wr.logs:
         print(log)
 
