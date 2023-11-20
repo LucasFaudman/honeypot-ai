@@ -16,6 +16,7 @@ class Attack:
 
         self.log_paths = {}
         self.command_explainations = {}
+        self._log_counts = {}
 
     
     def add_source_ip(self, source_ip):
@@ -60,6 +61,12 @@ class Attack:
 
         return split_commands
 
+    def get_session(self, session_id):
+        for session in self.sessions:
+            if session.session_id == session_id:
+                return session
+        return None
+
     @property
     def sessions(self):
         sessions = [session for source_ip in self.source_ips for session in source_ip.sessions.values()]
@@ -70,7 +77,10 @@ class Attack:
     def login_sessions(self):
         return [session for session in self.sessions if session.login_success]
     
-
+    @property
+    def command_sessions(self):
+        return [session for session in self.sessions if session.commands]
+    
     @property
     def first_session(self):
         return self.sessions[0]
@@ -78,6 +88,22 @@ class Attack:
     @property
     def last_session(self):
         return self.sessions[-1]
+    
+    @property
+    def first_login_session(self):
+        return self.login_sessions[0]
+    
+    @property
+    def last_login_session(self):
+        return self.login_sessions[-1]
+    
+    @property
+    def first_command_session(self):
+        return self.command_sessions[0]
+    
+    @property
+    def last_command_session(self):
+        return self.command_sessions[-1]
     
     @property
     def start_time(self):
@@ -117,7 +143,7 @@ class Attack:
     
     @property
     def all_dst_ips(self):
-        return [session.src_ip for session in self.sessions]
+        return [session.dst_ip for session in self.sessions]
 
     @property
     def all_src_ports(self):
@@ -167,10 +193,112 @@ class Attack:
 
         return counts
 
-    def get_log_paths(self, ip="all", log_type="all"):
-        return [log_path for log_path in self.log_paths.get(ip,()) if log_type == "all" or log_type in log_path.name]
-        
+    def get_log_paths(self, ip="all", log_type="all", ext="all"):
+        return [log_path for log_path in self.log_paths.get(ip,()) 
+                if (log_type == "all" or log_type in log_path.name) 
+                and (ext == "all" or log_path.suffix == ext)
+                ]
     
+    def get_log_names(self, ip="all", log_type="all", ext="all"):
+        return [log_path.name for log_path in self.log_paths.get(ip,()) 
+                if (log_type == "all" or log_type in log_path.name) 
+                and (ext == "all" or log_path.suffix == ext)
+                ]
+    
+    def get_log_counts(self, ips="all", log_filter="all"):
+        if log_filter == "all":
+            log_filters = ["cowrie.log", "cowrie.json", "web.json", "dshield.log", "zeek.log"]
+        else:
+            log_filters = (log_filter,)
+
+        if ips == "all":
+            ips = ["all",] + [src_ip.ip for src_ip in self.source_ips]
+        elif isinstance(ips, str):
+            ips = [ips,]
+        else:
+            ips = ips
+
+        #log_counts =  defaultdict(lambda: defaultdict(Counter))
+        log_counts = defaultdict(dict)
+        #{'all': {'lines':1000,'files':100, 'cowrie.log': {'lines','files'}, 'cowrie.json': {'lines','files'}, 'web.json': {'lines','files'}, 'dshield.log': {'lines','files'}, 'zeek.log': {'lines','files'}}, '
+
+        for ip in ips:
+            for log_filter in log_filters:
+                log_type, ext = log_filter.rsplit(".", 1)
+                ext = "." + ext
+                
+                log_counts[ip][log_filter] = {}
+                log_counts[ip][log_filter]["files"] = 0
+                log_counts[ip][log_filter]["lines"] = 0
+                for log_path in self.get_log_paths(ip, log_type, ext): 
+                    #log_counts[ip][log_filter].update(("files",))
+                    log_counts[ip][log_filter]["files"] += 1
+
+                    with log_path.open("rb") as f:
+                        log_counts[ip][log_filter][log_path.name] = sum(1 for line in f)
+                        log_counts[ip][log_filter]["lines"] += log_counts[ip][log_filter][log_path.name]
+                        #log_counts[ip][log_filter].update("lines" for line in f)
+
+                if log_counts[ip][log_filter]["files"] == 0:
+                    del log_counts[ip][log_filter]
+
+            found_log_filters = list(log_counts[ip].keys())
+            log_counts[ip]["lines"] = sum(log_counts[ip][log_filter]["lines"] for log_filter in found_log_filters)
+            log_counts[ip]["files"] = sum(log_counts[ip][log_filter]["files"] for log_filter in found_log_filters)
+        
+        self._log_counts = log_counts
+        return log_counts
+    
+
+    @property
+    def log_counts(self):
+        if self._log_counts:
+            return self._log_counts
+        else:
+            return self.get_log_counts()
+        
+    @property
+    def log_types(self, ip="all"):
+        return [log_name for log_name in self.log_counts[ip] if log_name != "lines" and log_name != "files"]
+        
+
+    def get_log_lines(self, ip, log_filter, n_lines=-1, session_id=None):
+        log_type, ext = log_filter.rsplit(".", 1)
+        ext = "." + ext
+        
+
+        log_paths = self.get_log_paths(ip, log_type, ext)
+        if log_paths:
+            log_path = log_paths[0]
+            with log_path.open("r") as f:
+                lines = [line for line in f if session_id is None or session_id in line]
+                if n_lines and n_lines > len(lines):
+                    n_lines = None
+
+                return "\n".join(lines[:n_lines])
+        else:
+            return f"No {log_filter} logs found"
+
+
+
+
 
     def __repr__(self):
         return f"Attack ({self.attack_id_type}: {self.attack_id[:10]}) with {len(self.source_ips)} source IPs and {len(self.sessions)} sessions, {len(self.successful_login_pairs)} successful logins, {len(self.commands)} commands, {len(self.cmdlog_hashes)} cmdlog hashes, {len(self.malware)} malware hashes"    
+
+
+
+
+        # log_counts =  defaultdict(lambda: defaultdict(lambda: defaultdict(Counter)))
+        # for ip in ips:
+        #     for log_type in log_types:
+        #         for log_path in self.get_log_paths(ip, log_type): 
+        #             log_counts[ip][log_type]["files"].update((log_path.name,))
+        #             with log_path.open("rb") as f:
+        #                 for line in f:
+        #                     log_counts[ip][log_type]["lines"].update((1,))
+                        
+        #             #log_counts[ip][log_type]["lines"].update(log_path.read_text().splitlines())
+        
+        
+        # return log_counts

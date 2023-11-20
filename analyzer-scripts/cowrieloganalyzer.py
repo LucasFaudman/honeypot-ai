@@ -75,7 +75,7 @@ class CowrieLogAnalyzer(CowrieParser):
                         attack_ids = source_ip.all_malware_hashes
                         attack_id_type = "malware_hash"
 
-                    else:
+                    else: #REMOVE?
                         continue
 
                     for attack_id in attack_ids:
@@ -111,7 +111,7 @@ class CowrieLogAnalyzer(CowrieParser):
         for attack_id in attacks_sorted_by_source_ips:
             sorted_attacks[attack_id] = self.attacks[attack_id]
             print(self.attacks[attack_id])
-            print("Commands:\n\t" + "\n\t".join(self.attacks[attack_id].commands)+ "\n")
+            #print("Commands:\n\t" + "\n\t".join(self.attacks[attack_id].commands)+ "\n")
 
         self.attacks = sorted_attacks
 
@@ -265,7 +265,8 @@ class CowrieLogAnalyzer(CowrieParser):
                     if path.parent.name == attack_id:
                         log_paths[attack_id]["all"].append(path)
                     else:
-                        log_paths[attack_id][path.parent.name].append(path)
+                        ip = path.parent.name
+                        log_paths[attack_id][ip].append(path)
             
             attack.update_log_paths(log_paths[attack_id])
 
@@ -324,8 +325,11 @@ if __name__ == "__main__":
     la = CowrieLogAnalyzer(overwrite=True)
     la.process()
     la.analyze()
+    print(la.get_log_paths())
+    print(la.attacks["a8460f446be540410004b1a8db4083773fa46f7fe76fa84219c93daa1669f8f2"].get_log_counts())
+
     #la.organize_logs_by_attack() # 1076.96s user 78.03s system 99% cpu 19:20.38 total
-    #la.organize_logs_by_attack_multi() 
+    la.organize_logs_by_attack_multi() 
     #print(la.get_log_paths())
     #la.print_shared_ips()
     #la.print_shared_cmdlog_hashes()

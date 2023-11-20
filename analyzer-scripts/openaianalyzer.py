@@ -1,5 +1,6 @@
 from analyzerbase import *
 
+import ast
 from openai import OpenAI, OpenAIError
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 

@@ -41,7 +41,7 @@ class IPAnalyzer:
         output = {
             "whois_raw": whois_data.text,
             #"whois_png": whois_data.screenshot_as_png,
-            "whois_list": list(line.split(":") for line in whois_data.text.split("\n") if not line.startswith("%") and ":" in line)
+            "whois_list": list(line.split(":", 1) for line in whois_data.text.split("\n") if not line.startswith("%") and ":" in line)
         }
         
         
@@ -181,8 +181,10 @@ class IPAnalyzer:
         
         output = {"sharing_link": url,
                     "results": defaultdict(dict)}
+        
+        results_table = soup.find("table")
 
-        if '404: Not Found' in [span.text for span in soup.find_all("span")]:
+        if '404: Not Found' in [span.text for span in soup.find_all("span")] or not results_table:
             output = 'ERROR: 404: Not Found'
             return output
 
@@ -194,7 +196,10 @@ class IPAnalyzer:
         
         for a in soup.find("div", {"id": "ports"}).find_all("a"):
             port = a.text.strip()
-            header_elm = soup.find("h6", {"id":port})
+            header_elm = soup.find("h6", {"id":port}) or soup.find("div", {"id":port})
+            if not header_elm:
+                continue
+
             header_text_list = header_elm.text.split()
             unix_epoch = int(header_text_list[0])
             timestamp = header_text_list[2]
