@@ -36,3 +36,10 @@ do
 done
 
 
+
+dshield_files=$(find "$firewall_local_path" -type f -name "dshield*")
+cat $(printf "%s\n" "${dshield_files[@]}" | sort -t. -r -k4,4) > "$firewall_local_path/combined-dshield.log"
+rm -v $(printf "%s" "${dshield_files[@]}")
+mv -v "$firewall_local_path/combined-dshield.log" "$firewall_local_path/dshield.log"
+
+
