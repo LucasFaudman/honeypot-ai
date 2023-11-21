@@ -18,22 +18,20 @@ class Session:
         self.ssh_version = None
         self.client_vars = {}
 
-        #self.failed_logins = []
-        #self.successful_login = []
         self.username = None
         self.password = None
         self.login_attempts = []
-        #self.successful_login = (None, None)
 
         self.commands = []
         self.malware = []
         self.uploads = []
         self.downloads = []
     
-        #self.is_attack = False
         self.contains_commands = False
         self.contains_malware = False
         self.login_success = False
+        
+        self.ttylog = None
 
     def add_client_info(self, event):
         if event["eventid"] == "cowrie.client.version":
@@ -54,14 +52,13 @@ class Session:
         
 
     def add_command(self, event):
-        #command = standardize_cmdlog(event["input"]) 
-
         self.commands.append(event["input"])
         self.contains_commands = True
 
+
     def add_malware(self, event):
         #TODO FIX URL CAUSED FILE ERRORS
-        attack_id = event.get("shasum") or event.get("url")
+        attack_id = event.get("shasum") or list(extract_urls(event.get("url")))[0] #event.get("url")
         self.malware.append(attack_id)
         self.contains_malware = True
 
@@ -69,6 +66,10 @@ class Session:
             self.downloads.append(attack_id)
         elif event["eventid"] == "cowrie.session.file_upload":
             self.uploads.append(attack_id)
+
+    def add_ttylog(self, event):
+        self.ttylog = event["ttylog"]
+        self.ttylog_shasum = event["shasum"]
     
     def close_session(self, event):
         self.end_time = event["timestamp"]

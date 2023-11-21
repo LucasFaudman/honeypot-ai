@@ -43,6 +43,9 @@ class CowrieLogAnalyzer(CowrieParser):
                 elif event["eventid"].startswith("cowrie.session.file_"):
                     self.source_ips[event["src_ip"]].sessions[event["session"]].add_malware(event)
 
+                elif event["eventid"] == "cowrie.log.closed":
+                    self.source_ips[event["src_ip"]].sessions[event["session"]].add_ttylog(event)
+                
                 elif event["eventid"] == "cowrie.session.closed":
                     self.source_ips[event["src_ip"]].sessions[event["session"]].close_session(event)
                     self.source_ips[event["src_ip"]].process_session(event["session"])
@@ -120,7 +123,8 @@ class CowrieLogAnalyzer(CowrieParser):
 
     def manual_merge(self):
         attack_sigs ={
-            re.compile(r">A@/ X'8ELFXLL"): None,
+            #re.compile(r">A@/ X'8ELFXLL"): None,
+            re.compile(r">\??A@/ ?X'8ELFX"): None,
             re.compile(r"cat /proc/mounts; /bin/busybox [\w\d]+"): None,
             re.compile(r"cd /tmp && chmod \+x [\w\d]+ && bash -c ./[\w\d]+"): None,
             re.compile(r"cd ~; chattr -ia .ssh; lockr -ia .ssh"): None,
@@ -133,6 +137,7 @@ class CowrieLogAnalyzer(CowrieParser):
                     if not attack_sigs[attack_sig]:
                         attack_sigs[attack_sig] = attack
                     else:
+                        print(f"Manual merge {attack.attack_id} into {attack_sigs[attack_sig].attack_id} on {str(attack_sig)}")
                         attack_sigs[attack_sig] += attack
                         self.attacks.pop(attack_id)
         
@@ -273,43 +278,7 @@ class CowrieLogAnalyzer(CowrieParser):
         return log_paths
 
 
-    # def organize_logs_by_attack(self, attacks_path=test_attacks_path):
-        
-    #     for attack_id, attack in self.attacks.items():
-    #         attack_dir = attacks_path / attack_id
-    #         attack_dir.mkdir(exist_ok=True, parents=True)
-            
-    #         all_src_ips = set(attack.all_src_ips)
-    #         all_src_ips_regex = re.compile(rb"|".join(ip.encode().replace(b".", rb"\.") for ip in all_src_ips))
-    #         src_ip_regexes = {ip: re.compile(ip.encode().replace(b".", rb"\.")) for ip in all_src_ips}
 
-    #         for src_ip in all_src_ips:
-    #             source_ip_dir = attack_dir / src_ip
-    #             source_ip_dir.mkdir(exist_ok=True, parents=True)
-
-    #         for file in self.all_logs:
-    #             if file.name == "auth_random.json":
-    #                 combined_auth_random = {}
-    #                 for src_ip in all_src_ips:
-    #                     src_ip_auth_random = self.auth_random[src_ip]
-    #                     combined_auth_random.update(src_ip_auth_random)
-
-    #                     out_file = attack_dir / src_ip / file.name
-    #                     json.dump(src_ip_auth_random, out_file.open('w+'), indent=4)
-                    
-    #                 out_file = attack_dir / file.name    
-    #                 json.dump(combined_auth_random, out_file.open('w+'), indent=4)    
-    #                 continue
-
-    #             elif all_src_ips_regex.search(file.read_bytes()):
-    #                 out_file = attack_dir / file.name
-    #                 self.write_matching_lines(file, out_file, all_src_ips_regex)
-
-    #                 for src_ip, regex in src_ip_regexes.items():
-                        
-    #                     if regex.search(file.read_bytes()):
-    #                         out_file = attack_dir / src_ip / file.name
-    #                         self.write_matching_lines(file, out_file, regex)
                 
                 
                 
@@ -325,16 +294,16 @@ if __name__ == "__main__":
     la = CowrieLogAnalyzer(overwrite=True)
     la.process()
     la.analyze()
-    print(la.get_log_paths())
-    print(la.attacks["a8460f446be540410004b1a8db4083773fa46f7fe76fa84219c93daa1669f8f2"].get_log_counts())
+    #print(la.get_log_paths())
+    #print(la.attacks["a8460f446be540410004b1a8db4083773fa46f7fe76fa84219c93daa1669f8f2"].get_log_counts())
 
     #la.organize_logs_by_attack() # 1076.96s user 78.03s system 99% cpu 19:20.38 total
-    la.organize_logs_by_attack_multi() 
+    la.organize_logs_by_attack_multi()
     #print(la.get_log_paths())
     #la.print_shared_ips()
     #la.print_shared_cmdlog_hashes()
     #la.print_shared_malware_hashes()
 
-print()
+    print()
 
 

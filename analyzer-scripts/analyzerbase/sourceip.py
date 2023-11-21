@@ -4,9 +4,8 @@ from .session import Session
 class SourceIP:
     def __init__(self, ip):
         self.ip = ip
-        self.sessions = {}#defaultdict(Session)#defaultdict(lambda event: Session(event["session"], event))
+        self.sessions = {}
 
-        #self.login_attempts = []
         self.failed_logins = 0
         self.successful_logins = 0
         self.uploaded_malware = 0
@@ -15,7 +14,7 @@ class SourceIP:
 
     def add_session(self, event):
         self.sessions[event["session"]] = Session(event["session"], event)
-        #self.sessions[event["session"]] = Session(event["session"], event)
+        
 
     def process_session(self, session_id):
         session = self.sessions[session_id]

@@ -1,5 +1,42 @@
 from .common import *
 
+
+def split_commands(commands):
+    split_commands = []
+    ifor_regex = re.compile(r"if .+?; then.+?fi;?|for .+?; do.+?done;?")
+
+
+    for command in commands:
+        
+        while match := ifor_regex.search(command):
+            split_cmd = ifor_regex.split(command, 1)
+            split_commands.extend(cmd_part for cmd_part in split_cmd[0].split(";") if cmd_part.strip())
+            split_commands.append(match.group(0))
+            command = split_cmd[1].strip()
+
+        #TODO FIX awk
+        if ";" in command and not 'awk' in command:
+            split_commands.extend(cmd_part.strip() for cmd_part in command.split(";") if cmd_part.strip())
+        elif command:
+            split_commands.append(command)
+    
+    return split_commands
+
+
+
+def standardize_by_regexes(string, regexes, replacement_str="X"):
+    #replacement_str = replacement_str if isinstance(string, str) else replacement_str.encode()
+    replacement_str = replacement_str.encode() if isinstance(string, bytes) and isinstance(replacement_str, str) else replacement_str 
+    replacement_str = replacement_str.decode() if isinstance(string, str) and isinstance(replacement_str, bytes) else replacement_str
+
+    for regex in regexes:    
+        for match in regex.finditer(string):
+            random_str = match.group(1)
+            string = string.replace(random_str, replacement_str)
+    
+    return string
+
+
 def standardize_cmdlog(command):
     regexes = [
         re.compile(r"/bin/busybox (\w+)"),
@@ -8,14 +45,22 @@ def standardize_cmdlog(command):
         re.compile(r"(\d+\.\d+\.\d+\.\d+[:/]\d+)")
     ]
 
-    for regex in regexes:
-        
-        for match in regex.finditer(command):
-            random_str = match.group(1)
-            replacement_str = "X" #* len(random_str)
-            command = command.replace(random_str, replacement_str)
-    
-    return command
+    return standardize_by_regexes(command, regexes)
+
+
+def remove_null_bytes(string):
+    return string.replace(b"\x00", b"")
+
+def standardize_malware(malware_source_code: bytes):
+    malware_source_code = remove_null_bytes(malware_source_code)
+
+    regexes = [
+        re.compile(rb"C0755 4745 (\S+)"),
+    ]
+    return standardize_by_regexes(malware_source_code, regexes)
+
+
+
 
 def extract_ips(string):
     ipv4_pattern = re.compile(r'\b(?:\d{1,3}\.){3}\d{1,3}\b')
@@ -65,8 +110,7 @@ def extract_urls(string,tlds=set(read_tlds())):
     for match in regex.finditer(string):
         url = match.group(1)
         parsed_url = urlparse(url)
-        urls[url] = parsed_url
-        
+
         
         if set((parsed_url.netloc.split(".")[-1], parsed_url.path.split(".")[-1])).intersection(tlds) or not tlds: 
            urls [url] = parsed_url
@@ -75,6 +119,13 @@ def extract_urls(string,tlds=set(read_tlds())):
         #     urls [url] = parsed_url
 
     return urls
+
+
+
+
+
+
+
 
 
 def test_all10K():

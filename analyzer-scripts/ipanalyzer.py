@@ -45,7 +45,7 @@ class IPAnalyzer:
         }
         
         
-        return output 
+        return output
         
     def check_cybergordon(self, ip):
         url = 'https://cybergordon.com'
@@ -59,6 +59,9 @@ class IPAnalyzer:
         self.scraper.wait_for_visible_element(By.ID, "request_info")
 
         soup = self.scraper.soup
+        if not soup.find("kbd"):
+            return "ERROR: Failed to get results from CyberGordon"
+
         sharing_link = soup.find("kbd").text
         result_table = soup.find("table", {"id": "gordon_result_table"})
         result_table_rows = result_table.find_all("tr")
@@ -112,6 +115,10 @@ class IPAnalyzer:
         self.scraper.wait_for_visible_element(By.ID, "iocs")
         soup = self.scraper.soup
         results_table = soup.find("table", {"id": "iocs"})
+
+        if not results_table:
+            return "ERROR: No results found:\n" + soup.text
+
         results_table_rows = results_table.find_all("tr")
 
         output = {"sharing_link": url, 
@@ -129,7 +136,7 @@ class IPAnalyzer:
             self.scraper.wait_for_visible_element(By.ID, "ioc")
             soup = self.scraper.soup
 
-            ioc_data = {tr.find("th").text.strip(":"): tr.find("td").text.strip() for tr in soup.find_all("tr")}
+            ioc_data = {tr.find("th").text.strip(": "): tr.find("td").text.strip() for tr in soup.find_all("tr")}
 
             self.scraper.goto(malware_url)
             sleep(3)
@@ -188,7 +195,7 @@ class IPAnalyzer:
             output = 'ERROR: 404: Not Found'
             return output
 
-        for tr in soup.find("table").find_all("tr"):
+        for tr in results_table.find_all("tr"):
             key_td, val_td = tr.find_all("td")
             key = key_td.text.strip()    
             val = val_td.text.strip()
@@ -257,36 +264,70 @@ class IPAnalyzer:
         return output
 
 
+    
+
+
+    # def get_data(self, ips):
+    #     data = {}
+    #     for ip in ips:
+    #         ip_file = self.db_path / f"{ip}.json"
+    #         if ip_file.exists():
+    #             data[ip] = json.load(ip_file.open())
+    #         else:
+
+    #             data[ip] = {
+    #                 "isc": self.check_isc(ip),
+    #                 "whois": self.check_whois(ip),
+    #                 "cybergordon": self.check_cybergordon(ip),
+    #                 "threatfox": self.check_threatfox(ip),
+    #                 "shodan": self.check_shodan(ip),
+
+    #                 #"virustotal": self.check_virustotal(ip)
+    #             }
+    #             json.dump(data[ip], ip_file.open("w+"), indent=4)
+
+        
+    #     return data
 
     def get_data(self, ips):
         data = {}
         for ip in ips:
-            ip_file = self.db_path / f"{ip}.json"
-            if ip_file.exists():
-                data[ip] = json.load(ip_file.open())
-            else:
-
-                data[ip] = {
-                    "isc": self.check_isc(ip),
-                    "whois": self.check_whois(ip),
-                    "cybergordon": self.check_cybergordon(ip),
-                    "threatfox": self.check_threatfox(ip),
-                    "shodan": self.check_shodan(ip),
-
-                    #"virustotal": self.check_virustotal(ip)
-                }
-                json.dump(data[ip], ip_file.open("w+"), indent=4)
-
+            data[ip] = {}
+            for source in ["isc", "whois", "cybergordon", "threatfox", "shodan"]:
+                
+                saved_source_data = self.read_data_for_source(ip, source)
+                if saved_source_data:
+                    data[ip][source] = saved_source_data
+                    continue
+                
+                source_data = getattr(self, f"check_{source}")(ip)
+                data[ip][source] = source_data
+                self.write_data_for_source(ip, source, source_data)
         
         return data
-        
 
+    def read_data_for_source(self, ip, source):
+        ip_source_file = self.db_path / f"{source}/{ip}.json"
+        if ip_source_file.exists():
+            return json.load(ip_source_file.open())#[source]
+        #else:
+        #    return "No data found"
+
+    def write_data_for_source(self, ip, source, data):
+        ip_source_file = self.db_path / f"{source}/{ip}.json"
+        if not ip_source_file.parent.exists():
+            ip_source_file.parent.mkdir(parents=True)
+        with ip_source_file.open("w+") as f:
+            json.dump(data, f, indent=2)
+        
 
 if __name__ == "__main__":
     analyzer = IPAnalyzer()
-    ips = ["2.237.57.70",'80.94.92.20']
+    ips = ['80.94.92.20']
     #print(analyzer.check_shodan(ip))
 
+    # tfd = analyzer.check_threatfox(ips[0])
+    # print(tfd)
 #    #print(analyzer.check_whois(ip))
 #     #print(analyzer.check_isc(ip))
 #     #print(analyzer.check_cybergordon(ip))
