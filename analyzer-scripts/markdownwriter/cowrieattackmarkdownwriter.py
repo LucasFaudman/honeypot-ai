@@ -1,222 +1,12 @@
-
-from ipanalyzer import IPAnalyzer
-from cowrieloganalyzer import CowrieLogAnalyzer, Attack
-from openaianalyzer import OpenAIAnalyzer
-
-from visualizer import CounterGrapher
-
 from analyzerbase import *
-
-LOG_DESCRIPTIONS = {}
-
-
-h1 = lambda text: f'# {text}\n'
-h2 = lambda text: f'## {text}\n'
-h3 = lambda text: f'### {text}\n'
-h4 = lambda text: f'#### {text}\n'
-italic = lambda text: f'*{text}*'
-bold = lambda text: f'**{text}**'
-link = lambda text, url: f'[{text}](' + url + ')'
-image = lambda text, url: f'![{text}](' + url + ')'
-code = lambda text: f'`{text}`'
-codeblock = lambda text, lang="": f'\n```{lang}\n{text}\n```\n'
-blockquote = lambda text: f'> {text}\n'
-bullet = lambda text: f'* {text}\n'
-blockbullet = lambda text: f'> * {text}\n'
-unordered_list = lambda items, style_fn=str: ''.join([f'\n* {style_fn(item)}' for item in items]) + '\n'
-ordered_list = lambda items, style_fn=str: ''.join([f'\n{n}. {style_fn(item)}\n' for n,item in enumerate(items)]) + '\n'
-hline = lambda: '---\n'
-
-def table(headers, rows, style_fn=str):
-    table = ''
-    table += '| ' + ' | '.join(headers) + ' |\n'
-    table += '| ' + ' | '.join(['---' for _ in headers]) + ' |\n'
-    for row in rows:
-        row = [style_fn(item) for item in row]
-        table += '| ' + ' | '.join(row) + ' |\n'
-    return table
+from markdownwriter.markdownwriterbase import *
 
 
+from netanalyzers.ipanalyzer import IPAnalyzer
+from loganalyzers.cowrieloganalyzer import CowrieLogAnalyzer, Attack
+from openaianalyzers.openaianalyzer import OpenAIAnalyzer
 
-class MarkdownWriter:
-    def __init__(self, filepath="test.md", mode="a+", md="", data_object: Union[dict, Attack]={}):
-        
-        self.filepath = pathlib.Path(filepath)
-        self.mode = mode
-        self.md = md
-        self.data_object = data_object
-        
-        self.md_editors = []
-        
-
-    def edit_md(self, md, data_object={}):
-        for editor in self.md_editors:
-            md = editor(md, data_object)
-        return md
-
-    def update_md(self):
-        self.prepare()
-        self.md = self.edit_md(self.md, self.data_object)
-        self.write_md(self.md)
-
-    def write_md(self, md):
-        with self.filepath.open(self.mode) as f:
-            f.write(md)
-    
-    def prepare(self):
-        #Implement in subclasses
-        return NotImplementedError    
-     
-
-class IPAnalyzerMarkdownWriter(MarkdownWriter):
-
-
-    def prepare(self):
-    
-        self.md += h1("What do you know about the attacker?")
-        self.md_editors.append(self.add_ip_locations)
-        self.md_editors.append(self.add_shodan)
-        self.md_editors.append(self.add_isc)
-        self.md_editors.append(self.add_threatfox)
-        self.md_editors.append(self.add_cybergordon)
-        self.md_editors.append(self.add_whois)
-        
-
-
-
-    def add_ip_locations(self, md, data):
-        md += h2("IP Locations")
-        location_data = [(ip, 
-                        data[ip]["isc"]["ip"]["ascountry"],
-                        data[ip]["isc"]["ip"]["as"],
-                        data[ip]["isc"]["ip"]["asname"],
-                        data[ip]["isc"]["ip"]["network"]
-                        ) for ip in data if data[ip]["isc"].get("ip")]
-
-        md += table(['IP Address', 'Country', "AS", "AS Name", "Network"], location_data)
-        return md
-
-    def add_isc(self, md, data):
-        
-
-        if len(data) == 1:
-            sharing_url = list(data.values())[0]["isc"]["sharing_link"]
-            sharing_link = link(sharing_url, sharing_url)
-        else:
-            sharing_link = link("https://isc.sans.edu/ipinfo/", "https://isc.sans.edu/ipinfo/")
-
-        md += h2("Internet Storm Center (ISC) " + sharing_link)
-        
-        ics_data = [(ip, 
-                        data[ip]["isc"]["ip"]["count"],
-                        data[ip]["isc"]["ip"]["attacks"],
-                        data[ip]["isc"]["ip"]["mindate"],
-                        data[ip]["isc"]["ip"]["maxdate"],
-                        data[ip]["isc"]["ip"]["updated"],
-                        ) for ip in data if data[ip]["isc"].get("ip")]
-        
-        headers = ['IP Address', 'Total Reports', "Targets", "First Report", "Last Report", "Update Time"]
-        md += table(headers, ics_data)
-        return md    
-
-    def add_whois(self, md, data):
-        md += h2("Whois")
-
-        #md += table(['IP Address', 'Whois Data'], whois_data)
-        for ip in data:
-            whois_data = data[ip]["whois"]
-
-            md += h3(f"Whois data for: {ip}")
-            if isinstance(whois_data, str):
-                md += codeblock(whois_data)
-            else:    
-                md += codeblock(whois_data["whois_raw"])
-
-        return md
-
-    def add_cybergordon(self, md, data):
-        md += h2("CyberGordon")
-        for ip in data:
-            cybergordon_data = data[ip]["cybergordon"]
-            
-            if not isinstance(cybergordon_data, dict):
-                #md += codeblock(cybergordon_data)
-                continue
-            
-                
-            sharing_link = link(cybergordon_data["sharing_link"], cybergordon_data["sharing_link"])
-            
-            md += h3(f"Cybergordon results for: {ip} " + sharing_link)
-            cybergordon_table_data = []
-            for priority in ["high", "medium", "low"]:
-                for entry in cybergordon_data["results"].get(priority, []):
-                    cybergordon_table_data.append((entry["engine"], entry["result"], entry["url"]))
-
-            cybergordon_table_headers = ['Engine', 'Results', "Url"]
-            md += table(cybergordon_table_headers, cybergordon_table_data)
-        
-        return md
-    
-    def add_shodan(self, md, data):
-        md += h2("Shodan")
-        for ip in data:
-            
-            shodan_data = data[ip]["shodan"]
-
-            if not isinstance(shodan_data, dict):
-                #md += codeblock(shodan_data)
-                continue
-
-            sharing_link = link(shodan_data["sharing_link"], shodan_data["sharing_link"])
-            md += h3(f"Shodan results for: {ip} " + sharing_link)
-            headers = list(shodan_data["results"]["general"].keys())
-            shodan_general_values = list(shodan_data["results"]["general"].values())
-            md += table(headers, [shodan_general_values])
-            
-            md += h4("Open Ports")
-            shodan_ports_data = [(port, entry["protocol"], entry["service_name"], entry["timestamp"]) for port, entry in shodan_data["results"]["ports"].items()]
-            shodan_ports_keys = ["Port", "Protocol", "Service", "Update Time"]
-            md += table(shodan_ports_keys, shodan_ports_data)
-        return md
-
-    def add_threatfox(self, md, data):
-        md += h2("Threat Fox")
-        for ip in data:
-
-            threat_fox_data = data[ip]["threatfox"]
-            if not isinstance(threat_fox_data, dict):
-                #md += codeblock(threat_fox_data)
-                continue
-
-            sharing_link = link(threat_fox_data["sharing_link"], threat_fox_data["sharing_link"])
-            md += h3(f"Threat Fox results for: {ip} " + sharing_link)
-            
-            
-            threatfox_ioc_table_values = []
-            threatfox_malware_table_values = []
-
-            for ioc in threat_fox_data["results"]:
-                ioc_link = link(ioc["ioc"], ioc["ioc_url"])
-                malware_link = link(ioc["malware"], ioc["malware_url"])
-
-                ioc_data = ioc["ioc_data"]
-                threatfox_ioc_table_values.append((ioc_link, ioc_data["Threat Type"], malware_link, ioc_data["Malware alias"], ioc_data["Confidence Level"], ioc_data["First seen"], ioc_data["Last seen"]))
-
-                malware_data = ioc["malware_data"]
-                threatfox_malware_table_values.append((malware_link, malware_data["Malware alias"], malware_data["Number of IOCs"], malware_data["First seen"], malware_data["Last seen"], malware_data["Malpedia"]))
-
-
-            md += h4(f"ThreatFox IOCS (Indicators of Compromise) Found for {ip}")            
-            threatfox_ioc_table_headers = ["IOC", "Threat Type", "Malware", "Malware Alias", "Confidence Level", "First Seen", "Last Seen"]            
-            md += table(threatfox_ioc_table_headers, threatfox_ioc_table_values)
-
-            md += h4(f"ThreatFox Malware Found for {ip}")
-            threatfox_malware_table_headers = ["Malware", "Aliases", "Number of IOCs", "First Seen", "Last Seen", "Malpedia URL"]
-            md += table(threatfox_malware_table_headers, set(threatfox_malware_table_values))
-
-        
-        return md
-
+from .visualizer import CounterGrapher
 
 class CowrieAttackMarkdownWriter(MarkdownWriter):
 
@@ -228,11 +18,12 @@ class CowrieAttackMarkdownWriter(MarkdownWriter):
         self.md_editors.append(self.add_relevant_logs)
         self.md_editors.append(self.add_custom_scripts)
         self.md_editors.append(self.add_command_and_malware_analysis)
-        self.md_editors.append(self.add_questions)
+        
         # self.md_editors.append(self.add_vuln_analysis)
         # self.md_editors.append(self.add_goal_of_attack)
         # self.md_editors.append(self.add_success_of_attack)
         # self.md_editors.append(self.add_mitigation)
+        self.md_editors.append(self.add_questions)
 
 
 
@@ -243,10 +34,13 @@ class CowrieAttackMarkdownWriter(MarkdownWriter):
         session_headers = ["Session ID", "IP", "Src Port", "Dst Port", "Start Time", "End Time", "Duration"]
         session_data = [(session.session_id, session.src_ip, session.src_port, session.dst_port, session.start_time, session.end_time, session.duration) for session in sessions]
         return table(session_headers, session_data, style_fn=code)
+    
+
 
     def add_time_and_date(self, md, attack: Attack):
         first_session = attack.first_session
         last_session = attack.last_session
+
         md += h1("Time and Date of Activity")
         md += blockquote(f"First activity logged: {code(str(attack.start_time))}")
         md += blockbullet(f"First session: {code(first_session.session_id)}")
@@ -261,6 +55,8 @@ class CowrieAttackMarkdownWriter(MarkdownWriter):
         md += self.session_table([first_session, last_session])
         
         return md
+
+
 
     def add_attack_summary(self, md, attack: Attack):
         counts = attack.counts
@@ -293,6 +89,7 @@ class CowrieAttackMarkdownWriter(MarkdownWriter):
         md += "Summary of attack" 
         md += unordered_list(summary)
         return md
+    
 
     def add_relevant_logs(self, md, attack: Attack):
         md += h1("Relevant Logs, File or Email")
@@ -327,7 +124,6 @@ class CowrieAttackMarkdownWriter(MarkdownWriter):
         #TODO ADD ZEEK + OTHER LOGS
 
         
-
         return md
     
 
@@ -341,6 +137,8 @@ class CowrieAttackMarkdownWriter(MarkdownWriter):
         md += blockquote("COMMENTARY ON LOGS")
 
         return md
+    
+
 
     def add_web_logs(self, md, attack: Attack, ip="all", n_lines=None):
         md += h2("Web Logs")
@@ -353,6 +151,8 @@ class CowrieAttackMarkdownWriter(MarkdownWriter):
 
         return md
     
+
+
     def add_cowrie_logs(self, md, attack: Attack, ip="all", n_lines=None):
         first_command_session = attack.first_command_session
 
@@ -375,7 +175,7 @@ class CowrieAttackMarkdownWriter(MarkdownWriter):
             else:
                 session_filter = first_command_session.session_id
                 codeblock_lang = 'json'
-            md += codeblock(attack.get_log_lines(first_command_session.src_ip, f"cowrie{ext}", n_lines, session_filter), codeblock_lang)
+            md += codeblock(attack.get_log_lines(first_command_session.src_ip, f"cowrie{ext}", session_filter,  n_lines), codeblock_lang)
             md += blockquote("COMMENTARY ON LOGS")
         return md
     
@@ -447,6 +247,8 @@ class CowrieAttackMarkdownWriter(MarkdownWriter):
     def script_link(self, script):
         return link(script, f"https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/{script}")
 
+
+
     def add_custom_scripts(self, md, attack: Attack):
         scripts = {
             "logparser.py": "Base class for reading all logs as json objects with standardized keys",
@@ -479,6 +281,8 @@ class CowrieAttackMarkdownWriter(MarkdownWriter):
 
 
         return md
+    
+
     
     def malware_analysis(self, attack: Attack):
         malware = attack.malware
@@ -571,150 +375,11 @@ class CowrieAttackMarkdownWriter(MarkdownWriter):
 
         return md
 
-    # def add_questions(self, md, attack: Attack, aianalyzer: OpenAIAnalyzer, questions=[]):
-    #     split_commands = attack.split_commands
-    #     if attack.malware:
-    #         malware_source_code = attack.standardized_malware[list(attack.standardized_malware.keys())[0]][0].standardized_text
-    #     else:
-    #         malware_source_code = ""
-        
-    #     question_answers = aianalyzer.answer_attack_questions(questions, split_commands, malware_source_code)
 
-    #     for question in questions:
-    #         md += h1(question.title())
-    #         md += blockquote(question_answers[question])
-
-
+    
     def add_questions(self, md, attack: Attack):
         for question, answer in attack.question_answers.items():
             md += h1(question.title())
             md += blockquote(answer)
 
         return md
-
-
-
-def test_md():
-    mdw = MarkdownWriter('test.md')
-    mdw.write_md(h1('h1'))
-    mdw.write_md(h2('h2'))
-    mdw.write_md(h3('h3'))
-    mdw.write_md(h4('h4'))
-    mdw.write_md("\n"+italic('italic')+"\n")
-    mdw.write_md("\n"+bold('bold')+"\n")
-    mdw.write_md("\n"+link('Google.com', 'https://www.google.com')+"\n")
-    mdw.write_md("\n"+image('image', 'https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png')+"\n")
-    mdw.write_md("\n"+code('code')+"\n")
-    mdw.write_md("\n"+codeblock('code block'))
-    mdw.write_md("\n"+blockquote('blockquote'))
-    mdw.write_md(unordered_list(['item1', 'item2', 'item3']))
-    mdw.write_md(ordered_list(['item1', 'item2', 'item3']))
-    mdw.write_md(hline())
-    mdw.write_md(table(['header1', 'header2', 'header3'], [['row1col1', 'row1col2', 'row1col3'], ['row2col1', 'row2col2', 'row2col3']]))
-   
-
-def test_ipanalyzer_md():    
-    ips = ['80.94.92.20']
-    analyzer = IPAnalyzer()
-
-    ipdata = analyzer.get_data(ips)
-    ips_str = '_'.join(ips)
-
-    mdw = IPAnalyzerMarkdownWriter(f'tests/attacks/{ips_str}.md', mode="w+", data_object=ipdata)
-    mdw.update_md()
-    
-
-def test_cowrieattack_md():
-    la = CowrieLogAnalyzer()
-    la.process()
-    la.analyze()
-    la.get_log_paths()
-
-    keys = [
-            #'38628b4bc67736d9c84770b16d65c687f260b7e6055f573c0adc3ac0340a8a53',
-            #'http://80.94.92.20/ssh.sh'
-            "ef326a197652e77cbe4b9b5bfa8f276d77d3dbd13b25b6b094589b9a504c151b",
-        #    'ea40ecec0b30982fbb1662e67f97f0e9d6f43d2d587f2f588525fae683abea73',
-        #'8a57f997513e762dec5cd58a2de822cdf3d2c7ef6372da6c5be01311e96e8358',
-        
-        #'ef326a197652e77cbe4b9b5bfa8f276d77d3dbd13b25b6b094589b9a504c151b',
-        #'01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b',
-        #'8a57f997513e762dec5cd58a2de822cdf3d2c7ef6372da6c5be01311e96e8358',
-        #'6f09f57fbae18a7e11096ca715d0a91fb05f497c4c7ff7e65dc439a3ee8be953',
-        #'bf9f1cea82e8c27db2d85d4aa15cf2903a81c3bdd2ccfea3d7d6480c30041747',
-        #"1ae2a0aa7da872071305a1170015dfebfd7e40ebb8cb16a15979522836b53687"
-    ]
-
-    openai_analyzer = OpenAIAnalyzer()
-
-    for key in keys:
-        attack = la.attacks[key]
-        
-        split_commands = attack.split_commands
-        command_explanations = openai_analyzer.explain_commands(split_commands)
-        attack.update_command_explanations(command_explanations)
-        
-        std_mw_hash0, std_mw_obj_list0 = list(attack.standardized_malware.items())[0]
-        std_mw_obj0 = std_mw_obj_list0[0]
-        malware_explainatons = {std_mw_hash0: openai_analyzer.explain_and_comment_malware(malware_source_code=std_mw_obj0.standardized_text, commands=split_commands)} 
-        attack.update_malware_explanations(malware_explainatons)
-
-        questions = ["What is the goal of the attack?",
-                     "If the system is vulnerable, do you think the attack will be successful?",
-                     "How can a system be protected from this attack?",
-                    "What are the indicators of compromise (IOCs)?"]
-
-                     
-        if attack.malware:
-            malware_source_code = std_mw_obj0.standardized_text
-        else:
-            malware_source_code = ""
-        
-        attack.question_answers = openai_analyzer.answer_attack_questions(questions, split_commands, malware_source_code)
-        
-
-
-
-        key = key.replace('/', '_')
-        mdw = CowrieAttackMarkdownWriter(f'/Users/lucasfaudman/Documents/SANS/internship/tests/attacks/' + key + '.md', mode="w+", data_object=attack)
-        mdw.update_md()
-
-
-        ipa = IPAnalyzer()
-        ips = set(attack.all_ips)
-        ips.difference_update(("127.0.0.1", "8.8.8.8"))
-
-        ipdata = ipa.get_data(ips)
-        
-        ipmdw = IPAnalyzerMarkdownWriter(f'/Users/lucasfaudman/Documents/SANS/internship/tests/attacks/' + key +'.md', mode="a+", data_object=ipdata)
-        ipmdw.update_md()
-        
-
-
-
-
-
-def convert_md_to_mdtxt_for_canvas(filepath, github_url):
-    txt_header = f"""NOTE: This is a .md file with GitHub formatting. 
-If you are viewing this in Canvas, please click the following link to view the formatted file on GitHub: 
-{github_url}
-Alternatively, you can download the file and view it locally in your IDE.
-All relevant logs and scripts can also be found in this repository.
-""" 
-    with open(filepath, 'r') as f:
-        md = f.read()
-    with open(filepath.replace('.md', '.md.txt'), 'w+') as f:
-        f.write(txt_header)
-        f.write('\n\n')
-        f.write(md)
-
-
-def test_convert_md_to_mdtxt_for_canvas():
-    filepath = '/Users/lucasfaudman/Documents/SANS/internship/BACS-4498/attack-observations/attack-1/observation1.md'
-    github_url = 'https://github.com/LucasFaudman/BACS-4498/blob/main/attack-observations/attack-1/observation1.md'
-    convert_md_to_mdtxt_for_canvas(filepath, github_url)
-
-if __name__ == "__main__":
-    #test_ipanalyzer_md()
-    #test_convert_md_to_mdtxt_for_canvas()
-    test_cowrieattack_md()

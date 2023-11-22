@@ -36,6 +36,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 from bs4 import BeautifulSoup
+from time import sleep
 
 
 SELENIUM_WEBDRIVER_CLASSES = {
@@ -74,6 +75,12 @@ class SoupScraper(object):
     
     def goto(self, url):
         self.webdriver.get(url)
+
+    def gotos(self, url, sleep_secs=5.0):
+        """Goto url and sleep for sleep_secs"""
+        self.webdriver.get(url)
+        if sleep_secs and sleep_secs > 0:
+            sleep(sleep_secs)
 
     def back(self):
         self.webdriver.back()

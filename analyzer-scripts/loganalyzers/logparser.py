@@ -4,8 +4,8 @@ from analyzerbase import *
 class LogParser:
     def __init__(self, log_path=test_logs_path, attacks_path=test_attacks_path, remove_ips=MYIPS, overwrite=True):
         
-        self.log_path = pathlib.Path(log_path)
-        self.attacks_path = pathlib.Path(attacks_path)
+        self.log_path = Path(log_path)
+        self.attacks_path = Path(attacks_path)
         self.overwrite = overwrite
         self.remove_ips = remove_ips
         
@@ -25,33 +25,53 @@ class LogParser:
 
 
     def load_json_logs(self, file):
-        for n, line in enumerate(file.open()):
-            try:
-                event = json.loads(line)
-                #event["line"] = line
-                yield self.standardize(event)
-            except json.decoder.JSONDecodeError:
-                print(f"Error decoding: {line}\n(line {n} of {file})")
+        with file.open() as f:
+            for n, line in enumerate(f):
+                try:
+                    event = json.loads(line)
+                    #event["line"] = line
+                    yield self.standardize(event)
+                except json.decoder.JSONDecodeError:
+                    print(f"Error decoding: {line}\n(line {n} of {file})")
     
+
     def standardize(self, event):
         # Implement this in a subclass
         return event
     
+    @property
+    def logs(self):
+        # Implement this in a subclass
+        return NotImplementedError
+
     @property
     def all_logs(self):
         if not self._all_logs:
             self._all_logs = list(self.find_log_filepaths())
         yield from self._all_logs
 
+
+    def nlogs(self, limit=0):
+        for n, event in enumerate(self.logs):
+            if n >= limit:
+                break
+            yield event
+
+
     def get_matching_lines(self, filepath, pattern, flags=0):
-        # read_mode = "r" if isinstance(pattern, str) else "rb"
-        read_mode = "rb"
-        cmpld_pattern = re.compile(pattern, flags) if not isinstance(pattern, re.Pattern) else pattern
+        read_mode = "r" if isinstance(pattern, str) else "rb"
+        #read_mode = "rb"
+        cmpld_pattern = re.compile(pattern, flags) if not isinstance(pattern, (re.Pattern, bytes)) else pattern
+        
+        if isinstance(cmpld_pattern, re.Pattern):
+            match_fn = lambda line: bool(cmpld_pattern.search(line))
+
+        else: #if isinstance(cmpld_pattern, bytes):
+            match_fn = lambda line: bool(pattern in line)
         
         with open(filepath, read_mode) as f:
-            for line in f:
-                if cmpld_pattern.search(line):
-                    yield line
+            yield from filter(match_fn, f)
+
 
 
     def write_matching_lines(self, from_file, to_file, pattern, flags=0):
@@ -80,13 +100,18 @@ class CowrieParser(LogParser):
             return (9999, 99, 99)
 
 
-
     @property
     def logs(self):
         for file in self.find_log_filepaths("cowrie", "*.json*", sort_fn=self.sort_cowrie_log_names):
-            #yield file
             yield from self.load_json_logs(file)
+            
 
+    @property
+    def auth_random(self):
+        if not hasattr(self, "_auth_random"):
+            self._auth_random = json.loads((self.log_path / "malware" / "auth_random.json").read_bytes())
+        return self._auth_random
+                
 
     def standardize(self, event):
         event["timestamp"] = datetime.strptime(event["timestamp"], "%Y-%m-%dT%H:%M:%S.%fZ")
@@ -134,11 +159,16 @@ class DshieldParser(LogParser):
     EXAMPLE LOG: 
     1699144322 BigDshield kernel:[39210.572534]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=162.216.150.90 DST=172.31.5.68 LEN=44 TOS=0x00 PREC=0x00 TTL=244 ID=54321 PROTO=TCP SPT=52388 DPT=50001 WINDOW=65535 RES=0x00 SYN URGP=0 
     """
+
     @property
     def logs(self):
         for file in self.find_log_filepaths("firewall", "dshield*.log*"):
-            for line in file.open():
-                yield self.parse_dshield_line(line)
+            with file.open() as f:
+                for line in f:
+                    yield self.parse_dshield_line(line)
+            
+            #for line in file.open():
+            #    yield self.parse_dshield_line(line)
 
     
     def parse_dshield_line(self, line):

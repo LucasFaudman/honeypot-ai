@@ -32,6 +32,7 @@ class Session:
         self.login_success = False
         
         self.ttylog = None
+        
 
     def add_client_info(self, event):
         if event["eventid"] == "cowrie.client.version":
@@ -67,19 +68,23 @@ class Session:
         elif event["eventid"] == "cowrie.session.file_upload":
             self.uploads.append(attack_id)
 
+
     def add_ttylog(self, event):
         self.ttylog = event["ttylog"]
         self.ttylog_shasum = event["shasum"]
     
+
     def close_session(self, event):
         self.end_time = event["timestamp"]
         self.duration = event["duration"]
         
+
     @property
     def cmdlog(self):
         cmdlog = "\n".join(self.commands)
         #return standardize_cmdlog(cmdlog)
-        return cmdlog 
+        return cmdlog
+    
             
     @property
     def cmdlog_hash(self):
@@ -87,13 +92,16 @@ class Session:
             standardized_cmdlog = standardize_cmdlog(self.cmdlog)
             return hashlib.sha256(standardized_cmdlog.encode()).hexdigest()
 
+
     @property
     def cmdlog_ips(self):
         return extract_ips(self.cmdlog)
-    
+
+
     @property
     def cmdlog_urls(self):
         return extract_urls(self.cmdlog)
+    
 
     def __repr__(self) -> str:
         return f"Session {self.session_id} with {len(self.commands)} commands, {len(self.malware)} malware, {len(self.uploads)} uploads, {len(self.downloads)} downloads, {len(self.login_attempts)} login attempts, {self.login_success} login success, {self.duration} seconds"

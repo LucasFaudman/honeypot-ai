@@ -2,19 +2,24 @@ from analyzerbase import *
 
 import ast
 from openai import OpenAI, OpenAIError
-OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY') or "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"
+
 class OpenAIAnalyzer:
     
     def __init__(self, api_key=OPENAI_API_KEY, model="gpt-4-1106-preview", db_path="tests/aidb") -> None:
         self.client = OpenAI(api_key=OPENAI_API_KEY)
         self.model = model
-        self.db_path = pathlib.Path(db_path)
+        self.db_path = Path(db_path)
         if not self.db_path.exists():
             self.db_path.mkdir(exist_ok=True, parents=True)
 
+
+
     def get_message_hash(self, messages):
         return hashlib.sha256(str(messages).encode()).hexdigest()
-    
+
+
+
     def try_openai(self, getter_fn, parser_fn, **kwargs):
         try:
             response = getter_fn(**kwargs)
@@ -26,6 +31,7 @@ class OpenAIAnalyzer:
             else:
                 print(e)
                 return str(e)    
+
 
 
     def try_load_json_result(self, result, calling_fn, retries, n, *args, **kwargs):
@@ -42,6 +48,7 @@ class OpenAIAnalyzer:
                     return f"ERRORS {e1} {e2} {result}"
 
     
+
     def openai_get_chat(self, messages=[], n=1, **kwargs):
         message_hash = self.get_message_hash(messages)
         db_file = self.db_path / f"{message_hash}.json"
@@ -69,6 +76,8 @@ class OpenAIAnalyzer:
     def format_commands(self, commands):
         #return json.dumps({ str(n) : cmd for n, cmd in enumerate(commands)}, indent=0 )
         return { str(n) : cmd for n, cmd in enumerate(commands) }
+    
+    
 
     def explain_commands(self, commands=[], n=1, retries=0, **kwargs):
         system_prompt = " ".join([

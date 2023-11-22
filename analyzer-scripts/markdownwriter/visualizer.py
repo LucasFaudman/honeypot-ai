@@ -1,4 +1,3 @@
-from typing import Any
 import matplotlib.pyplot as plt
 from collections import Counter
 from pathlib import Path
@@ -26,9 +25,9 @@ class CounterGrapher:
         plt.ylabel(self.ylabel)
 
         plt.title(self.title)
-        plt.tight_layout()
+        # plt.tight_layout()
 
-        plt.savefig(self.outpath) # / "bar.png")
+        plt.savefig(self.outpath)
         plt.close()
 
     def pie(self):
@@ -36,9 +35,9 @@ class CounterGrapher:
         plt.pie(self.values, labels=self.labels, autopct='%1.1f%%', shadow=True, startangle=90)
         
         plt.title(self.title)
-        plt.tight_layout()
+        # plt.tight_layout()
 
-        plt.savefig(self.outpath) # / "pie.png")
+        plt.savefig(self.outpath)
         plt.close()
 
     def hist(self):
@@ -49,8 +48,8 @@ class CounterGrapher:
         
         plt.title(self.title)
         
-        plt.tight_layout()
-        plt.savefig(self.outpath) # / "hist.png")
+        # plt.tight_layout()
+        plt.savefig(self.outpath)
         plt.close()
 
     def plot(self):
@@ -59,10 +58,7 @@ class CounterGrapher:
         print(self.hist())
     
 
-def test_counter_grapher():
-    counter = Counter(['A', 'B', 'A', 'C', 'B', 'A', 'D', 'C', 'A', 'B', 'E'])
-    grapher = CounterGrapher("/Users/lucasfaudman/Documents/SANS/internship/tests/observations", counter)
-    grapher.plot()
+
 
 if __name__ == "__main__":
-    test_counter_grapher()
+    pass

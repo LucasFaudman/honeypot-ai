@@ -1,22 +1,25 @@
 from analyzerbase import *
 
-from logparser import WebLogParser
+from loganalyzers.logparser import WebLogParser
 
 
 class WebLogAnalyzer:
-    def __init__(self, output_path="tests/attacks"):
-        self.logparser = WebLogParser()
+    def __init__(self, log_path=test_logs_path, attacks_path=test_attacks_path,):
+
+        self.logparser = WebLogParser(log_path=log_path, attacks_path=attacks_path)
         self.events = defaultdict(list)
         self.requests = defaultdict(Counter)
         self.urls = defaultdict(Counter)
         self.useragents = defaultdict(Counter)
-        self.output_path = pathlib.Path(output_path)
+        self.attacks_path = Path(attacks_path)
 
-        #self.headers = defaultdict(list)
+        #TODO: remove this and subclass LogParser
+        self.logs = self.logparser.logs
 
-    def process(self, ip_list):
+
+    def process(self, ip_list=[]):
         for event in self.logparser.logs:
-            if event["src_ip"] in ip_list:
+            if event["src_ip"] in ip_list or not ip_list:
                 
 
                 request = {
@@ -33,6 +36,14 @@ class WebLogAnalyzer:
                 self.useragents[event["src_ip"]].update((event["headers"].get("useragent"),))
     
 
+    def analyze(self):
+        #TODO: implement this
+
+        self.print_requests()
+        self.print_urls()
+        self.print_useragents()
+
+
     def print_requests(self):
         for ip, requests in self.requests.items():
             print(f"IP: {ip}")
@@ -43,6 +54,7 @@ class WebLogAnalyzer:
                 print(f"{count}\t{request}")
                 print()
 
+            
     def print_urls(self):
         for ip, urls in self.urls.items():
             print(f"IP: {ip}")
@@ -63,6 +75,7 @@ class WebLogAnalyzer:
             for useragent, count in useragents.items():
                 print(f"{count}\t{useragent}")
                 print()
+    
 
     def write_events(self):
         for ip, events in self.events.items():
@@ -70,7 +83,7 @@ class WebLogAnalyzer:
             for event in events:
                 event["timestamp"] = str(event["timestamp"])
 
-            with open(self.output_path / f"{ip}.json", "w") as f:
+            with open(self.attacks_path / f"{ip}.json", "w") as f:
                 json.dump(events, f, indent=4)
 
 
