@@ -4,20 +4,31 @@ from .logparser import CowrieParser
 from concurrent.futures import ThreadPoolExecutor
 
 
-class CowrieLogAnalyzer(CowrieParser):
 
-    def __init__(self, log_path=test_logs_path, attacks_path=test_attacks_path, remove_ips=MYIPS, overwrite=True):
-        super().__init__(log_path, attacks_path, remove_ips, overwrite)
+
+
+
+class CowrieLogAnalyzer:
+
+    def __init__(self, parser: CowrieParser, remove_ips=MYIPS):
+
+        self.parser = parser
+        self.remove_ips = remove_ips
 
         self.source_ips = {}
         self.attacks = {}
         
         self.exceptions = []
-        # self.auth_random = json.loads((self.log_path / "malware" / "auth_random.json").read_bytes())
         
+    
+    def set_parser(self, parser):
+        self.parser = parser
+    
 
     def process(self):
-        for event in self.logs:
+        """Reads cowrie logs and creates SourceIP and Session objects"""
+
+        for event in self.parser.logs:
             try:
                 if event["src_ip"] not in self.source_ips:
                     self.source_ips[event["src_ip"]] = SourceIP(event["src_ip"])
@@ -47,8 +58,12 @@ class CowrieLogAnalyzer(CowrieParser):
             except Exception as e:
                 self.exceptions.append((event, e))
 
+        return self.source_ips
+
 
     def analyze(self):
+        """Analyzes SourceIP and Session objects to find attacks"""
+
         self.ips_with_successful_logins = []
         self.ips_with_commands = []
         self.ips_with_malware = []
@@ -73,7 +88,7 @@ class CowrieLogAnalyzer(CowrieParser):
                         attack_ids = source_ip.all_malware_hashes
                         attack_id_type = "malware_hash"
 
-                    else: #REMOVE?
+                    else:
                         continue
 
                     for attack_id in attack_ids:
@@ -91,14 +106,19 @@ class CowrieLogAnalyzer(CowrieParser):
         self.manual_merge()
         self.merge_attacks_shared_ips_or_hashes()
         
+        self.sort_attacks()
         self.print_stats()
         self.print_attacks()
 
         print("Done")
 
+        return self.attacks
+
 
 
     def remove_attacks_with_ips(self, ips_to_remove):
+        """Removes attacks that have any of the ips_to_remove"""
+
         for attack_id, attack in list(self.attacks.items()):
 
             for src_ip in attack.all_src_ips:
@@ -108,7 +128,9 @@ class CowrieLogAnalyzer(CowrieParser):
                     break
 
     
-    def sort_attacks(self, key=lambda attack: len(attack.source_ips), reverse=True):
+    def sort_attacks(self, key=lambda attack: len(attack.uniq_src_ips), reverse=True):
+        """Sorts attacks by key function, default is number of unique source ips"""
+
         attacks_sorted_by_key_fn = sorted(self.attacks.values(), key=key, reverse=reverse)
         self.attacks = OrderedDict((attack.attack_id, attack) for attack in attacks_sorted_by_key_fn)
         
@@ -117,6 +139,8 @@ class CowrieLogAnalyzer(CowrieParser):
     
 
     def manual_merge(self):
+        """Manually merges attacks that have the same signature"""
+
         attack_sigs ={
             #re.compile(r">A@/ X'8ELFXLL"): None,
             re.compile(r">\??A@/ ?X'8ELFX"): None,
@@ -141,6 +165,8 @@ class CowrieLogAnalyzer(CowrieParser):
 
     
     def merge_attacks_shared_ips_or_hashes(self):
+        """Merges attacks that have shared ips, command hashes or malware hashes"""
+
         pop_attacks = []
         for attack_id, attack in list(self.attacks.items()):
             for attack_id2, attack2 in list(self.attacks.items()):
@@ -196,11 +222,5 @@ class CowrieLogAnalyzer(CowrieParser):
                 
 
 if __name__ == "__main__":    
-    la = CowrieLogAnalyzer(overwrite=True)
-    la.process()
-    la.analyze()
-
-    
-    print()
-
+    pass
 

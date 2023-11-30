@@ -13,4 +13,4 @@ from pprint import pprint
 
 MYIPS = os.environ.get("MYIPS", "").split(",")
 test_logs_path = Path("/Users/lucasfaudman/Documents/SANS/internship/tests/logs")
-test_attacks_path = Path("/Users/lucasfaudman/Documents/SANS/internship/tests/attacks")
+test_attacks_path = Path("/Users/lucasfaudman/Documents/SANS/internship/tests/attacks/")

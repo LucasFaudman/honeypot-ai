@@ -4,14 +4,20 @@ from .logparser import CowrieParser
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 
 
+class AttackPostProcessor:
+    def __init__(self, parser: CowrieParser, attacks_path=test_attacks_path, attacks={}, overwrite=True):        
+        self.parser = parser
+        self.attacks_path = Path(attacks_path)
+        self.overwrite = overwrite
+        self.attacks = attacks
 
 
-
-class AttackLogOrganizer(CowrieParser):
-    
     def set_attacks(self, attacks):
         self.attacks = attacks
 
+
+
+class AttackLogOrganizer(AttackPostProcessor):
 
 
     @property
@@ -36,20 +42,24 @@ class AttackLogOrganizer(CowrieParser):
         """
         
         #default is organize_by_iter_attacks_multiprocess
-        yield from self.organize_by_iter_attacks_multiprocess()
+        yield from self.organize_by_iter_logs_multithreaded()#self.organize_by_iter_attacks_multiprocess()
 
 
 
     def organize_by_iter_logs(self):
         yield from self._prepare_attack_dirs()
-        yield from (self._split_log_into_attack_dir(file) for file in self.all_logs)
+        yield from (self._split_log_into_attack_dir(file) for file in self.parser.all_logs)
         
 
     def _organize_by_iter_logs_multi(self, executor_cls, max_workers=10, chunksize=1):
         yield from self._prepare_attack_dirs()
 
+        
+        #chunksize = 10
+        #max_workers = len(self.parser.all_logs) // chunksize
+
         with executor_cls(max_workers=max_workers) as executor:
-            yield from executor.map(self._split_log_into_attack_dir, self.all_logs, chunksize=chunksize)
+            yield from executor.map(self._split_log_into_attack_dir, self.parser.all_logs, chunksize=chunksize)
 
     
     def organize_by_iter_logs_multithreaded(self, max_workers=10, chunksize=1):
@@ -57,15 +67,16 @@ class AttackLogOrganizer(CowrieParser):
 
         # yield from self._prepare_attack_dirs()
         # with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        #     yield from executor.map(self._split_log_into_attack_dir, self.all_logs, chunksize=chunksize)
+        #     yield from executor.map(self._split_log_into_attack_dir, self.parser.all_logs, chunksize=chunksize)
 
 
     def organize_by_iter_logs_multiprocess(self, max_workers=10, chunksize=1):
+        
         yield from self._organize_by_iter_logs_multi(ProcessPoolExecutor, max_workers, chunksize)
 
         # yield from self._prepare_attack_dirs()
         # with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        #     yield from executor.map(self._split_log_into_attack_dir, self.all_logs, chunksize=chunksize)
+        #     yield from executor.map(self._split_log_into_attack_dir, self.parser.all_logs, chunksize=chunksize)
 
 
     def organize_by_iter_attacks(self):
@@ -79,11 +90,38 @@ class AttackLogOrganizer(CowrieParser):
 
 
     def organize_by_iter_attacks_multiprocess(self, max_workers=10, chunksize=1):
-
+        
         with ProcessPoolExecutor(max_workers=max_workers) as executor:
             yield from executor.map(self._organize_by_iter_attacks, self.attacks.values(), chunksize=chunksize)
 
 
+
+    def _prepare_attack_malware_dir(self, attack):
+        #attack_dir.mkdir(exist_ok=True, parents=True)
+        attack_dir = self.attacks_path / attack.attack_id
+        attack_malware_dir = (attack_dir / "malware")
+        attack_malware_dir.mkdir(exist_ok=True, parents=True)
+
+        if attack.standardized_malware:
+            malware_downloads_dir = attack_malware_dir / "downloads"
+            malware_downloads_dir.mkdir(exist_ok=True, parents=True)
+
+            for standardized_hash, malware_list in attack.standardized_malware.items():
+                standardized_malware_dir = malware_downloads_dir / standardized_hash
+                standardized_malware_dir.mkdir(exist_ok=True, parents=True)
+
+                standardized_malware_file = standardized_malware_dir / "standarized"
+
+                with standardized_malware_file.open("wb+") as f:
+                    f.write(malware_list[0].standarized_bytes)
+
+                for malware in malware_list:
+                    malware_outpath = standardized_malware_dir / malware.shasum
+                    
+                    with malware_outpath.open("wb+") as f:
+                        f.write(malware.file_bytes)
+        
+        #return attack_malware_dir
     
     
     def _prepare_attack_dirs(self):
@@ -93,22 +131,29 @@ class AttackLogOrganizer(CowrieParser):
         #self.pattern = re.compile(fr'\b(?:{"|".join(map(re.escape, src_ip_attack_ids.keys()))})\b')
         yield f"Prepared regex pattern: {self.pattern.pattern}"
 
+        
+        #malware_prepped = {}
         combined_auth_random_by_attack_id = defaultdict(dict)
         for src_ip, attack_id in src_ip_attack_ids.items():
 
             attack_dir = self.attacks_path / attack_id
+            attack_malware_dir = attack_dir / "malware"
             source_ip_dir = attack_dir / src_ip
 
             if attack_dir.exists() and not self.overwrite:
                 yield f"Attack {src_ip}:{attack_id} already exists. Skipping"
                 src_ip_attack_ids.pop(src_ip)
                 continue
-    
-            elif not source_ip_dir.exists():
+            
+            # if not malware_prepped.get(attack_id):
+            #     self._prepare_attack_malware_dir(self.attacks[attack_id])
+            #     malware_prepped[attack_id] = True
+            
+            if not source_ip_dir.exists():
                 source_ip_dir.mkdir(exist_ok=True, parents=True)
                 yield f"Created {source_ip_dir}"
             
-            src_ip_auth_random = self.auth_random[src_ip]
+            src_ip_auth_random = self.parser.auth_random[src_ip]
             combined_auth_random_by_attack_id[attack_id].update(src_ip_auth_random)            
             
             src_ip_auth_random_outfile = attack_dir / src_ip / "auth_random.json"
@@ -122,7 +167,10 @@ class AttackLogOrganizer(CowrieParser):
             attack_dir = self.attacks_path / attack_id
             attack_dir.mkdir(exist_ok=True, parents=True)
 
-            outfile = attack_dir / "auth_random.json"
+            self._prepare_attack_malware_dir(self.attacks[attack_id])
+
+            # outfile = attack_dir / "auth_random.json"
+            outfile = attack_dir / "malware" / "auth_random.json"
             with outfile.open('w+') as f:
                 json.dump(combined_auth_random, f, indent=4)
             
@@ -148,11 +196,16 @@ class AttackLogOrganizer(CowrieParser):
                     attack_id = src_ip_attack_ids[src_ip]
                     attack_dir = self.attacks_path / attack_id
 
+                    attack_log_subdir = attack_dir / file.parent.name
+                    if not attack_log_subdir.exists():
+                        attack_log_subdir.mkdir(exist_ok=True, parents=True)
+
                     with ( attack_dir / src_ip / file.name ).open("ab+") as f:
                         f.write(line)
                         #print(f"Writing to {attack_dir / src_ip / file.name}")
 
-                    with ( attack_dir / file.name ).open("ab+") as f:
+                    with ( attack_log_subdir / file.name ).open("ab+") as f:
+                    # with ( attack_dir / file.name ).open("ab+") as f:
                         f.write(line)
                             
         
@@ -164,12 +217,14 @@ class AttackLogOrganizer(CowrieParser):
     def _organize_by_iter_attacks(self, attack):
         print(f"Start organizing {attack}")
         attack_dir = self.attacks_path / attack.attack_id
-        
+        attack_malware_dir = (attack_dir / "malware")
+
         if attack_dir.exists() and not self.overwrite:
             return rprint(f"Attack {attack} already exists. Skipping")
             
         
-        attack_dir.mkdir(exist_ok=True, parents=True)
+        self._prepare_attack_malware_dir(attack)
+        
         uniq_src_ips = attack.uniq_src_ips
         
 
@@ -181,22 +236,24 @@ class AttackLogOrganizer(CowrieParser):
             source_ip_dir = attack_dir / src_ip
             source_ip_dir.mkdir(exist_ok=True, parents=True)
 
-        for file in self.all_logs:
+        for file in self.parser.all_logs:
             print(f"Organizing {file}")
 
             if file.name == "auth_random.json":
                 combined_auth_random = {}
                     
                 for src_ip in uniq_src_ips:
-                    src_ip_auth_random = self.auth_random[src_ip]
+                    src_ip_auth_random = self.parser.auth_random[src_ip]
                     combined_auth_random.update(src_ip_auth_random)
 
                     out_file = attack_dir / src_ip / file.name
+                    #out_file = attack_dir / src_ip / file.parent.name / file.name                    
                     with out_file.open('w+') as f:
                         json.dump(src_ip_auth_random, f, indent=4)
 
 
-                out_file = attack_dir / file.name    
+                # out_file = attack_dir / file.name  
+                out_file = attack_malware_dir / file.name    
                 with out_file.open('w+') as f:
                     json.dump(combined_auth_random, f, indent=4)    
                 
@@ -205,8 +262,10 @@ class AttackLogOrganizer(CowrieParser):
 
             
             outfiles = {src_ip: (attack_dir / src_ip / file.name) for src_ip in uniq_src_ips}
-            outfiles["all"] =  attack_dir / file.name
-            
+            #outfiles["all"] =  attack_dir / file.name
+            attack_log_subdir = attack_dir / file.parent.name
+            # attack_log_subdir.mkdir(exist_ok=True, parents=True)
+            outfiles["all"] =  attack_log_subdir / file.name 
            
             pattern = uniq_src_ips_regex
             with file.open("rb") as infile:
@@ -218,6 +277,9 @@ class AttackLogOrganizer(CowrieParser):
 
                         with outfiles[src_ip].open("ab+") as f:
                             f.write(line)
+
+                        if not attack_log_subdir.exists():
+                            attack_log_subdir.mkdir(exist_ok=True, parents=True)
 
                         with outfiles["all"].open("ab+") as f:
                             f.write(line)
@@ -232,10 +294,8 @@ class AttackLogOrganizer(CowrieParser):
 
 
 
-class AttackLogReader(CowrieParser):
+class AttackLogReader(AttackPostProcessor):
 
-    def set_attacks(self, attacks):
-        self.attacks = attacks
 
     def update_all_log_paths_and_counts(self):
         self.update_all_log_paths()
@@ -245,6 +305,10 @@ class AttackLogReader(CowrieParser):
         self.log_paths = defaultdict(lambda: defaultdict(list))
         for attack_id, attack in self.attacks.items():
             self.update_attack_log_paths(attack)
+
+    def update_all_log_counts(self):
+        for attack_id, attack in self.attacks.items():
+            self.update_attack_log_counts(attack)
 
 
     def update_attack_log_paths(self, attack):
@@ -317,9 +381,7 @@ class AttackLogReader(CowrieParser):
         return log_counts
     
 
-    def update_all_log_counts(self):
-        for attack_id, attack in self.attacks.items():
-            self.update_attack_log_counts(attack)
+
 
     
 

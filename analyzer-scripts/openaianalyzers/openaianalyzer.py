@@ -6,7 +6,7 @@ OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 
 class OpenAIAnalyzer:
     
-    def __init__(self, api_key=OPENAI_API_KEY, model="gpt-4-1106-preview", db_path="tests/aidb") -> None:
+    def __init__(self, db_path=Path("tests/aidb"), api_key=OPENAI_API_KEY, model="gpt-4-1106-preview") -> None:
         self.client = OpenAI(api_key=OPENAI_API_KEY)
         self.model = model
         self.db_path = Path(db_path)

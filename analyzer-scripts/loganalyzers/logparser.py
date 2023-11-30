@@ -2,26 +2,26 @@ from analyzerbase import *
 
 
 class LogParser:
-    def __init__(self, log_path=test_logs_path, attacks_path=test_attacks_path, remove_ips=MYIPS, overwrite=True):
+    def __init__(self, log_path=test_logs_path):
         
-        self.log_path = Path(log_path)
-        self.attacks_path = Path(attacks_path)
-        self.overwrite = overwrite
-        self.remove_ips = remove_ips
-        
+        self.log_path = Path(log_path)        
         self._all_logs = []
         
 
 
-    def find_log_filepaths(self, start_path="", pattern="*", sort_fn=None):
+    def find_log_filepaths(self, start_path="", pattern="*", sort_fn=None, depth=0, max_depth=None):
         if callable(sort_fn):
             yield from sorted(list(self.find_log_filepaths(start_path, pattern)), key=sort_fn)
 
         else:
             start_path  = self.log_path / start_path
-            for file in start_path.rglob(pattern):
+            #for file in start_path.rglob(pattern):
+            for file in start_path.glob(pattern):
                 if file.is_file():
                     yield file
+
+                #if file.is_dir() and (not self.maxdepth or depth < self.maxdepth):
+                #    yield from self.find_log_filepaths(file, pattern, None, depth+1)
 
 
     def load_json_logs(self, file):
@@ -42,16 +42,18 @@ class LogParser:
     @property
     def logs(self):
         # Implement this in a subclass
-        return NotImplementedError
+        return (NotImplementedError,)
 
     @property
     def all_logs(self):
         if not self._all_logs:
             self._all_logs = list(self.find_log_filepaths())
-        yield from self._all_logs
+        return self._all_logs
+        #yield from self._all_logs
 
 
     def nlogs(self, limit=0):
+
         for n, event in enumerate(self.logs):
             if n >= limit:
                 break
@@ -59,14 +61,14 @@ class LogParser:
 
 
     def get_matching_lines(self, filepath, pattern, flags=0):
-        read_mode = "r" if isinstance(pattern, str) else "rb"
-        #read_mode = "rb"
+
+        read_mode = "rb" if not isinstance(pattern, str) else "r"
         cmpld_pattern = re.compile(pattern, flags) if not isinstance(pattern, (re.Pattern, bytes)) else pattern
         
         if isinstance(cmpld_pattern, re.Pattern):
             match_fn = lambda line: bool(cmpld_pattern.search(line))
 
-        else: #if isinstance(cmpld_pattern, bytes):
+        else:
             match_fn = lambda line: bool(pattern in line)
         
         with open(filepath, read_mode) as f:
@@ -75,8 +77,9 @@ class LogParser:
 
 
     def write_matching_lines(self, from_file, to_file, pattern, flags=0):
-        #write_mode = "w+" if isinstance(pattern, str) else "wb+"
-        write_mode = "wb+"
+
+        write_mode = "wb+" if isinstance(pattern, str) else "w+"
+        
         with open(to_file, write_mode) as f:
             for line in self.get_matching_lines(from_file, pattern, flags):
                 f.write(line)

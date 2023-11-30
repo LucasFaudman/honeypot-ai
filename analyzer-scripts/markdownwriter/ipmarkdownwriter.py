@@ -71,11 +71,13 @@ class IPAnalyzerMarkdownWriter(MarkdownWriter):
         for ip in data:
             whois_data = data[ip]["whois"]
 
+            #sharing_link = f'<a href="{whois_data["sharing_link"]}" >'
             sharing_link = link(whois_data["sharing_link"], whois_data["sharing_link"])
             #md += h3(f"Whois data for: {ip} " + sharing_link)
+            whois_inner_md = h3(f"Whois data for: {ip} " + sharing_link)
             whois_codeblock = codeblock(whois_data["results"].get("whois_text", whois_data["error"]))
-            md += collapseable_section(whois_codeblock,
-                                       f"Whois data for: {ip} " + sharing_link,
+            md += collapseable_section(whois_inner_md + whois_codeblock,
+                                       f"Whois data for: {ip}", #+ sharing_link,
                                        header_level=2,
                                        )
             # if isinstance(whois_data, str):

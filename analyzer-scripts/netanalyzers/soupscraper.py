@@ -1,29 +1,29 @@
 from selenium.webdriver.chrome.service import Service as ChromeService
-from selenium.webdriver.chrome.options import Options as ChromeOptions  # noqa
-from selenium.webdriver.chrome.webdriver import WebDriver as Chrome  # noqa
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.chrome.webdriver import WebDriver as Chrome
 
 from selenium.webdriver.edge.service import Service as EdgeService
-from selenium.webdriver.edge.options import Options as EdgeOptions  # noqa
-from selenium.webdriver.edge.webdriver import WebDriver as Edge  # noqa
+from selenium.webdriver.edge.options import Options as EdgeOptions
+from selenium.webdriver.edge.webdriver import WebDriver as Edge
 
 from selenium.webdriver.firefox.service import Service as FirefoxService
-from selenium.webdriver.firefox.options import Options as FirefoxOptions  # noqa
-from selenium.webdriver.firefox.webdriver import WebDriver as Firefox  # noqa
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from selenium.webdriver.firefox.webdriver import WebDriver as Firefox
 
 from selenium.webdriver.ie.service import Service as IeService
-from selenium.webdriver.ie.options import Options as IeOptions  # noqa
-from selenium.webdriver.ie.webdriver import WebDriver as Ie  # noqa
+from selenium.webdriver.ie.options import Options as IeOptions
+from selenium.webdriver.ie.webdriver import WebDriver as Ie
 
 from selenium.webdriver.safari.service import Service as SafariService
-from selenium.webdriver.safari.webdriver import WebDriver as Safari  # noqa
+from selenium.webdriver.safari.webdriver import WebDriver as Safari
 
 from selenium.webdriver.webkitgtk.service import Service as WebKitGTKService
-from selenium.webdriver.webkitgtk.options import Options as WebKitGTKOptions  # noqa
-from selenium.webdriver.webkitgtk.webdriver import WebDriver as WebKitGTK  # noqa
+from selenium.webdriver.webkitgtk.options import Options as WebKitGTKOptions
+from selenium.webdriver.webkitgtk.webdriver import WebDriver as WebKitGTK
 
 
 from selenium.webdriver.wpewebkit.service import Service as WPEWebKitService
-from selenium.webdriver.wpewebkit.options import Options as WPEWebKitOptions  # noqa
+from selenium.webdriver.wpewebkit.options import Options as WPEWebKitOptions
 from selenium.webdriver.wpewebkit.webdriver import WebDriver as WPEWebKit 
 
 

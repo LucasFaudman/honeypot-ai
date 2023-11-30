@@ -5,14 +5,18 @@ import requests
 # from time import sleep
 
 class IPAnalyzer:
-    def __init__(self, db_path=str(test_logs_path).replace("logs", 'ipdb'), output_path=test_attacks_path, selenium_webdriver_type="chrome", webdriver_path="/Users/lucasfaudman/Documents/SANS/internship/chromedriver") -> None:
+    def __init__(self, 
+                 db_path=Path("tests/ipdb"), 
+                 selenium_webdriver_type="chrome", 
+                 webdriver_path="/Users/lucasfaudman/Documents/SANS/internship/chromedriver"):
         
-        self.db_path = Path(db_path)
+        self.db_path = db_path
+
         if not self.db_path.exists():
             self.db_path.mkdir(parents=True)
 
 
-        #self.output_path = Path(output_path)
+        #
         self.scraper = SoupScraper(selenium_webdriver_type=selenium_webdriver_type, 
                                    selenium_service_kwargs={"executable_path":webdriver_path}, 
                                    selenium_options_kwargs={}, 
@@ -351,21 +355,5 @@ class IPAnalyzer:
         
 
 
-# if __name__ == "__main__":
-#     analyzer = IPAnalyzer()
-#     ips = ['80.94.92.20']
-#     print(analyzer.check_shodan(ip))
-
-#     # tfd = analyzer.check_threatfox(ips[0])
-#     # print(tfd)
-# #    #print(analyzer.check_whois(ip))
-# #     #print(analyzer.check_isc(ip))
-# #     #print(analyzer.check_cybergordon(ip))
-# #     #print(analyzer.check_abuseipdb(ip))
-# #     #print(analyzer.check_threatfox(ip))
-# #     #print(analyzer.check_virustotal(ip))
-#     data = analyzer.get_data(ips)
-   
-#     print(data)    
-#     analyzer.scraper.quit()
-#     print()
+if __name__ == "__main__":
+    pass

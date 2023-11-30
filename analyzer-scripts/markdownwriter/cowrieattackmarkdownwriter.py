@@ -19,7 +19,7 @@ class CowrieAttackMarkdownWriter(MarkdownWriter):
         self.md_editors.append(self.add_custom_scripts)
         self.md_editors.append(self.add_command_and_malware_analysis)
         
-        # self.md_editors.append(self.add_vuln_analysis)
+        self.md_editors.append(self.add_vuln_analysis)
         # self.md_editors.append(self.add_goal_of_attack)
         # self.md_editors.append(self.add_success_of_attack)
         # self.md_editors.append(self.add_mitigation)
@@ -211,15 +211,15 @@ class CowrieAttackMarkdownWriter(MarkdownWriter):
         for title, counter_key in pairs.items():
             counter = attack.counts[counter_key]
             md += self.most_common_table(title, attack.counts[counter_key], n)
-            graph_file = self.filepath.parent / f"graphs/{attack.attack_id}/{graph_type}-{counter_key}.png"
-            if not graph_file.exists():
-                graph_file.parent.mkdir(parents=True, exist_ok=True)
+            # graph_file = self.filepath.parent / f"graphs/{attack.attack_id}/{graph_type}-{counter_key}.png"
+            # if not graph_file.exists():
+            #     graph_file.parent.mkdir(parents=True, exist_ok=True)
 
-            counter_grapher = CounterGrapher(outpath=graph_file,
-                                             counter=counter, 
-                                             title=title)
-            getattr(counter_grapher, graph_type)()
-            md += "\n" + image(title, str(graph_file))
+            # counter_grapher = CounterGrapher(outpath=graph_file,
+            #                                  counter=counter, 
+            #                                  title=title)
+            # getattr(counter_grapher, graph_type)()
+            # md += "\n" + image(title, str(graph_file))
 
 
         # md += self.most_common_table("Username", attack.counts["all_usernames"], n)

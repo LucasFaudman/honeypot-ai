@@ -9,7 +9,7 @@ from openaianalyzers.openaianalyzer import OpenAIAnalyzer
 
 class TestIPAnalyzer(TestCase):
     def setUp(self):
-        self.ia = IPAnalyzer(test_logs_path, test_attacks_path)
+        self.ia = IPAnalyzer()
         self.ips = ['80.94.92.20']
         
 
@@ -77,7 +77,7 @@ class TestIPAnalyzer(TestCase):
         self.assertIsInstance(data[self.ips[0]], dict)
         self.assertIsInstance(data[self.ips[0]]['shodan'], dict)
         self.assertIsInstance(data[self.ips[0]]['shodan']['results'], dict)
-        self.assertIsInstance(data[self.ips[0]]['shodan']['results']['ports'], list)
+        self.assertIsInstance(data[self.ips[0]]['shodan']['results']['ports'], dict)
         self.assertIsInstance(data[self.ips[0]]['shodan']['results']['ports'][0], dict)
         self.assertIsInstance(data[self.ips[0]]['shodan']['results']['ports'][0]['port'], int)
         self.assertIsInstance(data[self.ips[0]]['shodan']['results']['ports'][0]['protocol'], str)

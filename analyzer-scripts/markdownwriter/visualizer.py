@@ -5,14 +5,15 @@ from pathlib import Path
 
 class CounterGrapher:
 
-    def __init__(self, outpath: Path, counter: Counter, title="", xlabel="", ylabel=""):
+    def __init__(self, outpath: Path, counter: Counter, n=10, title="", xlabel="", ylabel=""):
         self.outpath = outpath
         self.counter = counter
         self.title = title
         self.xlabel = xlabel
         self.ylabel = ylabel
 
-        self.labels, self.values = zip(*self.counter.items())
+        
+        self.labels, self.values = zip(*self.counter.most_common(n))
         self.labels = [str(label) for label in self.labels]
         self.total = sum(self.values)
         self.percentages = [value / self.total for value in self.values]

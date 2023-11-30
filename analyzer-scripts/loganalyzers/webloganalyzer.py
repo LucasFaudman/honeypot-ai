@@ -4,21 +4,22 @@ from loganalyzers.logparser import WebLogParser
 
 
 class WebLogAnalyzer:
-    def __init__(self, log_path=test_logs_path, attacks_path=test_attacks_path,):
+    def __init__(self, parser: WebLogParser, 
+                 remove_ips=MYIPS, 
+                 attacks_path=test_attacks_path):
 
-        self.logparser = WebLogParser(log_path=log_path, attacks_path=attacks_path)
+        self.parser = parser
         self.events = defaultdict(list)
         self.requests = defaultdict(Counter)
         self.urls = defaultdict(Counter)
         self.useragents = defaultdict(Counter)
         self.attacks_path = Path(attacks_path)
+        self.remove_ips = remove_ips
 
-        #TODO: remove this and subclass LogParser
-        self.logs = self.logparser.logs
 
 
     def process(self, ip_list=[]):
-        for event in self.logparser.logs:
+        for event in self.parser.logs:
             if event["src_ip"] in ip_list or not ip_list:
                 
 
@@ -90,9 +91,4 @@ class WebLogAnalyzer:
 
 
 if __name__ == "__main__":
-    analyzer = WebLogAnalyzer()
-    analyzer.process(["2.237.57.70"])
-    analyzer.print_requests()
-    analyzer.print_urls()
-    analyzer.print_useragents()
-    #analyzer.write_events()
+    pass
