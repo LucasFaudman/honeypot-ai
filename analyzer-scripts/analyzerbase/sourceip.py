@@ -33,7 +33,7 @@ class SourceIP:
         return self.successful_logins > 0 and self.commands > 0
 
     @property
-    def successful_login_pairs(self):
+    def all_successful_login_pairs(self):
         return [(session.username, session.password) for session in self.sessions.values() if session.login_success]
 
     @property

@@ -37,8 +37,8 @@ class Attack:
         if source_ip not in self.source_ips:
             self.source_ips.append(source_ip)
 
-    def update_log_paths(self, log_paths):
-        self.log_paths = log_paths
+    # def update_log_paths(self, log_paths):
+    #     self.log_paths = log_paths
 
     def update_command_explanations(self, command_explanations):
         self.command_explanations = command_explanations
@@ -59,18 +59,14 @@ class Attack:
 
         return self
 
-    # def __getattr__(self, attr):
-    #     if attr.startswith("uniq") and attr.replace("uniq", "all") in dir(self):
-    #         return set(super().__getattribute__(attr.replace("uniq", "all")))
 
-    #     else:
-    #         return super().__getattribute__(attr)
 
     def get_session(self, session_id):
         for session in self.sessions:
             if session.session_id == session_id:
                 return session
         return None
+
 
     @property
     def sessions(self):
@@ -79,6 +75,7 @@ class Attack:
         sessions.sort(key=lambda session: session.start_time)
         return sessions
 
+
     @property
     def login_sessions(self):
         return [session for session in self.sessions if session.login_success]
@@ -86,30 +83,10 @@ class Attack:
     @property
     def command_sessions(self):
         return [session for session in self.sessions if session.commands]
-
+    
     @property
-    def first_session(self):
-        return self.sessions[0]
-
-    @property
-    def last_session(self):
-        return self.sessions[-1]
-
-    @property
-    def first_login_session(self):
-        return self.login_sessions[0]
-
-    @property
-    def last_login_session(self):
-        return self.login_sessions[-1]
-
-    @property
-    def first_command_session(self):
-        return self.command_sessions[0]
-
-    @property
-    def last_command_session(self):
-        return self.command_sessions[-1]
+    def malware_sessions(self):
+        return [session for session in self.sessions if session.malware]
 
     @property
     def start_time(self):
@@ -120,8 +97,8 @@ class Attack:
         return max([session.end_time for session in self.sessions if session.end_time])
 
     @property
-    def successful_login_pairs(self):
-        return [login_pair for source_ip in self.source_ips for login_pair in source_ip.successful_login_pairs]
+    def all_successful_login_pairs(self):
+        return [login_pair for source_ip in self.source_ips for login_pair in source_ip.all_successful_login_pairs]
 
     @property
     def all_login_pairs(self):
@@ -136,12 +113,12 @@ class Attack:
         return [login_pair[1] for login_pair in self.all_login_pairs]
 
     @property
-    def successful_usernames(self):
-        return [login_pair[0] for login_pair in self.successful_login_pairs]
+    def all_successful_usernames(self):
+        return [login_pair[0] for login_pair in self.all_successful_login_pairs]
 
     @property
-    def successful_passwords(self):
-        return [login_pair[1] for login_pair in self.successful_login_pairs]
+    def all_successful_passwords(self):
+        return [login_pair[1] for login_pair in self.all_successful_login_pairs]
 
     @property
     def all_ssh_hasshs(self):
@@ -193,29 +170,29 @@ class Attack:
 
     @property
     def counts(self):
-        counts = defaultdict(Counter)
+        if hasattr(self, "_counts"):
+            return self._counts
+
+        self._counts = defaultdict(Counter)
         props = ["successful_login_pairs", "successful_usernames", "successful_passwords",
-                 "all_login_pairs", "all_usernames", "all_passwords",
-                 "all_ssh_hasshs", "all_ssh_versions",
-                 "all_src_ips", "all_dst_ips",
-                 "all_src_ports", "all_dst_ports",
-                 "all_cmdlog_urls", "all_cmdlog_ips",
-                 "all_malware_urls", "all_malware_ips"
+                 "login_pairs", "usernames", "passwords",
+                 "ssh_hasshs", "ssh_versions",
+                 "src_ips", "dst_ips",
+                 "src_ports", "dst_ports",
+                 "cmdlog_urls", "cmdlog_ips",
+                 "malware_urls", "malware_ips"
                  ]
 
         for prop in props:
-            counts[prop].update(getattr(self, prop))
+            self._counts[prop].update(getattr(self, prop))
 
-        return counts
+        return self._counts
 
-    def get_log_paths(self, ip="all", log_type="all", ext="all"):
-        return [log_path for log_path in self.log_paths.get(ip, ())
-                if (log_type == "all" or log_type in log_path.name)
-                and (ext == "all" or log_path.suffix == ext)
-                ]
+    def refresh_counts(self):
+        del self._counts
+        return self.counts
 
-    def get_log_names(self, ip="all", log_type="all", ext="all"):
-        return [log_path.name for log_path in self.get_log_paths(ip, log_type, ext)]
+
 
     @property
     def log_counts(self):
@@ -223,17 +200,83 @@ class Attack:
             return self._log_counts
         else:
             return {'all': {}}
+        
 
     @property
     def log_types(self, ip="all"):
         return [log_name for log_name in self.log_counts[ip] if log_name != "lines" and log_name != "files"]
 
-    def __getattr__(self, attr):
-        if attr.startswith("uniq") and attr.replace("uniq", "all") in dir(self):
-            return set(super().__getattribute__(attr.replace("uniq", "all")))
 
-        else:
-            return super().__getattribute__(attr)
+
+    def __getattr__(self, attr):
+        
+        outfn = lambda x: x
+        if attr.startswith("num_"):
+            outfn = len
+            attr = attr.replace("num_", "")
+
+        elif attr.startswith("min_"):
+            outfn = min
+            attr = attr.replace("min_", "")
+
+        elif attr.startswith("max_"):
+            outfn = max
+            attr = attr.replace("max_", "")
+
+        elif attr.endswith("counter"):
+            outfn = Counter
+            attr = attr.replace("_counter", "")
+
+        
+        elif attr.startswith("most_common"):
+            n_str = attr.split("_")[1].replace("common", "")
+
+            
+            if n_str:
+                n = int(n_str)
+                outfn = lambda x: Counter(x).most_common(n)
+                attr = attr.replace(f"most_common{n_str}_", "")
+            else:
+                n = 1
+                outfn = lambda x: Counter(x).most_common(n)[0][0]
+                attr = attr.replace("most_common_", "") + "s"
+
+            
+
+        elif attr.startswith("first"):
+            # Allow for first_<attr> and first<n>_<attr> to get the first n items
+            end_slice = attr.split("_")[0].replace("first", "")
+            if end_slice:
+                outfn = lambda x: x[:int(end_slice)]
+                attr = attr.replace(f"first{end_slice}_", "")
+            else:
+                outfn = lambda x: x[0] if x else None
+                attr = attr.replace("first_", "") + "s"
+
+
+        elif attr.startswith("last"):
+            # Allow for last_<attr> and last<n>_<attr> to get the last n items
+            start_slice = attr.split("_")[0].replace("last", "")
+            if start_slice:
+                outfn = lambda x: x[-int(start_slice):]
+                attr = attr.replace(f"last{start_slice}_", "")
+            else:
+                outfn = lambda x: x[-1] if x else None
+                attr = attr.replace("last_", "") + "s"
+
+       
+        infn = lambda x: x
+        if attr.startswith("uniq_"):
+            infn = set
+            attr = attr.replace("uniq_", "")
+        
+        if not attr.startswith("all_") and "all_" + attr in dir(self):
+            attr = "all_" + attr
+
+        
+        
+        return outfn(infn(super().__getattribute__(attr)))
+        
 
     def add_postprocessor(self, postprocessor_obj):
 
@@ -243,6 +286,7 @@ class Attack:
         # Add the postprocessor to the attack.postprocessors dict so it can be accessed by name
         self.postprocessors.append(postprocessor_obj)
         self._update_postprocessor_attrs()
+        return True
 
 
     def _update_postprocessor_attrs(self):
@@ -270,6 +314,7 @@ class Attack:
                         setattr(self, fn_name, fn)
                         print(f"Added {fn} {fn_name} to {self.attack_id} from {postprocessor_obj}")
         
-
+        return True
+    
     def __repr__(self):
         return f"Attack ({self.attack_id_type[0]}hash: {self.attack_id[:10]}) with {len(self.source_ips)} source IPs and {len(self.sessions)} sessions, {len(self.successful_login_pairs)} successful logins, {len(self.commands)} commands, {len(self.cmdlog_hashes)} cmdlog hashes, {len(self.malware)} malware hashes"

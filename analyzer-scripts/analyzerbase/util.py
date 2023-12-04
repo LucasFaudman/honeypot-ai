@@ -137,6 +137,15 @@ def print_diff_lines(string1, string2):
             print(f"Line {n}: {lines[0]} != {lines[1]}")    
 
 
+### SHORTCUTS ###
+
+def sha256hex(string):
+    if not isinstance(string, (bytes, bytearray)):
+        string = string.encode()
+    
+    return hashlib.sha256(string).hexdigest()
+
+
 def rprint(*args, **kwargs):
     """Print and return the string"""
     print(*args, **kwargs)
@@ -148,6 +157,8 @@ def rpprint(*args, **kwargs):
     """Pretty Print and return the string"""
     pprint(*args, **kwargs)
     return kwargs.get("sep", " ").join(str(arg) for arg in args) + kwargs.get("end", "\n")
+
+
 
 
 

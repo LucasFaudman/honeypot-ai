@@ -5,7 +5,6 @@ import os
 from pathlib import Path
 import json
 from datetime import datetime
-from pprint import pprint
 from typing import Union
 from urllib.parse import urlparse
 from unittest import TestCase

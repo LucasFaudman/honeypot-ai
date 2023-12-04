@@ -1,5 +1,5 @@
 from .common import *
-from .util import extract_ips, extract_urls, standardize_cmdlog
+from .util import extract_ips, extract_urls, standardize_cmdlog, sha256hex
 
 class Session:
     def __init__(self, session_id, connect_event):
@@ -89,8 +89,10 @@ class Session:
     @property
     def cmdlog_hash(self):
         if self.commands:
+            # See .util.standardize_cmdlog for why this is necessary before hashing
             standardized_cmdlog = standardize_cmdlog(self.cmdlog)
-            return hashlib.sha256(standardized_cmdlog.encode()).hexdigest()
+            return sha256hex(standardized_cmdlog)
+        
 
 
     @property
