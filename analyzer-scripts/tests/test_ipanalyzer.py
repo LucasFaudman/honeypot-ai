@@ -3,14 +3,17 @@ from analyzerbase import *
 from netanalyzers.ipanalyzer import IPAnalyzer
 from loganalyzers.cowrieloganalyzer import CowrieLogAnalyzer, Attack
 from openaianalyzers.openaianalyzer import OpenAIAnalyzer
-
+from main import AttackAnalyzer
 
 
 
 class TestIPAnalyzer(TestCase):
-    def setUp(self):
-        self.ia = IPAnalyzer()
-        self.ips = ['80.94.92.20']
+    
+    @classmethod
+    def setUpClass(cls):
+        cls.analyzer = AttackAnalyzer()
+        cls.ia = IPAnalyzer()
+        cls.ips = ['80.94.92.20']
         
 
 

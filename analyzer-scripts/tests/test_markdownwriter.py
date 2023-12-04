@@ -67,25 +67,28 @@ class TestMarkdownWriter(TestCase):
 
 
         cls.test_keys = [
-            "6f09f57fbae18a7e11096ca715d0a91fb05f497c4c7ff7e65dc439a3ee8be953",
-            'ea40ecec0b30982fbb1662e67f97f0e9d6f43d2d587f2f588525fae683abea73',
-            '8a57f997513e762dec5cd58a2de822cdf3d2c7ef6372da6c5be01311e96e8358',
-            #'8a57f997513e762dec5cd58a2de822cdf3d2c7ef6372da6c5be01311e96e8358',
-            #'4b055ef0e08e1d87512b8fe62e5f5f1c26c8f427dc357cbbaa9b201afa9bbddc',
+        #"fe9291a4727da7f6f40763c058b88a5b0031ee5e1f6c8d71cc4b55387594c054",
+        #"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        #"440e8a6e0ddc0081c39663b5fcc342a6aa45185eb53c826d5cf6cddd9b87ea64",
+        #"0229d56a715f09337b329f1f6ced86e68b6d0125747faafdbdb3af2f211f56ac",
+        #"04a9aabb18e701dbe12c2606538202dc02156f480f3d58d926d20bd9bc613451",
+        #"275776445b4225c06861b2f6f4e2ccf98e3f919583bddb9965d8cf3d4f6aa18f",
+        "c41b0875c506cc9421ae26ee43bd9821ccd505e9e24a732c8a9c0180eb34a5a8",
+        
         ]
 
         cls.analyzer = AttackAnalyzer()
         cls.analyzer.load_attacks_from_attack_dir(only_attacks=cls.test_keys)
-        cls.analyzer.postprocess_attacks()
+    #     cls.analyzer.postprocess_attacks()
 
     
-    def test_cowrie_md(self):
+    # def test_cowrie_md(self):
 
-        for key in self.test_keys:
-            attack = self.analyzer.attacks[key]
-            key = key.replace('/', '_')
-            mdw = CowrieAttackMarkdownWriter(f'/Users/lucasfaudman/Documents/SANS/internship/tests/attacks/' + key + '.md', mode="w+", data_object=attack)
-            mdw.update_md()
+    #     for key in self.test_keys:
+    #         attack = self.analyzer.attacks[key]
+    #         key = key.replace('/', '_')
+    #         mdw = CowrieAttackMarkdownWriter(f'/Users/lucasfaudman/Documents/SANS/internship/tests/attacks/' + key + '.md', mode="w+", data_object=attack)
+    #         mdw.update_md()
 
 
     
@@ -93,15 +96,18 @@ class TestMarkdownWriter(TestCase):
         for key in self.test_keys:
             attack = self.analyzer.attacks[key]
                 
-            ips = attack.uniq_ips
+            ips = attack.uniq_ips.union({'80.94.92.20'})
             ips.difference_update(("127.0.0.1", "8.8.8.8"))
 
             ipdata = self.analyzer.ipanalyzer.get_data(ips)
             
             key = key.replace('/', '_')
-            ipmdw = IPAnalyzerMarkdownWriter(f'/Users/lucasfaudman/Documents/SANS/internship/tests/attacks/' + key +'.md', mode="a+", data_object=ipdata)
+            ipmdw = IPAnalyzerMarkdownWriter(f'/Users/lucasfaudman/Documents/SANS/internship/tests/attacks/' + key +'.md', 
+                                             mode="w+", 
+                                             data_object=ipdata)
             ipmdw.update_md()        
-
+        
+        print("done")
 
 
 
