@@ -2,12 +2,15 @@ from analyzerbase import *
 
 
 
+nomd = lambda text: f'{text}' #Gets fstring of object for sytle_fn default 
+placeholder = nomd #Does nothing just used for debugging CTRL-D replacement
 
+h1 = lambda text: f'\n# {text}\n'
+h2 = lambda text: f'\n## {text}\n'
+h3 = lambda text: f'\n### {text}\n'
+h4 = lambda text: f'\n#### {text}\n'
+hline = lambda: '\n---\n'
 
-h1 = lambda text: f'# {text}\n'
-h2 = lambda text: f'## {text}\n'
-h3 = lambda text: f'### {text}\n'
-h4 = lambda text: f'#### {text}\n'
 italic = lambda text: f'*{text}*'
 bold = lambda text: f'**{text}**'
 link = lambda text, url: f'[{text}](' + url + ')'
@@ -17,16 +20,63 @@ codeblock = lambda text, lang="": f'\n```{lang}\n{text}\n```\n'
 blockquote = lambda text: f'> {text}\n'
 bullet = lambda text: f'* {text}\n'
 blockbullet = lambda text: f'> * {text}\n'
-unordered_list = lambda items, style_fn=str: ''.join([f'\n* {style_fn(item)}' for item in items]) + '\n'
-ordered_list = lambda items, style_fn=str: ''.join([f'\n{n}. {style_fn(item)}\n' for n,item in enumerate(items)]) + '\n'
-hline = lambda: '---\n'
-collapsed = lambda text, summary="", style_fn=str: f'<details>\n<summary>{style_fn(summary)}</summary>\n{text}\n</details>\n'
+
+unordered_list = lambda items, style_fn=nomd: ''.join([f'\n* {style_fn(item)}' for item in items]) + '\n\n'
+ordered_list = lambda items, style_fn=nomd: ''.join([f'\n{n}. {style_fn(item)}\n' for n,item in enumerate(items)]) + '\n\n'
+collapsed = lambda text, summary="", style_fn=nomd: f'<details>{text}<summary>{style_fn(summary)}</summary></details>'
+
+
+def collapseable_section(text, label, header_level=2, blockquote=False):
+    bqstart = '\n<blockquote>' if blockquote else ''
+    bqend = '</blockquote>\n' if blockquote else ''
+
+    section_md = f"""{bqstart}
+<details>
+<summary>
+<h{str(header_level)}>{label}</h{str(header_level)}>
+</summary>
+
+{text}
+</details>
+{bqend}
+---
+
+"""
+    return section_md
 
 
 
-def table(headers, rows, style_fn=str, alignments=[]):
-    table = ''
-    table += '| ' + ' | '.join(str(header).replace('|',r'\|') for header in headers) + ' |\n'
+
+def nested_list(items, style_fn=nomd, depth=0, style_dict={}):
+    
+    
+    for i,item in enumerate(items):
+        
+        if isinstance(item, (list, tuple, set)):
+            items[i] = nested_list(item, style_fn, depth+1, style_dict)
+        
+        else:
+            indent = '\t' * depth
+            bullet_char = '-' if depth >= 0 else ''            
+            items[i] = f'\n{indent}{bullet_char} {style_dict.get(depth, style_fn)(item)}'
+
+    
+    return ''.join(items) + '\n'
+
+
+def md_join(items, style_fn=nomd, sep=', '):
+    if callable(style_fn):
+        return sep.join([style_fn(item) for item in items])
+    elif len(style_fn) == len(items):
+        return sep.join([style_fn[i](item) for i,item in enumerate(items)])
+    else:
+        return sep.join(items)
+
+
+
+def table(headers, rows, style_fn=nomd, alignments=[]):
+    table_md = '\n'
+    table_md += '| ' + ' | '.join(nomd(header).replace('|',r'\|') for header in headers) + ' |\n'
 
     alignment_strs = {"left": ":---", "right": "---:", "center": ":---:"}
     # Allow ('l', 'r', 'c') as valid alignment values
@@ -35,29 +85,38 @@ def table(headers, rows, style_fn=str, alignments=[]):
     # Add alignment row
     if len(alignments) == len(headers):
         alignments = [alignment_strs.get(alignment, "---") for alignment in alignments]
-        table += '| ' + ' | '.join(alignments) + ' |\n'
+        table_md += '| ' + ' | '.join(alignments) + ' |\n'
     else:
-        table += '| ' + ' | '.join(['---' for _ in headers]) + ' |\n'
+        table_md += '| ' + ' | '.join(['---' for _ in headers]) + ' |\n'
     
 
     for row in rows:
-        row = [style_fn(str(item).replace('|',r'\|')) for item in row]
-        table += '| ' + ' | '.join(row) + ' |\n'
-    return table
+        row = [style_fn(nomd(item).replace('|',r'\|')) for item in row]
+        table_md += '| ' + ' | '.join(row) + ' |\n'
+    
+    return table_md
 
 
-def collapseable_section(text, label, header_level=2, blockquote=True):
-    return f"""{'<blockquote>' if blockquote else ''}
-<details>
-<summary>
-<strong><h{str(header_level)}>{label}</h{str(header_level)}>
 
-</strong></summary>
+def most_common_table(label, counter, n=10, style_fn=code, header_level=3, use_blockquote=False):
+    if n > len(counter):
+        n = len(counter)
+    
+    
+    tabel_label = f"Top {n} {label.title() if not label.isupper() else label}" \
+                    + ('s' if not label.endswith('s') else '')
+    table_md = placeholder(f"Total {label}s: {code(sum(counter.values()))}\nUnique: {code(len(counter))}\n")
+        
+        
+    headers = [label, "Times Seen"]
+    if isinstance(label, (tuple, list)):
+        headers = label[:2]
 
-{text}
+    table_md += table(headers, [(item, count) for item, count in counter.most_common(n)], style_fn)
+    md = collapseable_section(table_md, tabel_label, header_level, use_blockquote)
 
-</details>
-{'</blockquote>' if blockquote else ''}"""
+    return md
+
 
 
 def convert_md_to_mdtxt_for_canvas(filepath, github_url):
@@ -105,3 +164,5 @@ class MarkdownWriter:
     def prepare(self):
         #Implement in subclasses
         return NotImplementedError
+    
+
