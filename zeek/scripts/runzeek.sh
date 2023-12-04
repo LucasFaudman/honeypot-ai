@@ -1,5 +1,13 @@
 #!/bin/bash
 
+
+function review_file(){
+    read -p "Review/Edit $1? (y/n): " answer
+        if [ "$answer" == "y" ]; then
+            vim $1
+        fi
+}
+
 ### RUN AS ROOT ###
 if [ "$(id -u)" != "0" ]; then
     echo "This script must be run as root" 1>&2
@@ -52,6 +60,27 @@ sed -i "s/redef digest_salt = \"Please change this value.\";/redef digest_salt =
 sed -i '/^@load protocols\/ssh\/geo-data/s/^/# /' ${PREFIX}/share/zeek/site/local.zeek
 
 
+read -p "Enable Json Logs? (y/n): " JSON_LOGS
+if [ "$JSON_LOGS" == "y" ]; then
+    echo "
+    #Enable JSON Logs
+    redef LogAscii::use_json = T;
+    " >> ${PREFIX}/share/zeek/site/local.zeek
+fi
+
+
+read -p "Add Zeek Scripts? (y/n): " ADD_SCRIPTS
+if [ "$ADD_SCRIPTS" == "y" ]; then
+    read -p "Enter Zeek Scripts to add as comma separated list (ie: intel, notice, smb, ssh, x509) :" ZEEK_SCRIPTS
+    echo "
+    #Add Zeek Scripts
+    @load $ZEEK_SCRIPTS
+    " >> ${PREFIX}/share/zeek/site/local.zeek
+fi
+
+review_file ${PREFIX}/share/zeek/site/local.zeek
+
+
 # read -p "Enter local subnets as comma separated CIDRs (ie: 192.168.0.0/16, 10.0.0.0/8, 172.31.0.0/16) :" LOCAL_SUBNETS 
 # echo "
 # # Define local network subnets
@@ -81,34 +110,41 @@ sed -i '/^@load protocols\/ssh\/geo-data/s/^/# /' ${PREFIX}/share/zeek/site/loca
 # " >> ${PREFIX}/share/zeek/site/local.zeek
 
 
-# read -p "How Long Should Zeek Run Before Aggregating Logs (in seconds) (default: 21600 (6hrs)): " ZEEK_RUN_TIME
-# [ -z "$ZEEK_RUN_TIME" ] && ZEEK_RUN_TIME=21600
+read -p "How Long Should Zeek Run Before Aggregating Logs (in seconds) (default: 21600 (6hrs)): " ZEEK_RUN_TIME
+[ -z "$ZEEK_RUN_TIME" ] && ZEEK_RUN_TIME=21600
 
-# read -p "Where should the run-zeek-aggregate-logs.sh be created (default: ${PREFIX}/bin): " ZEEK_RUN_SCRIPT_DIR
-# [ -z "$ZEEK_RUN_SCRIPT_DIR" ] && ZEEK_RUN_SCRIPT_DIR=${PREFIX}/bin
+read -p "Where should the run-zeek-aggregate-logs.sh be created (default: ${PREFIX}/bin): " ZEEK_RUN_SCRIPT_DIR
+[ -z "$ZEEK_RUN_SCRIPT_DIR" ] && ZEEK_RUN_SCRIPT_DIR=${PREFIX}/bin
 
 
-# #Create run-zeek-aggregate-logs.sh script
-# echo "
-# #Kill zeek before aggregating logs
-# pkill zeek
+#Create run-zeek-aggregate-logs.sh script
+echo "#!/bin/bash
 
-# #Aggregate logs
-# for file in \$(find $ZEEK_LOGS_DIR -maxdepth 1 -name '*.log'); do
-#     cat \$file >> ${ZEEK_LOGS_DIR}/aggregate/\$(basename \$file)
-#     rm -v \$file
-# done
+# Kill zeek before aggregating logs
+pkill -f ${PREFIX}/bin/zeek && echo 'Killed Zeek' || echo 'Zeek not running'
 
-# #Start zeek
-# ${PREFIX}/bin/zeek -i ${INTERFACE} -C ${PREFIX}/share/zeek/site/local.zeek &
+# Aggregate logs
+for file in \$(find $ZEEK_LOGS_DIR -maxdepth 1 -name '*.log'); do
+    cat \$file >> ${ZEEK_LOGS_DIR}/aggregate/\$(basename \$file)
+    rm -f \$file
+done
 
-# #Sleep for ZEEK_RUN_TIME seconds
-# sleep $ZEEK_RUN_TIME
-# #Once this sleep is done this process will exit and systemd will restart run this script again to aggregate logs and restart zeek
-# " > $ZEEK_RUN_SCRIPT_DIR/run-zeek-aggregate-logs.sh
+echo \"Zeek logs aggregated at \$(date)\"
 
-# #Make run-zeek-aggregate-logs.sh executable
-# chmod +x $ZEEK_RUN_SCRIPT_DIR/run-zeek-aggregate-logs.sh
+# Start zeek
+${PREFIX}/bin/zeek -i ${INTERFACE} -C ${PREFIX}/share/zeek/site/local.zeek &
+
+# Sleep for $ZEEK_RUN_TIME seconds
+sleep $ZEEK_RUN_TIME
+# Once this sleep is done this process will exit and systemd will run this script again to aggregate logs and restart zeek
+
+exit 0
+" > $ZEEK_RUN_SCRIPT_DIR/run-zeek-aggregate-logs.sh
+
+review_file $ZEEK_RUN_SCRIPT_DIR/run-zeek-aggregate-logs.sh
+
+#Make run-zeek-aggregate-logs.sh executable
+chmod +x $ZEEK_RUN_SCRIPT_DIR/run-zeek-aggregate-logs.sh
 
 # Create .service file for zeek with the selected interface
 echo "
@@ -120,8 +156,8 @@ After=network.target
 Type=simple
 User=root
 Group=root
-ExecStart=${PREFIX}/bin/zeek -i ${INTERFACE} -C ${PREFIX}/share/zeek/site/local.zeek
-ExecStop=pkill zeek
+ExecStart=${ZEEK_RUN_SCRIPT_DIR}/run-zeek-aggregate-logs.sh
+ExecStop=pkill -f ${ZEEK_RUN_SCRIPT_DIR}/run-zeek-aggregate-logs.sh
 WorkingDirectory=${ZEEK_LOGS_DIR}
 Restart=always
 
@@ -130,7 +166,10 @@ WantedBy=multi-user.target
 
 " > /etc/systemd/system/zeek.service
 
-#CHANGE ABOVE EXECSTART TO USE run-zeek-aggregate-logs.sh $ZEEK_RUN_SCRIPT_DIR/run-zeek-aggregate-logs.sh
+review_file /etc/systemd/system/zeek.service
+
+
+
 
 #Reload systemd daemon
 systemctl daemon-reload
