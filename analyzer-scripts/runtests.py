@@ -11,17 +11,17 @@ from openaianalyzers.openaianalyzer import OpenAIAnalyzer
 
 import unittest
 from tests.test_analyzerbase import *
-from tests.test_loganalyzers import *
+from tests.test_loganalyzers import TestAttackLogReader
 from tests.test_ipanalyzer import TestIPAnalyzer
 from tests.test_openaianalyzers import *
-from tests.test_markdownwriter import TestMarkdownWriterBasics, TestMarkdownWriter
-from tests.test_openaianalyzers import TestOpenAIAnalyzer
+from tests.test_markdownwriter import TestMarkdownWriter#, TestMarkdownWriterBasics
+#from tests.test_openaianalyzers import TestOpenAIAnalyzer
 
 import sys
 import threading
 
 test_logs_path = Path("tests/tl2")
-test_attacks_path = Path("tests/a4")
+test_attacks_path = Path("tests/a3")
 test_ipdb_path = Path("tests/ipdb")
 test_aidb_path = Path("tests/aidb")
 

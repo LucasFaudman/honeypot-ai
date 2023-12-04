@@ -10,10 +10,11 @@ from loganalyzers.attacklogorganizer import AttackLogOrganizer, AttackLogReader
 from netanalyzers.ipanalyzer import IPAnalyzer
 from openaianalyzers.openaianalyzer import OpenAIAnalyzer, OPENAI_API_KEY
 
-test_logs_path = Path("tests/tl2")
-test_attacks_path = Path("tests/a3")
+#test_logs_path = Path("tests/tl2")
+test_attacks_path = Path("tests/a1")
 test_ipdb_path = Path("tests/ipdb")
 test_aidb_path = Path("tests/aidb")
+test_ai_training_data_path=Path("openai-training-data")
 
 class AttackAnalyzer:
 
@@ -22,6 +23,7 @@ class AttackAnalyzer:
                  attacks_path=test_attacks_path, 
                  ipdb_path=test_ipdb_path,
                  aidb_path=test_aidb_path,
+                 test_ai_training_data_path=test_ai_training_data_path,
                  remove_ips=MYIPS, 
                  overwrite=True, 
                  openai_key=OPENAI_API_KEY,
@@ -33,6 +35,7 @@ class AttackAnalyzer:
         self.attacks_path = attacks_path
         self.ipdb_path = ipdb_path
         self.aidb_path = aidb_path
+        self.ai_training_data_path = test_ai_training_data_path
 
         
         
@@ -59,7 +62,7 @@ class AttackAnalyzer:
 
         self.openai_key = openai_key
         self.openai_model = openai_model
-        self.openai_analyzer = OpenAIAnalyzer(self.aidb_path, self.openai_key, self.openai_model)
+        self.openai_analyzer = OpenAIAnalyzer(self.ai_training_data_path, self.aidb_path, self.openai_key, self.openai_model)
 
 
 
@@ -69,15 +72,20 @@ class AttackAnalyzer:
         self.source_ips = self.cowrie_analyzer.process()
         self.attacks = self.cowrie_analyzer.analyze()
 
-        return attacks
+        return self.attacks 
     
 
 
 
-    def organize_attacks_from_cowrie_logs(self):
+    def organize_attacks_from_cowrie_logs(self, max_src_ips=50):
         """Loads attacks from log files and saves them to json files"""
 
         attacks = self.load_attacks_from_cowrie_logs()
+        for attack_id, attack in list(attacks.items()):
+            if attack.num_src_ips > max_src_ips:
+                del attacks[attack_id]
+        
+
         self.attack_organizer.set_attacks(attacks)
             
         results = list(self.attack_organizer.organize())
@@ -145,23 +153,55 @@ class AttackAnalyzer:
                         "What are the indicators of compromise (IOCs)?"]
             
             attack.question_answers = self.openai_analyzer.answer_attack_questions(questions, split_commands, malware_source_code)
-
+            print("Done with attack: " + attack.attack_id)
             
 
-
-
+    def get_attack_ipdata(self, attacks=None):
+        if not attacks:
+            attacks = self.attacks.values()
+        
+        ipdata = {}
+        for attack in attacks:
+            ipdata.update(self.ipanalyzer.get_data(attack.uniq_ips_and_urls))
+        
+        return ipdata
 
 
 
 if __name__ == "__main__":
+
     # Example usage of the AttackAnalyzer class
-    only_attacks = ["a8460f446be540410004b1a8db4083773fa46f7fe76fa84219c93daa1669f8f2"]
+    analyzer = AttackAnalyzer()
+
+    only_attacks = [
+        "fe9291a4727da7f6f40763c058b88a5b0031ee5e1f6c8d71cc4b55387594c054",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "440e8a6e0ddc0081c39663b5fcc342a6aa45185eb53c826d5cf6cddd9b87ea64",
+        "0229d56a715f09337b329f1f6ced86e68b6d0125747faafdbdb3af2f211f56ac",
+        "04a9aabb18e701dbe12c2606538202dc02156f480f3d58d926d20bd9bc613451",
+        "275776445b4225c06861b2f6f4e2ccf98e3f919583bddb9965d8cf3d4f6aa18f",
+        "c41b0875c506cc9421ae26ee43bd9821ccd505e9e24a732c8a9c0180eb34a5a8",
+        
+        ]
 
     start_time = time()
-    attacks = AttackAnalyzer().load_attacks_from_attack_dir(only_attacks=only_attacks)
+    attacks = analyzer.load_attacks_from_attack_dir(only_attacks=only_attacks)
     print(f"load_attacks_from_attack_dir\tTime elapsed: {time() - start_time}")
+    
+    start_time = time()
 
-    print(len(attacks))
+    ipdata = analyzer.get_attack_ipdata(attacks.values())
+    print(ipdata)
+
+    # start_time = time()
+    # attacks = analyzer.organize_attacks_from_cowrie_logs(300)
+    # print(f"organize_attacks_from_cowrie_logs\tTime elapsed: {time() - start_time}")
+
+    # start_time = time()
+    # attacks = analyzer.load_attacks_from_cowrie_logs()
+    # print(f"load_attacks_from_cowrie_logs\tTime elapsed: {time() - start_time}")
+
+    
     print(attacks)
 
 
