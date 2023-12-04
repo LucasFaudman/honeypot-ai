@@ -103,9 +103,10 @@ class CowrieLogAnalyzer:
         
 
         self.remove_attacks_with_ips(self.remove_ips)
-        self.manual_merge()
-        self.merge_attacks_shared_ips_or_hashes()
         
+        self.merge_attacks_shared_ips_or_hashes()
+        self.manual_merge()
+
         self.sort_attacks()
         self.print_stats()
         self.print_attacks()
@@ -167,35 +168,28 @@ class CowrieLogAnalyzer:
     def merge_attacks_shared_ips_or_hashes(self):
         """Merges attacks that have shared ips, command hashes or malware hashes"""
 
+        merge_on_attrs = ["src_ips", "cmdlog_hashes", "malware", "ssh_hasshs",
+         "cmdlog_ips", "cmdlog_urls", "malware_ips", "malware_urls"]
+
         pop_attacks = []
         for attack_id, attack in list(self.attacks.items()):
             for attack_id2, attack2 in list(self.attacks.items()):
                 if attack_id == attack_id2 or attack_id in pop_attacks or attack_id2 in pop_attacks:
                     continue
 
-                shared_src_ips = set(attack.source_ips).intersection(set(attack2.source_ips))
-                shared_cmdlog_hashes = set(attack.cmdlog_hashes).intersection(set(attack2.cmdlog_hashes))
-                shared_malware_hashes = set(attack.malware).intersection(set(attack2.malware))
-                if shared_src_ips or shared_cmdlog_hashes or shared_malware_hashes:
-                    attack += attack2
-                    
-                    print(f"Merged {attack_id2} into {attack_id}")
-                    pop_attacks.append(attack_id2)
-                    continue
-
-                shared_cmdlog_ips = set(attack.all_cmdlog_ips).intersection(set(attack2.all_cmdlog_ips))
-                shared_cmdlog_urls = set(attack.all_cmdlog_urls).intersection(set(attack2.all_cmdlog_urls))
-                shared_malware_ips = set(attack.all_malware_ips).intersection(set(attack2.all_malware_ips))
-                shared_malware_urls = set(attack.all_malware_urls).intersection(set(attack2.all_malware_urls))
-
-                if shared_cmdlog_hashes or shared_cmdlog_ips or shared_cmdlog_urls or shared_malware_hashes or shared_malware_ips or shared_malware_urls:
-                    attack += attack2
-                    print(f"Merged {attack_id2} into {attack_id} by ip or url")
-                    pop_attacks.append(attack_id2)
-    
+                
+                for attr in merge_on_attrs:
+                    shared_attr = getattr(attack, "uniq_" + attr).intersection(getattr(attack2, "uniq_" + attr))
+                    if shared_attr:
+                        attack += attack2
+                        print(f"Merged {attack_id2} into {attack_id} by {attr}: {shared_attr}")
+                        pop_attacks.append(attack_id2)
+                        break
+                
+                        
         for attack_id in pop_attacks:
             self.attacks.pop(attack_id)
-    
+        
 
     def print_stats(self):
         print("Stats:")

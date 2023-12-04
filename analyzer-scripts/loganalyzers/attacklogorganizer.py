@@ -42,7 +42,7 @@ class AttackLogOrganizer(AttackPostProcessor):
         """
         
         #default is organize_by_iter_attacks_multiprocess
-        yield from self.organize_by_iter_logs_multithreaded()#self.organize_by_iter_attacks_multiprocess()
+        yield from self.organize_by_iter_attacks_multiprocess()
 
 
 
@@ -55,9 +55,6 @@ class AttackLogOrganizer(AttackPostProcessor):
         yield from self._prepare_attack_dirs()
 
         
-        #chunksize = 10
-        #max_workers = len(self.parser.all_logs) // chunksize
-
         with executor_cls(max_workers=max_workers) as executor:
             yield from executor.map(self._split_log_into_attack_dir, self.parser.all_logs, chunksize=chunksize)
 
@@ -65,18 +62,11 @@ class AttackLogOrganizer(AttackPostProcessor):
     def organize_by_iter_logs_multithreaded(self, max_workers=10, chunksize=1):
         yield from self._organize_by_iter_logs_multi(ThreadPoolExecutor, max_workers, chunksize)
 
-        # yield from self._prepare_attack_dirs()
-        # with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        #     yield from executor.map(self._split_log_into_attack_dir, self.parser.all_logs, chunksize=chunksize)
 
 
     def organize_by_iter_logs_multiprocess(self, max_workers=10, chunksize=1):
-        
         yield from self._organize_by_iter_logs_multi(ProcessPoolExecutor, max_workers, chunksize)
 
-        # yield from self._prepare_attack_dirs()
-        # with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        #     yield from executor.map(self._split_log_into_attack_dir, self.parser.all_logs, chunksize=chunksize)
 
 
     def organize_by_iter_attacks(self):
@@ -96,13 +86,28 @@ class AttackLogOrganizer(AttackPostProcessor):
 
 
 
-    def _prepare_attack_malware_dir(self, attack):
-        #attack_dir.mkdir(exist_ok=True, parents=True)
+    def _prepare_attack_dir(self, attack):
+        
         attack_dir = self.attacks_path / attack.attack_id
-        attack_malware_dir = (attack_dir / "malware")
-        attack_malware_dir.mkdir(exist_ok=True, parents=True)
+        attack_dir.mkdir(exist_ok=True, parents=True)
+
+        with (attack_dir / "ips.txt").open("w+") as f:
+            f.write("\n".join(attack.uniq_src_ips))
+
+
+        if attack.commands:
+            commands_file = attack_dir / "commands.txt"
+            with commands_file.open("w+") as f:
+                f.write("Raw Commands:\n")
+                f.write("\n".join(attack.commands))
+                f.write("\n\nSplit Commands:\n")
+                f.write("\n".join(attack.split_commands))
+
+        
 
         if attack.standardized_malware:
+            attack_malware_dir = (attack_dir / "malware")
+            attack_malware_dir.mkdir(exist_ok=True, parents=True)
             malware_downloads_dir = attack_malware_dir / "downloads"
             malware_downloads_dir.mkdir(exist_ok=True, parents=True)
 
@@ -121,14 +126,13 @@ class AttackLogOrganizer(AttackPostProcessor):
                     with malware_outpath.open("wb+") as f:
                         f.write(malware.file_bytes)
         
-        #return attack_malware_dir
-    
+        return attack_dir
+        
     
     def _prepare_attack_dirs(self):
         src_ip_attack_ids = self.src_ip_attack_ids
         #capture any ip in attack only
         self.pattern = re.compile(b"(" + rb"|".join(ip.encode().replace(b".", rb"\.") for ip in src_ip_attack_ids.keys()) + b")" )
-        #self.pattern = re.compile(fr'\b(?:{"|".join(map(re.escape, src_ip_attack_ids.keys()))})\b')
         yield f"Prepared regex pattern: {self.pattern.pattern}"
 
         
@@ -137,7 +141,7 @@ class AttackLogOrganizer(AttackPostProcessor):
         for src_ip, attack_id in src_ip_attack_ids.items():
 
             attack_dir = self.attacks_path / attack_id
-            attack_malware_dir = attack_dir / "malware"
+            #attack_malware_dir = attack_dir / "malware"
             source_ip_dir = attack_dir / src_ip
 
             if attack_dir.exists() and not self.overwrite:
@@ -145,10 +149,7 @@ class AttackLogOrganizer(AttackPostProcessor):
                 src_ip_attack_ids.pop(src_ip)
                 continue
             
-            # if not malware_prepped.get(attack_id):
-            #     self._prepare_attack_malware_dir(self.attacks[attack_id])
-            #     malware_prepped[attack_id] = True
-            
+
             if not source_ip_dir.exists():
                 source_ip_dir.mkdir(exist_ok=True, parents=True)
                 yield f"Created {source_ip_dir}"
@@ -164,13 +165,10 @@ class AttackLogOrganizer(AttackPostProcessor):
 
 
         for attack_id, combined_auth_random in combined_auth_random_by_attack_id.items():
-            attack_dir = self.attacks_path / attack_id
-            attack_dir.mkdir(exist_ok=True, parents=True)
+            attack_dir = self._prepare_attack_dir(self.attacks[attack_id])
 
-            self._prepare_attack_malware_dir(self.attacks[attack_id])
-
-            # outfile = attack_dir / "auth_random.json"
-            outfile = attack_dir / "malware" / "auth_random.json"
+            
+            outfile = attack_dir / "auth_random.json"
             with outfile.open('w+') as f:
                 json.dump(combined_auth_random, f, indent=4)
             
@@ -223,11 +221,11 @@ class AttackLogOrganizer(AttackPostProcessor):
             return rprint(f"Attack {attack} already exists. Skipping")
             
         
-        self._prepare_attack_malware_dir(attack)
+        self._prepare_attack_dir(attack)
         
         uniq_src_ips = attack.uniq_src_ips
         
-
+        
         #capture any ip in attack only
         uniq_src_ips_regex = re.compile(b"(" + rb"|".join(ip.encode().replace(b".", rb"\.") for ip in uniq_src_ips) + b")" )
         
@@ -246,14 +244,12 @@ class AttackLogOrganizer(AttackPostProcessor):
                     src_ip_auth_random = self.parser.auth_random[src_ip]
                     combined_auth_random.update(src_ip_auth_random)
 
-                    out_file = attack_dir / src_ip / file.name
-                    #out_file = attack_dir / src_ip / file.parent.name / file.name                    
+                    out_file = attack_dir / src_ip / file.name              
                     with out_file.open('w+') as f:
                         json.dump(src_ip_auth_random, f, indent=4)
 
 
-                # out_file = attack_dir / file.name  
-                out_file = attack_malware_dir / file.name    
+                out_file = attack_dir / file.name  
                 with out_file.open('w+') as f:
                     json.dump(combined_auth_random, f, indent=4)    
                 
@@ -262,9 +258,7 @@ class AttackLogOrganizer(AttackPostProcessor):
 
             
             outfiles = {src_ip: (attack_dir / src_ip / file.name) for src_ip in uniq_src_ips}
-            #outfiles["all"] =  attack_dir / file.name
             attack_log_subdir = attack_dir / file.parent.name
-            # attack_log_subdir.mkdir(exist_ok=True, parents=True)
             outfiles["all"] =  attack_log_subdir / file.name 
            
             pattern = uniq_src_ips_regex
@@ -295,6 +289,7 @@ class AttackLogOrganizer(AttackPostProcessor):
 
 
 class AttackLogReader(AttackPostProcessor):
+    log_types = ("cowrie", "firewall", "zeek", "web")
 
 
     def update_all_log_paths_and_counts(self):
@@ -315,27 +310,32 @@ class AttackLogReader(AttackPostProcessor):
         attack_id = attack.attack_id
         attack_dir = self.attacks_path / attack_id
         for path in attack_dir.rglob("*"):
-            if path.is_file():
-                if path.parent.name == attack_id:
-                    self.log_paths[attack_id]["all"].append(path)
-                else:
-                    ip = path.parent.name
-                    self.log_paths[attack_id][ip].append(path)
-            
+            if path.is_file() and "malware" not in path.parts:
+                self.log_paths[attack_id][path.parent.name].append(path)
+                
 
-        attack.update_log_paths(self.log_paths[attack_id])
+                if path.parent.name in self.log_types:
+                   self.log_paths[attack_id]["all"].append(path)
+                else:
+                   ip = path.parent.name
+                   self.log_paths[attack_id][ip].append(path)
+        
+        
+        attack.log_paths = self.log_paths[attack_id]
         return self.log_paths
     
 
-    # def get_log_paths(self, attack, ip="all", log_type="all", ext="all"):
-    #     return [log_path for src_ip in set(attack.all_src_ips) for log_path in self.log_paths.get(src_ip,()) 
-    #             if (log_type == "all" or log_type in log_path.name) 
-    #             and (ext == "all" or log_path.suffix == ext)
-    #             ]
+    def get_attack_log_paths(self, attack, ip="all", log_type="all", ext="all"):
+
+
+        return [log_path for src_ip in set(attack.all_src_ips) for log_path in self.log_paths[attack.attack_id].get(src_ip,()) 
+                if (log_type == "all" or log_type in log_path.name) 
+                and (ext == "all" or log_path.suffix == ext)
+                ]
     
 
-    # def get_log_names(self, attack, ip="all", log_type="all", ext="all"):
-    #     return [log_path.name for log_path in self.get_log_paths(attack, ip, log_type, ext)]
+    def get_attack_log_names(self, attack, ip="all", log_type="all", ext="all"):
+        return [log_path.name for log_path in self.get_attack_log_paths(attack, ip, log_type, ext)]
 
 
     def update_attack_log_counts(self, attack, ips="all", log_filter="all"):
@@ -361,12 +361,12 @@ class AttackLogReader(AttackPostProcessor):
                 log_counts[ip][log_filter] = {}
                 log_counts[ip][log_filter]["files"] = 0
                 log_counts[ip][log_filter]["lines"] = 0
-                for log_path in attack.get_log_paths(ip, log_type, ext): 
-                #for log_path in self.get_log_paths(attack, ip, log_type, ext): 
+                #for log_path in attack.get_log_paths(ip, log_type, ext): 
+                for log_path in self.get_attack_log_paths(attack, ip, log_type, ext): 
                     log_counts[ip][log_filter]["files"] += 1
 
                     with log_path.open("rb") as f:
-                        log_counts[ip][log_filter][log_path.name] = sum(1 for line in f)
+                        log_counts[ip][log_filter][log_path.name] = len(f.readlines())#sum(1 for line in f)
                         log_counts[ip][log_filter]["lines"] += log_counts[ip][log_filter][log_path.name]
                     
 
@@ -395,18 +395,9 @@ class AttackLogReader(AttackPostProcessor):
             return f"No {log_filter} logs found"
 
 
-        # if len(log_paths) == 1:
-        #     with log_paths[0].open("rb") as f:
-        #         lines = [line for line in f if line_filter is None or line_filter in line.decode()]
-        #         if n_lines and n_lines > len(lines):
-        #             n_lines = None
-                
-        #         return (b"".join(lines[:n_lines])).decode()
-        
         match_lines = []
         for log_path in log_paths:
             with log_path.open("rb") as f:
-                #file_bytes = f.read()
                     
                 for line in f:
                     if n_lines and n_lines > 0 and len(match_lines) >= n_lines:
@@ -420,4 +411,4 @@ class AttackLogReader(AttackPostProcessor):
                 break
                         
 
-        return b"\n".join(match_lines).decode()
+        return b"".join(match_lines).decode()

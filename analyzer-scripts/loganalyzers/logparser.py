@@ -15,8 +15,8 @@ class LogParser:
 
         else:
             start_path  = self.log_path / start_path
-            #for file in start_path.rglob(pattern):
-            for file in start_path.glob(pattern):
+            for file in start_path.rglob(pattern):
+            #for file in start_path.glob(pattern):
                 if file.is_file():
                     yield file
 
@@ -112,7 +112,7 @@ class CowrieParser(LogParser):
     @property
     def auth_random(self):
         if not hasattr(self, "_auth_random"):
-            self._auth_random = json.loads((self.log_path / "malware" / "auth_random.json").read_bytes())
+            self._auth_random = json.loads((self.log_path / "auth_random.json").read_bytes())
         return self._auth_random
                 
 
@@ -145,7 +145,7 @@ class WebLogParser(LogParser):
 
     @property
     def logs(self):
-        for file in self.find_log_filepaths("weblogs", "*.json", sort_fn=self.sort_weblog_names):
+        for file in self.find_log_filepaths("web", "*.json", sort_fn=self.sort_weblog_names):
             #yield file
             yield from self.load_json_logs(file)
 
