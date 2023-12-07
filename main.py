@@ -10,8 +10,9 @@ from loganalyzers.attacklogorganizer import AttackLogOrganizer, AttackLogReader
 from netanalyzers.ipanalyzer import IPAnalyzer
 from openaianalyzers.openaianalyzer import OpenAIAnalyzer, OPENAI_API_KEY
 
+
 #test_logs_path = Path("tests/tl2")
-test_attacks_path = Path("tests/a1")
+test_attacks_path = Path("tests/a2")
 test_ipdb_path = Path("tests/ipdb")
 test_aidb_path = Path("tests/aidb")
 test_ai_training_data_path=Path("openai-training-data")
@@ -114,8 +115,7 @@ class AttackAnalyzer:
         
         return self.attacks
     
-
-
+        
 
     def postprocess_attacks(self):
         self.attack_reader.set_attacks(self.attacks)
@@ -124,38 +124,76 @@ class AttackAnalyzer:
         for attack in self.attacks.values():
 
             attack.add_postprocessor(self.attack_reader)
-            #self.attack_reader.update_attack_log_counts(attack)
-
-            # attack.add_postprocessor(self.ipanalyzer)
-            # TODO get IPdata for all ips in attack
+            attack.add_postprocessor(self.ipanalyzer)
+            
+            # ipdata = self.ipanalyzer.get_data(attack.uniq_ips_and_urls)
+            # attack.update_ipdata(ipdata)
             
             split_commands = attack.split_commands
             command_explanations = self.openai_analyzer.explain_commands(split_commands)
             attack.update_command_explanations(command_explanations)
+
+
             
             if attack.malware:
-                std_mw_hash0, std_mw_obj_list0 = list(attack.standardized_malware.items())[0]
-                std_mw_obj0 = std_mw_obj_list0[0]
-                malware_source_code = std_mw_obj0.standardized_text
+                for std_mw_hash, std_mw_obj_list in attack.standardized_malware.items():
+                    std_mw_obj0 = std_mw_obj_list[0]
+                    
+                    malware_source_code = std_mw_obj0.standardized_text
 
-                malware_explainatons = {
-                    std_mw_hash0 : 
-                        self.openai_analyzer.explain_and_comment_malware(malware_source_code=malware_source_code, commands=split_commands)
-                } 
-                attack.update_malware_explanations(malware_explainatons)
+                    malware_explainatons = {
+                        std_mw_hash: 
+                            self.openai_analyzer.explain_and_comment_malware(malware_source_code=malware_source_code, commands=split_commands)
+                    } 
+                    attack.update_malware_explanations(malware_explainatons)
 
             else:
                 malware_source_code = ""
 
-            questions = ["What is the goal of the attack?",
-                        "If the system is vulnerable, do you think the attack will be successful?",
-                        "How can a system be protected from this attack?",
-                        "What are the indicators of compromise (IOCs)?"]
+            questions = {
+                "commands_analysis": "Briefly explain the commands used in the attack.",
+                "malware_analysis": "Briefly explain the malware used in the attack.",
+                "ips_and_ports": "What are the IP addresses and ports involved in the attack?",
+                "ssh_analysis": "Explain what the SSH data shows in the context of the attack.",
+                
+                "vuln_analysis": "What vulnerability is being exploited? Include the exploit name and CVE number if possible.",
+                "mitre_attack": "How can this attack be classified using the MITRE ATT&CK framework?",
+                
+                "ip_locations_summary": "Summarize what is known about the location of the IP addresses involved in the attack.",
+                "shodan_summary": "Summarize what is known about the IP addresses involved in the attack using Shodan data.",
+                "isc_summary": "Summarize what is known about the IP addresses involved in the attack using ISC data.",
+                "threatfox_summary": "Summarize what is known about the IP addresses involved in the attack using ThreatFox.",
+                "cybergordon_summary": "Summarize what is known about the IP addresses involved in the attack using CyberGordon.",
+                "osint_summary": "Summarize the critical findings from the OSINT sources.",
+                
+                "goal_of_attack": "What is the goal of the attack?",
+                "would_attack_be_successful": "If the system is vulnerable, would the attack will be successful?",
+                "how_to_protect": "How can a system be protected from this attack?",
+                "what_iocs": "What are the indicators of compromise (IOCs) for this attack?",
+                "summary": "Summarize attack details, methods and goals to begin the report.",
+                }
             
-            attack.question_answers = self.openai_analyzer.answer_attack_questions(questions, split_commands, malware_source_code)
-            print("Done with attack: " + attack.attack_id)
-            
+            # with open('qa.json', 'r') as f:
+            #     qas = json.load(f)
+            # answers = qas 
+            # answers_by_question_key = dict(zip(questions.keys(), qas.values()))
+            answers = self.openai_analyzer.ass_answer_questions(questions.values(), attack)
+            answers_by_question_key = {}
+            for key, question in questions.items():
+               answers_by_question_key[key] = answers[question]
 
+            attack.questions = questions
+            attack.answers = answers_by_question_key
+            attack.question_answers = answers
+            #attack.question_answers = self.openai_analyzer.answer_attack_questions(questions, split_commands, malware_source_code)
+            
+            ipdata = self.ipanalyzer.get_data(attack.uniq_ips_and_urls)
+            attack.update_ipdata(ipdata)
+            
+            
+            print("Done with attack: " + attack.attack_id)
+
+        
     def get_attack_ipdata(self, attacks=None):
         if not attacks:
             attacks = self.attacks.values()
@@ -173,36 +211,34 @@ if __name__ == "__main__":
     # Example usage of the AttackAnalyzer class
     analyzer = AttackAnalyzer()
 
-    only_attacks = [
-        "fe9291a4727da7f6f40763c058b88a5b0031ee5e1f6c8d71cc4b55387594c054",
-        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        "440e8a6e0ddc0081c39663b5fcc342a6aa45185eb53c826d5cf6cddd9b87ea64",
-        "0229d56a715f09337b329f1f6ced86e68b6d0125747faafdbdb3af2f211f56ac",
-        "04a9aabb18e701dbe12c2606538202dc02156f480f3d58d926d20bd9bc613451",
-        "275776445b4225c06861b2f6f4e2ccf98e3f919583bddb9965d8cf3d4f6aa18f",
-        "c41b0875c506cc9421ae26ee43bd9821ccd505e9e24a732c8a9c0180eb34a5a8",
+    # only_attacks = [
+    #     "fe9291a4727da7f6f40763c058b88a5b0031ee5e1f6c8d71cc4b55387594c054",
+    #     "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    #     #"440e8a6e0ddc0081c39663b5fcc342a6aa45185eb53c826d5cf6cddd9b87ea64",
+    #     #"0229d56a715f09337b329f1f6ced86e68b6d0125747faafdbdb3af2f211f56ac",
+    #     #"04a9aabb18e701dbe12c2606538202dc02156f480f3d58d926d20bd9bc613451",
+    #     #"275776445b4225c06861b2f6f4e2ccf98e3f919583bddb9965d8cf3d4f6aa18f",
+    #     #"c41b0875c506cc9421ae26ee43bd9821ccd505e9e24a732c8a9c0180eb34a5a8",
         
-        ]
-
-    start_time = time()
-    attacks = analyzer.load_attacks_from_attack_dir(only_attacks=only_attacks)
-    print(f"load_attacks_from_attack_dir\tTime elapsed: {time() - start_time}")
-    
-    start_time = time()
-
-    ipdata = analyzer.get_attack_ipdata(attacks.values())
-    print(ipdata)
+    #     ]
 
     # start_time = time()
-    # attacks = analyzer.organize_attacks_from_cowrie_logs(300)
-    # print(f"organize_attacks_from_cowrie_logs\tTime elapsed: {time() - start_time}")
+    # attacks = analyzer.load_attacks_from_attack_dir(only_attacks=only_attacks)
+    # print(f"load_attacks_from_attack_dir\tTime elapsed: {time() - start_time}")
+    
+    # start_time = time()
+
+    # analyzer.postprocess_attacks()
+
+    start_time = time()
+    attacks = analyzer.organize_attacks_from_cowrie_logs(500)
+    print(f"organize_attacks_from_cowrie_logs\tTime elapsed: {time() - start_time}")
 
     # start_time = time()
     # attacks = analyzer.load_attacks_from_cowrie_logs()
     # print(f"load_attacks_from_cowrie_logs\tTime elapsed: {time() - start_time}")
 
-    
-    print(attacks)
+    print(attacks)  
 
 
 
