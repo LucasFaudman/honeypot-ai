@@ -18,13 +18,17 @@ class Attack:
         self.cmdlog_hashes = {
             session.cmdlog_hash: session.commands for session in source_ip.sessions.values() if session.commands}
 
-        self.malware = {shasum: Malware(shasum)
-                        for shasum in source_ip.all_malware_hashes}
+
+
+        #self.malware = {malware.id: malware for malware in source_ip.all_malware}
+        self.malware = {malware.id: malware for malware in source_ip.all_malware 
+                        if not malware.failed and not malware.is_duplicate}
 
         self.standardized_malware = defaultdict(list)
         for malware in self.malware.values():
             self.standardized_malware[malware.standardized_hash].append(
                 malware)
+
 
         self.postprocessors = []
 
@@ -32,6 +36,12 @@ class Attack:
         self._log_counts = {}
         self.command_explanations = {}
         self.standardized_malware_explanations = {}
+        self.full_ipdata = {}
+        self.ipdata = {}
+        self.questions = {}
+        self.answers = {}
+        
+
 
     def add_source_ip(self, source_ip):
         if source_ip not in self.source_ips:
@@ -40,11 +50,9 @@ class Attack:
     # def update_log_paths(self, log_paths):
     #     self.log_paths = log_paths
 
-    def update_command_explanations(self, command_explanations):
-        self.command_explanations = command_explanations
 
-    def update_malware_explanations(self, standardized_malware_explanations):
-        self.standardized_malware_explanations = standardized_malware_explanations
+
+
 
     def __add__(self, other):
         for source_ip in other.source_ips:
@@ -61,11 +69,14 @@ class Attack:
 
 
 
-    def get_session(self, session_id):
+    def get_session_by_id(self, session_id):
         for session in self.sessions:
             if session.session_id == session_id:
                 return session
         return None
+    
+    def get_malware_by_id(self, malware_id):
+        return self.malware.get(malware_id)
 
 
     @property
@@ -122,7 +133,7 @@ class Attack:
 
     @property
     def all_ssh_hasshs(self):
-        return [session.hassh for session in self.sessions if session.hassh]
+        return [session.ssh_hassh for session in self.sessions if session.ssh_hassh]
 
     @property
     def all_ssh_versions(self):
@@ -167,6 +178,9 @@ class Attack:
     @property
     def all_ips_and_urls(self):
         return self.all_ips + self.all_cmdlog_urls + self.all_malware_urls
+
+    
+
 
     @property
     def counts(self):
@@ -315,6 +329,20 @@ class Attack:
                         print(f"Added {fn} {fn_name} to {self.attack_id} from {postprocessor_obj}")
         
         return True
+    
+
+
+    def update_ipdata(self, ipdata):
+        self.ipdata = ipdata
+
+    def update_command_explanations(self, command_explanations):
+        self.command_explanations = command_explanations
+
+    def update_malware_explanations(self, standardized_malware_explanations):
+        self.standardized_malware_explanations.update(standardized_malware_explanations)
+    
+    
+
     
     def __repr__(self):
         return f"Attack ({self.attack_id_type[0]}hash: {self.attack_id[:10]}) with {len(self.source_ips)} source IPs and {len(self.sessions)} sessions, {len(self.successful_login_pairs)} successful logins, {len(self.commands)} commands, {len(self.cmdlog_hashes)} cmdlog hashes, {len(self.malware)} malware hashes"

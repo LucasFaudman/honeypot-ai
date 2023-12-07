@@ -1,9 +1,10 @@
 from .common import *
 from .util import extract_ips, extract_urls, standardize_cmdlog, sha256hex
+from .malware import Malware
 
 class Session:
-    def __init__(self, session_id, connect_event):
-        self.session_id = session_id
+    def __init__(self, connect_event):
+        self.session_id = connect_event["session"]
         self.src_ip = connect_event["src_ip"]
         self.dst_ip = connect_event["dst_ip"]
         self.src_port = connect_event["src_port"]
@@ -14,7 +15,7 @@ class Session:
         self.end_time = None
         self.duration = 0
 
-        self.hassh = None
+        self.ssh_hassh = None
         self.ssh_version = None
         self.client_vars = {}
 
@@ -38,7 +39,7 @@ class Session:
         if event["eventid"] == "cowrie.client.version":
             self.ssh_version = event["version"]
         elif event["eventid"] == "cowrie.client.kex":
-            self.hassh = event["hassh"]
+            self.ssh_hassh = event["hassh"]
         elif event["eventid"] == "cowrie.client.var":
             self.client_vars[event["name"]] = event["value"]
         
@@ -58,15 +59,13 @@ class Session:
 
 
     def add_malware(self, event):
-        #TODO FIX URL CAUSED FILE ERRORS
-        attack_id = event.get("shasum") or list(extract_urls(event.get("url")))[0] #event.get("url")
-        self.malware.append(attack_id)
-        self.contains_malware = True
+        malware = Malware(event)
+        self.malware.append(malware)
 
         if event["eventid"].startswith("cowrie.session.file_download"):
-            self.downloads.append(attack_id)
+            self.downloads.append(malware)
         elif event["eventid"] == "cowrie.session.file_upload":
-            self.uploads.append(attack_id)
+            self.uploads.append(malware)
 
 
     def add_ttylog(self, event):
@@ -82,7 +81,7 @@ class Session:
     @property
     def cmdlog(self):
         cmdlog = "\n".join(self.commands)
-        #return standardize_cmdlog(cmdlog)
+        
         return cmdlog
     
             
@@ -106,8 +105,14 @@ class Session:
     
 
     def __repr__(self) -> str:
-        return f"Session {self.session_id} with {len(self.commands)} commands, {len(self.malware)} malware, {len(self.uploads)} uploads, {len(self.downloads)} downloads, {len(self.login_attempts)} login attempts, {self.login_success} login success, {self.duration} seconds"
-
+        return ''.join([
+            f"Session {self.session_id} "
+            f"{self.protocol.upper()} {self.src_ip}:{self.src_port} -> {self.dst_ip}:{self.dst_port} ",
+            f"Login: {self.username}:{self.password} " if self.login_success else "",
+            f"Commands: {len(self.commands)}, " if self.commands else "",
+            f"Malware: {len(self.malware)}, " if self.malware else "",
+            f"Duration: {self.duration:.2f}s"
+        ])
 
 
         

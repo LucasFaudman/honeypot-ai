@@ -13,7 +13,7 @@ class SourceIP:
         self.commands = 0
 
     def add_session(self, event):
-        self.sessions[event["session"]] = Session(event["session"], event)
+        self.sessions[event["session"]] = Session(event)
         
 
     def process_session(self, session_id):
@@ -58,8 +58,12 @@ class SourceIP:
 
     @property
     def all_malware_hashes(self):
-        return [malware for session in self.sessions.values() for malware in session.malware]
+        return [malware.shasum for session in self.sessions.values() for malware in session.malware]
     
+    @property
+    def all_malware(self):
+        return [malware for session in self.sessions.values() for malware in session.malware]
+
     @property
     def all_src_ports(self):
         return [session.src_port for session in self.sessions.values()]

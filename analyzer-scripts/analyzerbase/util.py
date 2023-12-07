@@ -61,6 +61,9 @@ def standardize_malware(malware_source_code: bytes):
 
 
 def remove_null_bytes(string):
+    if isinstance(string, str):
+        return string.replace("\x00", "")
+    
     return string.replace(b"\x00", b"")
 
 
@@ -110,19 +113,18 @@ def find_urls_and_ips(text):
 
 
 
-def extract_urls(string,tlds=set(read_tlds())):
+def extract_urls(string, tlds=set(read_tlds())):
     regex = re.compile(r"(([\w\d\-]+\.)+([\w\d\-]+))") #17.82s
     urls = {}
     for match in regex.finditer(string):
         url = match.group(1)
         parsed_url = urlparse(url)
 
-        
-        if not tlds or set((parsed_url.netloc.split(".")[-1], parsed_url.path.split(".")[-1])).intersection(tlds): 
-           urls [url] = parsed_url
+        found_tld = set((parsed_url.netloc.split(".")[-1], parsed_url.path.split(".")[-1]))
 
-        # if parsed_url.netloc.split(".")[-1] in tlds or parsed_url.path.split(".")[-1] in tlds: 
-        #     urls [url] = parsed_url
+        if found_tld.intersection(tlds) or not found_tld or not tlds: 
+           urls[url] = parsed_url
+
 
     return urls
 
