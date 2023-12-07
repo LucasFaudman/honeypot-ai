@@ -2,6 +2,7 @@ from analyzerbase import *
 
 import ast
 from openai import OpenAI, OpenAIError
+import tiktoken
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 
 class OpenAIAnalyzer:
@@ -96,6 +97,11 @@ class OpenAIAnalyzer:
             with open(db_file) as f:
                 result = json.load(f)["result"]
         else:
+            tokens, cost = self.num_tokens_from_messages(messages)
+            proceed = input(f"Cost of {message_hash} is {tokens} tokens: ${cost.:2f} USD at $.01 per 1K tokens")
+            if proceed.lower() not in ("y", "yes"):
+                return None
+
             print(f"Getting OpenAI resp for message_hash {message_hash}")
             result = self._try_openai(
                 getter_fn=self.client.chat.completions.create, 
@@ -468,7 +474,28 @@ class OpenAIAnalyzer:
 
 
 
-    
+    def num_tokens_from_messages(self, messages):
+        """Returns the number of tokens used by a list of messages."""
+        try:
+            encoding = tiktoken.encoding_for_model(self.model)
+        except KeyError:
+              encoding = tiktoken.get_encoding("cl100k_base")
+        if self.model:#model == "gpt-3.5-turbo-0613":  # note: future models may deviate from this
+            num_tokens = 0
+            for message in messages:
+                num_tokens += 4  # every message follows <im_start>{role/name}\n{content}<im_end>\n
+                for key, value in message.items():
+                    num_tokens += len(encoding.encode(value))
+                    if key == "name":  # if there's a name, the role is omitted
+                        num_tokens += -1  # role is always required and always 1 token
+            
+            num_tokens += 2  # every reply is primed with <im_start>assistant
+            return num_tokens, (num_tokens / 1000) * .01
+        else:
+            raise NotImplementedError(f"""num_tokens_from_messages() is not presently implemented for model {model}.
+    See https://github.com/openai/openai-python/blob/main/chatml.md for information on how messages are converted to tokens.""")
+
+  
 
 if __name__ == "__main__":
     pass
