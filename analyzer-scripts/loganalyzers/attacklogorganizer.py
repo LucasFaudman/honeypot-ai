@@ -1,7 +1,7 @@
 
 from analyzerbase import *
 from .logparser import CowrieParser
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, Executor
 
 
 class AttackPostProcessor:
@@ -22,6 +22,8 @@ class AttackLogOrganizer(AttackPostProcessor):
 
     @property
     def src_ip_attack_ids(self):
+        """A dict of {src_ip: attack_id} for all src_ips in all attacks"""
+
         if not hasattr(self, "_src_ip_attack_ids"):
             self._src_ip_attack_ids = {}
             for attack_id, attack in self.attacks.items():
@@ -31,59 +33,105 @@ class AttackLogOrganizer(AttackPostProcessor):
 
 
     
-    def organize(self):
+    def organize(self, iterby='attacks', executor_cls=ProcessPoolExecutor, max_workers=10, chunksize=1):
         """
-        test_organize_by_iter_attacks_multiprocess  Elapsed Time:11.957556009292603
-        test_organize_by_iter_logs_multiprocess     Elapsed Time:12.045604705810547
-        test_organize_by_iter_attacks_multithreaded Elapsed Time:14.502341032028198
-        test_organize_by_iter_logs_multithreaded    Elapsed Time:15.098825931549072
-        test_organize_by_iter_attacks               Elapsed Time:16.647027015686035
-        test_organize_by_iter_logs                  Elapsed Time:18.170916080474854
+        Organizes logs into attack directories. Can iterate through attacks or logs and supports both 
+        single-threaded, multithreaded and multiprocessed execution by setting the executor_cls.
+        
         """
         
-        #default is organize_by_iter_attacks_multiprocess
-        yield from self.organize_by_iter_attacks_multiprocess()
+
+        if iterby == "attacks":
+            iterable = self.attacks.values()
+            organizer_fn = self._organize_attack
+        elif iterby == "logs":
+            iterable = self.parser.all_logs
+            organizer_fn = self._organize_log
+            # prepare all attack dirs before iterating through logs
+            yield from self._prepare_all_attack_dirs()
+        else:
+            raise ValueError(f"iterby must be 'attacks' or 'logs' not {iterby}")
+
+        if isinstance(executor_cls, Executor):
+            yield from map(organizer_fn, iterable)
+        else:
+            with executor_cls(max_workers=max_workers) as executor:
+                yield from executor.map(organizer_fn, iterable, chunksize=chunksize)
 
 
 
-    def organize_by_iter_logs(self):
-        yield from self._prepare_attack_dirs()
-        yield from (self._split_log_into_attack_dir(file) for file in self.parser.all_logs)
-        
-
-    def _organize_by_iter_logs_multi(self, executor_cls, max_workers=10, chunksize=1):
-        yield from self._prepare_attack_dirs()
-
-        
-        with executor_cls(max_workers=max_workers) as executor:
-            yield from executor.map(self._split_log_into_attack_dir, self.parser.all_logs, chunksize=chunksize)
-
-    
-    def organize_by_iter_logs_multithreaded(self, max_workers=10, chunksize=1):
-        yield from self._organize_by_iter_logs_multi(ThreadPoolExecutor, max_workers, chunksize)
+    # Using organize_by_iter_logs can faster on certain systems so both are here
+    def _organize_attack(self, attack):
 
 
-
-    def organize_by_iter_logs_multiprocess(self, max_workers=10, chunksize=1):
-        yield from self._organize_by_iter_logs_multi(ProcessPoolExecutor, max_workers, chunksize)
-
-
-
-    def organize_by_iter_attacks(self):
-        yield from (self._organize_by_iter_attacks(attack) for attack in self.attacks.values())
             
+        print(f"Start organizing {attack}")
+        attack_dir = self.attacks_path / attack.attack_id
+        attack_malware_dir = (attack_dir / "malware")
 
-    def organize_by_iter_attacks_multithreaded(self, max_workers=10, chunksize=1):
-
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            yield from executor.map(self._organize_by_iter_attacks, self.attacks.values(), chunksize=chunksize)
-
-
-    def organize_by_iter_attacks_multiprocess(self, max_workers=10, chunksize=1):
+        if attack_dir.exists() and not self.overwrite:
+            return f"Attack {attack} already exists. Skipping"
+            
         
-        with ProcessPoolExecutor(max_workers=max_workers) as executor:
-            yield from executor.map(self._organize_by_iter_attacks, self.attacks.values(), chunksize=chunksize)
+        self._prepare_attack_dir(attack)
+        
 
+        for src_ip in attack.uniq_src_ips:
+            source_ip_dir = attack_dir / src_ip
+            source_ip_dir.mkdir(exist_ok=True, parents=True)
+
+        for file in self.parser.all_logs:
+            print(f"Organizing {file}")
+
+            if file.name == "auth_random.json":
+                combined_auth_random = {}
+                    
+                for src_ip in attack.uniq_src_ips:
+                    src_ip_auth_random = self.parser.auth_random[src_ip]
+                    combined_auth_random.update(src_ip_auth_random)
+
+                    out_file = attack_dir / src_ip / file.name              
+                    with out_file.open('w+') as f:
+                        json.dump(src_ip_auth_random, f, indent=4)
+
+
+                out_file = attack_dir / file.name  
+                with out_file.open('w+') as f:
+                    json.dump(combined_auth_random, f, indent=4)    
+                
+
+                continue
+
+            
+            outfiles = {src_ip: (attack_dir / src_ip / file.name) for src_ip in attack.uniq_src_ips}
+            attack_log_subdir = attack_dir / file.parent.name
+            outfiles["all"] =  attack_log_subdir / file.name 
+           
+            #capture any ip in attack only
+            attack_src_ips_regex = re.compile(b"(" + rb"|".join(ip.encode().replace(b".", rb"\.") for ip in attack.uniq_src_ips) + b")" )
+
+            
+            with file.open("rb") as infile:
+                for line in infile:
+                    match = attack_src_ips_regex.search(line)
+                    if match:
+                        # Decode match bytes to str
+                        src_ip = match.group(1).decode()
+
+                        with outfiles[src_ip].open("ab+") as f:
+                            f.write(line)
+
+                        if not attack_log_subdir.exists():
+                            attack_log_subdir.mkdir(exist_ok=True, parents=True)
+
+                        with outfiles["all"].open("ab+") as f:
+                            f.write(line)
+                            
+
+            print("Done organizing", file)
+        
+        
+        return f"Done organizing {attack}"
 
 
     def _prepare_attack_dir(self, attack):
@@ -129,7 +177,7 @@ class AttackLogOrganizer(AttackPostProcessor):
         return attack_dir
         
     
-    def _prepare_attack_dirs(self):
+    def _prepare_all_attack_dirs(self):
         src_ip_attack_ids = self.src_ip_attack_ids
         #capture any ip in attack only
         self.pattern = re.compile(b"(" + rb"|".join(ip.encode().replace(b".", rb"\.") for ip in src_ip_attack_ids.keys()) + b")" )
@@ -141,7 +189,6 @@ class AttackLogOrganizer(AttackPostProcessor):
         for src_ip, attack_id in src_ip_attack_ids.items():
 
             attack_dir = self.attacks_path / attack_id
-            #attack_malware_dir = attack_dir / "malware"
             source_ip_dir = attack_dir / src_ip
 
             if attack_dir.exists() and not self.overwrite:
@@ -175,23 +222,20 @@ class AttackLogOrganizer(AttackPostProcessor):
             yield f"Created {outfile}"
         
         
-        yield rprint(f"Done preparing dirs for {len(set(src_ip_attack_ids.values()))} attacks")
+        yield f"Done preparing dirs for {len(set(src_ip_attack_ids.values()))} attacks"
 
 
 
-    def _split_log_into_attack_dir(self, file):
+    def _organize_log(self, file):
         print(f"Organizing {file}")
         
-        src_ip_attack_ids = self.src_ip_attack_ids    
-           
-
         with file.open("rb") as infile:
             for line in infile:
                 match = self.pattern.search(line)
                 if match:
                     # Decode match bytes to str
                     src_ip = match.group(1).decode()
-                    attack_id = src_ip_attack_ids[src_ip]
+                    attack_id = self.src_ip_attack_ids[src_ip]
                     attack_dir = self.attacks_path / attack_id
 
                     attack_log_subdir = attack_dir / file.parent.name
@@ -200,89 +244,17 @@ class AttackLogOrganizer(AttackPostProcessor):
 
                     with ( attack_dir / src_ip / file.name ).open("ab+") as f:
                         f.write(line)
-                        #print(f"Writing to {attack_dir / src_ip / file.name}")
+
 
                     with ( attack_log_subdir / file.name ).open("ab+") as f:
-                    # with ( attack_dir / file.name ).open("ab+") as f:
                         f.write(line)
                             
         
-        return rprint(f"Done organizing {file}")
+        return f"Done organizing {file}"
             
 
 
-    # Using organize_by_iter_logs can faster on certain systems so both are here
-    def _organize_by_iter_attacks(self, attack):
-        print(f"Start organizing {attack}")
-        attack_dir = self.attacks_path / attack.attack_id
-        attack_malware_dir = (attack_dir / "malware")
 
-        if attack_dir.exists() and not self.overwrite:
-            return rprint(f"Attack {attack} already exists. Skipping")
-            
-        
-        self._prepare_attack_dir(attack)
-        
-        uniq_src_ips = attack.uniq_src_ips
-        
-        
-        #capture any ip in attack only
-        uniq_src_ips_regex = re.compile(b"(" + rb"|".join(ip.encode().replace(b".", rb"\.") for ip in uniq_src_ips) + b")" )
-        
-
-        for src_ip in uniq_src_ips:
-            source_ip_dir = attack_dir / src_ip
-            source_ip_dir.mkdir(exist_ok=True, parents=True)
-
-        for file in self.parser.all_logs:
-            print(f"Organizing {file}")
-
-            if file.name == "auth_random.json":
-                combined_auth_random = {}
-                    
-                for src_ip in uniq_src_ips:
-                    src_ip_auth_random = self.parser.auth_random[src_ip]
-                    combined_auth_random.update(src_ip_auth_random)
-
-                    out_file = attack_dir / src_ip / file.name              
-                    with out_file.open('w+') as f:
-                        json.dump(src_ip_auth_random, f, indent=4)
-
-
-                out_file = attack_dir / file.name  
-                with out_file.open('w+') as f:
-                    json.dump(combined_auth_random, f, indent=4)    
-                
-
-                continue
-
-            
-            outfiles = {src_ip: (attack_dir / src_ip / file.name) for src_ip in uniq_src_ips}
-            attack_log_subdir = attack_dir / file.parent.name
-            outfiles["all"] =  attack_log_subdir / file.name 
-           
-            pattern = uniq_src_ips_regex
-            with file.open("rb") as infile:
-                for line in infile:
-                    match = pattern.search(line)
-                    if match:
-                        # Decode match bytes to str
-                        src_ip = match.group(1).decode()
-
-                        with outfiles[src_ip].open("ab+") as f:
-                            f.write(line)
-
-                        if not attack_log_subdir.exists():
-                            attack_log_subdir.mkdir(exist_ok=True, parents=True)
-
-                        with outfiles["all"].open("ab+") as f:
-                            f.write(line)
-                            
-
-            print("Done organizing", file)
-        
-        
-        return rprint(f"Done organizing {attack}")
 
     
 

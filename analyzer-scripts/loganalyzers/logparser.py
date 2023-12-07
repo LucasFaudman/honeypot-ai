@@ -170,14 +170,13 @@ class DshieldParser(LogParser):
                 for line in f:
                     yield self.parse_dshield_line(line)
             
-            #for line in file.open():
-            #    yield self.parse_dshield_line(line)
 
-    
+
     def parse_dshield_line(self, line):
         parts = line.split()
         event = {}
-        
+
+                
         event["timestamp"] = datetime.fromtimestamp(int(parts.pop(0)))
         for part in parts:
             if "=" in part:
