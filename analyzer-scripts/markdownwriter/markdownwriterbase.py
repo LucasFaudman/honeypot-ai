@@ -29,7 +29,6 @@ collapsed = lambda text, summary="", style_fn=nomd: f'<details>{text}<summary>{s
 def collapseable_section(text, label, header_level=2, blockquote=False):
     bqstart = '\n<blockquote>' if blockquote else ''
     bqend = '</blockquote>\n' if blockquote else ''
-
     section_md = f"""{bqstart}
 <details>
 <summary>
@@ -42,8 +41,8 @@ def collapseable_section(text, label, header_level=2, blockquote=False):
 ---
 
 """
-    return section_md
 
+    return section_md
 
 
 

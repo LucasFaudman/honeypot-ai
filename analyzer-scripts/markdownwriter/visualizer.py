@@ -12,12 +12,16 @@ class CounterGrapher:
         self.xlabel = xlabel
         self.ylabel = ylabel
 
-        
-        self.labels, self.values = zip(*self.counter.most_common(n))
-        self.labels = [str(label) for label in self.labels]
-        self.total = sum(self.values)
-        self.percentages = [value / self.total for value in self.values]
-        
+        if self.counter:
+            self.labels, self.values = zip(*self.counter.most_common(n))
+            self.labels = [str(label) for label in self.labels]
+            self.total = sum(self.values)
+            self.percentages = [value / self.total for value in self.values]
+        else:
+            self.labels, self.values = (), ()
+            self.total = 0
+            self.percentages = ()
+
     
     def bar(self):
         plt.clf()

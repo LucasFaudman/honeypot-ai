@@ -13,19 +13,25 @@ class IPAnalyzerMarkdownWriter(MarkdownWriter):
 
 
     def prepare(self):
-    
-        self.md += h1("What do you know about the attacker?")
+        
+        #self.md += h1("What do you know about the attacker?")
+        self.md_editors.append(self.add_osint_header)
         self.md_editors.append(self.add_ip_locations)
-        self.md_editors.append(self.add_shodan)
-        self.md_editors.append(self.add_isc)
-        self.md_editors.append(self.add_threatfox)
         self.md_editors.append(self.add_cybergordon)
+        self.md_editors.append(self.add_shodan)
+        self.md_editors.append(self.add_threatfox)
+        self.md_editors.append(self.add_isc)
         self.md_editors.append(self.add_whois)
         
 
+    def add_osint_header(self, md, attack: Attack):
+        md += h1("What do you know about the attacker?")
+        md += attack.answers['osint_summary'] + "\n"
 
+        return md
 
-    def add_isc_ip_locations(self, md, data):
+    def add_isc_ip_locations(self, md, attack: Attack):
+        data = attack.ipdata
 
         ip_loc_md = h3("IP Locations")
         
@@ -53,16 +59,24 @@ class IPAnalyzerMarkdownWriter(MarkdownWriter):
     
 
 
-    def add_ip_locations(self, md, data):
+    def add_ip_locations(self, md, attack: Attack):
+        data = attack.ipdata
 
         ip_loc_md = h3("IP Locations Summary")
+        ip_loc_md += attack.answers['ip_locations_summary'] + "\n"
+
 
         counts = data["counts"]
         summary = [
-            f"This attack came from {code(len(data) - 1)} unique Source IP addresses.",
-        ]   
-
+            f"This attack involved {code(attack.num_uniq_ips)} unique IP addresses. "
+            f"{code(attack.num_uniq_src_ips)} were source IPs."
+            f"{code(attack.num_uniq_cmdlog_ips)} unique IPs and {code(attack.num_uniq_cmdlog_ips)} unique URLS were found in the commands."
+            f"{code(attack.num_uniq_malware_ips)} unique IPs and {code(attack.num_uniq_malware_ips)} unique URLS were found in malware."
+        ]
         for key in ["Country", "City", "ISP", "Organization", "ASN"]:
+            if not counts['shodan'].get(key):
+                continue
+
             summary.append(f"The most common {bold(key)} of origin was {code(counts['shodan'][key].most_common(1)[0][0])}, "
                         f"which was seen {code(counts['shodan'][key].most_common(1)[0][1])} times.")
             
@@ -108,7 +122,9 @@ class IPAnalyzerMarkdownWriter(MarkdownWriter):
     
 
 
-    def add_isc(self, md, data):
+    def add_isc(self, md, attack: Attack):
+        data = attack.ipdata
+        
         isc_counts = data["counts"]["isc"]
 
         if len(data) == 1:
@@ -119,6 +135,8 @@ class IPAnalyzerMarkdownWriter(MarkdownWriter):
 
         isc_md = h3("Internet Storm Center (ISC) " + sharing_link)
         
+        isc_md += attack.answers['isc_summary'] + "\n"
+
         isc_data = []
         #threatfeed_data = []
         #threatfeed_headers = ["IP Address", "Total Reports"] + sorted(isc_counts["threatfeeds"].keys())
@@ -206,7 +224,8 @@ class IPAnalyzerMarkdownWriter(MarkdownWriter):
 
 
 
-    def add_whois(self, md, data):
+    def add_whois(self, md, attack: Attack):
+        data = attack.ipdata
         whois_md = h3("Whois Results Summary")
 
         
@@ -236,17 +255,18 @@ class IPAnalyzerMarkdownWriter(MarkdownWriter):
 
 
 
-    def add_cybergordon(self, md, data):
+    def add_cybergordon(self, md, attack: Attack):
+        data = attack.ipdata
         cybergordon_counts = data["counts"]["cybergordon"]
 
         cybergordon_md = h3("CyberGordon Results")
-
+        
         
         all_engines = sorted([key for key in cybergordon_counts.keys() if cybergordon_counts[key]['alerts'] > 0],
                              key=lambda engine: 
-                             (int(engine.split()[0].strip("[E]")), 
-                              cybergordon_counts[engine]['alerts'],
-                              cybergordon_counts[engine]['high'],
+                             (int(engine.split()[0].strip("[E]")), # Sort by Engine #
+                              cybergordon_counts[engine]['alerts'], # Then total alerts 
+                              cybergordon_counts[engine]['high'], # Then by priority
                               cybergordon_counts[engine]['medium'],
                               cybergordon_counts[engine]['low']
                               ), 
@@ -270,7 +290,8 @@ class IPAnalyzerMarkdownWriter(MarkdownWriter):
 
             cybergordon_results = cybergordon_data["results"]
             
-            combined_row = [ip,
+            combined_row = [
+                ip,
                 f"{code(len(cybergordon_results.get('high', {})))}"
                 f" | {code(len(cybergordon_results.get('medium', {})))}"
                 f" | {code(len(cybergordon_results.get('low', {})))}",
@@ -308,7 +329,7 @@ class IPAnalyzerMarkdownWriter(MarkdownWriter):
             combined_results.append(combined_row)
 
         combined_summary_md = h3("CyberGordon Results Summary")
-        
+        combined_summary_md += attack.answers['cybergordon_summary'] + "\n"
 
         alert_counts = defaultdict(int)
         for engine in all_engines:
@@ -325,6 +346,7 @@ class IPAnalyzerMarkdownWriter(MarkdownWriter):
         ]
 
         combined_results.sort(
+                                # Sort the combined results by the number of high,med,low alerts
             key=lambda x: tuple(map(int, x[1].replace('`','').split(" | "))), 
             reverse=True)
 
@@ -341,11 +363,14 @@ class IPAnalyzerMarkdownWriter(MarkdownWriter):
     
 
 
-    def add_shodan(self, md, data):
+    def add_shodan(self, md, attack: Attack):
+        data = attack.ipdata
         shodan_counts = data["counts"]["shodan"]
 
         shodan_md =  h3("Shodan Results")
         summary_md = h3("Shodan Results Summary")
+
+        summary_md += attack.answers['shodan_summary'] + "\n"
 
         ips_with_shodan = 0
         max_open_ports = (None, 0)
@@ -374,7 +399,6 @@ class IPAnalyzerMarkdownWriter(MarkdownWriter):
             ip_md += table(headers, [shodan_general_values])
             
             ip_md += h4("Open Ports")
-            #shodan_ports_data = [(port, entry["protocol"], entry["service_name"], entry["timestamp"]) for port, entry in shodan_data["results"]["ports"].items()]
             all_ports_table_headers = ["Port", "Protocol", "Service", "Update Time"]
             all_ports_data = []
             ports_md = ""
@@ -412,7 +436,7 @@ class IPAnalyzerMarkdownWriter(MarkdownWriter):
             
 
             #ip_md += h4("Vulnerabilities")
-            # TODO ADD VULN DATA
+            # TODO ADD SHODAN VULN DATA
             shodan_md += collapseable_section(ip_md + ports_md,
                                         f"Shodan results for: {ip}", #+ sharing_link,
                                         header_level=3,
@@ -443,6 +467,9 @@ class IPAnalyzerMarkdownWriter(MarkdownWriter):
         header_level = 4
 
         for name, key in name_key_pairs.items():
+            if not shodan_counts.get(key):
+                continue
+
             summary.append(f"The most common {bold(name)} was {code(shodan_counts[key].most_common(1)[0][0])}, "
                         f"which was seen {code(shodan_counts[key].most_common(1)[0][1])} times.")
             
@@ -472,9 +499,11 @@ class IPAnalyzerMarkdownWriter(MarkdownWriter):
 
 
 
-    def add_threatfox(self, md, data):
+    def add_threatfox(self, md, attack: Attack):
+        data = attack.ipdata
 
         threatfox_md = h3("ThreatFox Results Summary")
+        threatfox_md += attack.answers['threatfox_summary'] + "\n"
 
         #TODO ADD SUMMARY TABLE
 
