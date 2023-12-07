@@ -1,5 +1,6 @@
 from analyzerbase import *
 from .soupscraper import *
+from copy import deepcopy
 
 import requests
 # from time import sleep
@@ -33,6 +34,9 @@ class IPAnalyzer:
         self._scraper = None
 
         self.max_errors = max_errors
+
+        # So it can be added as Attack postprocessor
+        self.attacks = {}
 
     @property
     def scraper(self):
@@ -364,16 +368,17 @@ class IPAnalyzer:
             json.dump(data, f, indent=2)
 
 
-    def get_data(self, ips):
+    def get_data(self, ips, sources=SOURCES, update_counts=True):
         data = {}
         error_counts = Counter()
 
-        self.counts = defaultdict(lambda: defaultdict(Counter))
+        if update_counts:
+            self.counts = defaultdict(lambda: defaultdict(Counter))
 
         for ip in ips:
             data[ip] = {}
             
-            for source in self.SOURCES:
+            for source in sources:
                 
                 
                 saved_source_data = self.read_data_for_source(ip, source)
@@ -403,11 +408,12 @@ class IPAnalyzer:
                     print(err_msg)
                     continue
             
-            self.update_counts(data[ip])
+            if update_counts:
+                self.update_counts(data[ip])
         
-
-        data["counts"] = self.counts
-        #counts = self.counts
+        if update_counts:
+            data["counts"] = self.counts
+        
         return data
     
 
@@ -487,7 +493,93 @@ class IPAnalyzer:
         return self.counts
 
 
+    def get_attack_data_for_ips(self, attack, ips, sources=SOURCES):
+        """
+        Attack Postprocessor method used by AI assistant in _do_tool_call. 
+        Gets ipdata using get_data but then cleans JSON structure to reduce tokens
+        before passing to AI. 
+        """
+        
+        # Get ipdata for all ips and sources to be reduced and returned to AI
+        ipdata = self.get_data(ips, sources, update_counts=False)
+        # Copy full ipdata before reducing to attach to attack object 
+        # full_ipdata = deepcopy(ipdata)
 
+        for ip in ips:
+            for source in sources:
+
+                if ipdata[ip][source]['results']:
+                    #Only leave results and reduce nesting by one level
+                    ipdata[ip][source] = ipdata[ip][source]['results']
+
+                else:
+                    #Only leave error message
+                    ipdata[ip][source] = ipdata[ip][source]['error']
+                    continue
+
+                if source == "isc":
+                    reduced_isc_data = {}
+                    reduced_isc_data['total_reports'] = ipdata[ip][source].pop("count")
+                    reduced_isc_data['honeypots_targeted'] = ipdata[ip][source].pop("attacks")
+                    reduced_isc_data['firstseen'] = ipdata[ip][source].pop("mindate")
+                    reduced_isc_data['lastseen'] = ipdata[ip][source].pop("maxdate")
+                    reduced_isc_data['network'] = ipdata[ip][source].pop("network")
+                    reduced_isc_data['asname'] = ipdata[ip][source].pop("asname")
+                    reduced_isc_data['as_country_code'] = ipdata[ip][source].pop("ascountry")    
+
+                    weblogs = ipdata[ip][source].pop("weblogs", None)
+                    if weblogs:
+                        reduced_isc_data['weblogs'] = weblogs
+
+                    reduced_isc_data['threatfeeds'] = ipdata[ip][source].pop("threatfeeds")
+
+                    ipdata[ip][source] = reduced_isc_data
+
+
+
+                if source == 'cybergordon':
+                    reduced_cybergordon_data = {}
+                    for priority in ["high", "medium"]:
+                        for result in ipdata[ip][source][priority]:
+                            reduced_cybergordon_data[result["engine"]] = result["result"]
+                    
+                    ipdata[ip][source] = reduced_cybergordon_data
+
+                if source == "shodan":
+                    reduced_shodan_data = {}
+                    for port, port_data in ipdata[ip][source].get("ports", {}).items():
+                        if port_data["service_name"] == "unknown":
+                            del port_data["service_data_raw"]
+
+                        del port_data["service_data"]
+                        del port_data["timestamp"]
+                        del port_data['unix_epoch']
+                        
+                        ipdata[ip][source][f"port{port}"] = port_data
+                    
+                    ipdata[ip][source].pop("ports", None)
+
+                if source == "threatfox":
+                    reduced_threatfox_data = []
+                    for result in ipdata[ip][source]:
+                        result["ioc_data"].pop('IOC ID', None)
+                        result["ioc_data"].pop('UUID', None)
+                        result["ioc_data"].pop('Reporter', None)
+                        result["ioc_data"].pop('Reward', None)
+                        result["ioc_data"].pop('Tags', None)
+                        result["ioc_data"].pop('Reference', None)
+                        
+
+                        reduced_threatfox_data.append(result["ioc_data"])
+                    
+                    ipdata[ip][source] = reduced_threatfox_data
+
+
+        # if attack:
+        #     #attack.full_ipdata = full_ipdata
+        #     attack.reduced_ipdata = ipdata
+
+        return ipdata
 
 
         
