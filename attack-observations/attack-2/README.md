@@ -8,15 +8,15 @@
 
 
 - This attack was carried out by a `1` unique source IP address(es): `91.92.251.103`
-- A total of `19` sessions were logged. `2` sessions were successful logins.
-- `50` login attempts were made. `2` were successful.
-- `25` unique username/password pairs were attempted. `1` were successful.
+- A total of `25` sessions were logged. `2` sessions were successful logins.
+- `74` login attempts were made. `2` were successful.
+- `37` unique username/password pairs were attempted. `1` were successful.
 - `1` unique destination ports were targeted: `2222`
-- `19` unique source ports were used:  Min: 33434, Max: 60038
+- `25` unique source ports were used:  Min: 33434, Max: 60038
 - `12` commands were input in total. `0` IP(s) and `0` URL(s) were found in the commands
 - `0` unique malware samples were downloaded. `0` IP(s) and `0` URL(s) were found in the malware samples
 - This attacks was recorded in `3` log types: `cowrie.log`, `cowrie.json`, `dshield.log`
-- A total of `974` log events were logged in `34` log files: `notice.log`, `notice.log`, `cowrie.2023-12-06.json`, `cowrie.2023-12-06.json`, `conn.log`, `conn.log`, `ssh.log`, `ssh.log`, `cowrie.json`, `cowrie.json`, `auth_random.json`, `auth_random.json`, `cowrie.2023-12-02.json`, `cowrie.2023-12-02.json`, `cowrie.log`, `cowrie.log`, `cowrie.2023-12-06.log`, `cowrie.2023-12-06.log`, `cowrie.2023-12-04.log`, `cowrie.2023-12-04.log`, `cowrie.2023-12-05.log`, `cowrie.2023-12-05.log`, `cowrie.2023-12-02.log`, `cowrie.2023-12-02.log`, `cowrie.2023-12-03.log`, `cowrie.2023-12-03.log`, `cowrie.2023-12-03.json`, `cowrie.2023-12-03.json`, `cowrie.2023-12-04.json`, `cowrie.2023-12-04.json`, `cowrie.2023-12-05.json`, `cowrie.2023-12-05.json`, `dshield.log`, `dshield.log`
+- A total of `1278` log events were logged in `34` log files: `notice.log`, `notice.log`, `cowrie.2023-12-06.json`, `cowrie.2023-12-06.json`, `conn.log`, `conn.log`, `ssh.log`, `ssh.log`, `cowrie.json`, `cowrie.json`, `auth_random.json`, `auth_random.json`, `cowrie.2023-12-02.json`, `cowrie.2023-12-02.json`, `cowrie.log`, `cowrie.log`, `cowrie.2023-12-06.log`, `cowrie.2023-12-06.log`, `cowrie.2023-12-04.log`, `cowrie.2023-12-04.log`, `cowrie.2023-12-05.log`, `cowrie.2023-12-05.log`, `cowrie.2023-12-02.log`, `cowrie.2023-12-02.log`, `cowrie.2023-12-03.log`, `cowrie.2023-12-03.log`, `cowrie.2023-12-03.json`, `cowrie.2023-12-03.json`, `cowrie.2023-12-04.json`, `cowrie.2023-12-04.json`, `cowrie.2023-12-05.json`, `cowrie.2023-12-05.json`, `dshield.log`, `dshield.log`
 
 </details>
 
@@ -62,9 +62,9 @@ It's important to keep in mind that these findings are based on the observed evi
 
 
 - This attack was carried out by a `1` unique **source IP** address(es):
-	- `SourceIP 91.92.251.103 with 19 sessions, 1 dst_ports 2 successful logins, 12 commands, 0 uploads, 0 downloads`
+	- `SourceIP 91.92.251.103 with 25 sessions, 1 dst_ports 2 successful logins, 12 commands, 0 uploads, 0 downloads`
 
-- `19` unique **source ports** were used:
+- `25` unique **source ports** were used:
 	- `Src Port: 36574 Used 1 times`
 	- `Src Port: 44494 Used 1 times`
 	- `Src Port: 58640 Used 1 times`
@@ -84,11 +84,17 @@ It's important to keep in mind that these findings are based on the observed evi
 	- `Src Port: 33434 Used 1 times`
 	- `Src Port: 60038 Used 1 times`
 	- `Src Port: 59472 Used 1 times`
+	- `Src Port: 59370 Used 1 times`
+	- `Src Port: 40984 Used 1 times`
+	- `Src Port: 53758 Used 1 times`
+	- `Src Port: 56156 Used 1 times`
+	- `Src Port: 51874 Used 1 times`
+	- `Src Port: 53496 Used 1 times`
 
 - `1` unique **destination ports** were targeted:
-	- `Dst Port: `2222` Used `19` times`
+	- `Dst Port: `2222` Used `25` times`
 
-- A total of `19` sessions were logged:
+- A total of `25` sessions were logged:
 	- `Session f5ed34cc200c SSH 91.92.251.103:36574 -> 172.31.5.68:2222 Duration: 0.93s`
 	- `Session bc1f43521f52 SSH 91.92.251.103:44494 -> 172.31.5.68:2222 Duration: 0.94s`
 	- `Session 2f7877d1cbff SSH 91.92.251.103:58640 -> 172.31.5.68:2222 Duration: 0.93s`
@@ -104,13 +110,13 @@ It's important to keep in mind that these findings are based on the observed evi
 	- `Session b42d063052f6 SSH 91.92.251.103:58552 -> 172.31.5.68:2222 Duration: 13.65s`
 	- `Session da1009d1e15f SSH 91.92.251.103:54436 -> 172.31.5.68:2222 Duration: 13.66s`
 	- `Session c9b83c291ef9 SSH 91.92.251.103:35896 -> 172.31.5.68:2222 Duration: 13.53s`
-	- `(and `4` more)`
+	- `(and `10` more)`
 
 - `2` were **successful logins**, 
-- `17` were **failed logins**, 
+- `23` were **failed logins**, 
 - `2` had commands, 
 - `0` had malware.
-- `50` unique username/password pairs were attempted. `2` were successful.
+- `74` unique username/password pairs were attempted. `2` were successful.
 - `12` commands were input in total. `0` IP(s) and `0` URL(s) were found in the commands
 - `0` unique malware samples were downloaded. 
 - `0` IP(s) and `0` URL(s) were found in the malware samples
@@ -119,7 +125,7 @@ It's important to keep in mind that these findings are based on the observed evi
 	- `cowrie.json`
 	- `dshield.log`
 
-- A total of `974` log events were logged in `26` log files: 
+- A total of `1278` log events were logged in `26` log files: 
 	- `notice.log`
 	- `notice.log`
 	- `cowrie.2023-12-06.json`
@@ -167,15 +173,73 @@ It's important to keep in mind that these findings are based on the observed evi
 </summary>
 
 
+#### [main.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/main.py)
+> Main script for running all analyzers through AttackAnalyzer inteface. (IN PROGRESS)
+
+#### [runtests.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/runtests.py)
+> Script for running tests from the tests directory
+
+#### [analyzerbase](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/analyzerbase)
+> Base classes, utility functions, libraries, and constants for all analyzer modules
+
 | Script | Description |
 | --- | --- |
-| [logparser.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/logparser.py) | Base class for reading all logs as json objects with standardized keys |
-| [cowrieloganalyzer.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/cowrieloganalyzer.py) | Python script for Analyzing Cowrie logs |
-| [webloganalyzer.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/webloganalyzer.py) | Python script for Analyzing Web logs |
-| [soupscraper.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/soupscraper.py) | Base class for scraping web pages with BeautifulSoup and Selenium |
-| [ipanalyzer.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/ipanalyzer.py) | Python script for Analyzing IP addresses and domains |
-| [markdownwriter.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/markdownwriter.py) | Python for writing markdown files |
-| [getlogsbyip.sh](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/getlogsbyip.sh) | Bash script for getting all logs for a given IP address |
+| [attack.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/analyzerbase/attack.py) | Attack object for storing all data related to a single attack. Constructed by the loganalyzer scripts then processed by openaianlyzers and ipanalyzers before being passed to markdownwriters |
+| [common.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/analyzerbase/common.py) | Imports and constants used by all analyzer modules |
+| [malware.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/analyzerbase/malware.py) | Malware object for storing, standardizing and reading a malware sample. Constructed by its parent Session object and accessed by its Attack object |
+| [session.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/analyzerbase/session.py) | Session object for storing all data related to a single session. Constructed by its parent SourceIP object and accessed by its parent Attack object |
+| [sourceip.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/analyzerbase/sourceip.py) | SourceIP object for storing all data related to a single source IP. Constructed by the loganalyzer scripts and accessed by its Attack object |
+| [util.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/analyzerbase/util.py) | Utility functions for all analyzer modules including functions for extracting IPs and URLs from text, standardizing malware, and hashing text |
+
+#### [loganalyzers](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/loganalyzers)
+> Scripts for analyzing logs to create Attack objects, organizing and read Attack files
+
+| Script | Description |
+| --- | --- |
+| [logparser.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/loganalyzers/logparser.py) | Classes for reading all logs as json objects with standardized keys |
+| [cowrieloganalyzer.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/loganalyzers/cowrieloganalyzer.py) | Reads Cowrie logs to create and merge Attack objects |
+| [webloganalyzer.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/loganalyzers/webloganalyzer.py) | Reads Web logs to create and merge Attack objects (NOT IMPLEMENTED YET) |
+| [attackdirorganizer.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/loganalyzers/attackdirorganizer.py) | Organizes Attack files into directories by source IP and attack ID for easy reading and quicker loading |
+| [attackdirreader.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/loganalyzers/attackdirreader.py) | Reads Attack files from directories organized by attackdirorganizer |
+
+#### [openaianalyzers](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/openaianalyzers)
+> Scripts for analyzing Attack objects using OpenAI's Completion and Assistant APIs
+
+| Script | Description |
+| --- | --- |
+| [aibase.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/openaianalyzers/aibase.py) | Base class used by all OpenAI analyzers that handles catching API errors, formating content for the API, and counting tokens to calculate cost |
+| [completions.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/openaianalyzers/completions.py) | OpenAICompletionsAnalyzer uses the the Completions API with few-shot-prompting to explain commands and comment malware source code |
+| [assistant.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/openaianalyzers/assistant.py) | OpenAIAssistantAnalyzer uses the Assistant API with function-calling to query an Attack object to answer questions about the attack |
+| [tools.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/openaianalyzers/tools.py) | Function schemas used by the OpenAIAssistantAnalyzer to structure how the model can iterogate the Attack object and its Session and Malware subobjects |
+
+#### [netanalyzers](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/netanalyzers)
+> Scripts for collecting OSINT data for IPs found in the Attack object SourceIPs and Malware
+
+| Script | Description |
+| --- | --- |
+| [ipanalyzer.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/netanalyzers/ipanalyzer.py) | Uses requests and SoupScraper to collect data on IPs from ISC, Shodan, Threatfox, Cybergordon, Whois |
+| [soupscraper.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/netanalyzers/soupscraper.py) | Class for simple scraping with BeautifulSoup and Selenium borrowed from my other projects |
+| [getchromedrier.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/netanalyzers/getchromedrier.py) | Utility script to download correct chromedriver for Selenium |
+
+#### [markdownwriter](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/markdownwriter)
+> Scripts for writing markdown files from Attack objects
+
+| Script | Description |
+| --- | --- |
+| [markdownwriterbase.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/markdownwriter/markdownwriterbase.py) | Base class for all markdown writers and markdown shortcut functions |
+| [cowrieattackmarkdownwriter.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/markdownwriter/cowrieattackmarkdownwriter.py) | Markdown writer for Cowrie Attack objects |
+| [ipmarkdownwriter.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/markdownwriter/ipmarkdownwriter.py) | Markdown writer for ipdata added to Attack objects by IPAnalyzer |
+
+#### [tests](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/tests)
+> Tests for all analyzer modules
+
+| Script | Description |
+| --- | --- |
+| [test_analyzerbase.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/tests/test_analyzerbase.py) | Tests for analyzerbase |
+| [test_loganalyzers.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/tests/test_loganalyzers.py) | Tests for loganalyzers |
+| [test_openaianalyzers.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/tests/test_openaianalyzers.py) | Tests for openaianalyzers |
+| [test_netanalyzers.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/tests/test_netanalyzers.py) | Tests for netanalyzers |
+| [test_markdownwriter.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/tests/test_markdownwriter.py) | Tests for markdownwriter |
 
 </details>
 
@@ -191,15 +255,15 @@ First activity logged: `2023-12-02 19:28:16.497532`
 * First session: `f5ed34cc200c`
 * `Session f5ed34cc200c SSH 91.92.251.103:36574 -> 172.31.5.68:2222 Duration: 0.93s`
 
-Last activity logged: `2023-12-07 01:07:09.074895`
-* Last session: `3469b768a0ac`
-* `Session 3469b768a0ac SSH 91.92.251.103:59472 -> 172.31.5.68:2222 Duration: 17.78s`
+Last activity logged: `2023-12-07 11:54:32.913432`
+* Last session: `688600e24f4f`
+* `Session 688600e24f4f SSH 91.92.251.103:53496 -> 172.31.5.68:2222 Duration: 17.74s`
 
 
 | Session ID | IP | Src Port | Dst Port | Start Time | End Time | Duration |
 | --- | --- | --- | --- | --- | --- | --- |
 | `f5ed34cc200c` | `91.92.251.103` | `36574` | `2222` | `2023-12-02 19:28:16.497532` | `2023-12-02 19:28:17.432699` | `0.9344992637634277` |
-| `3469b768a0ac` | `91.92.251.103` | `59472` | `2222` | `2023-12-07 01:06:51.297514` | `2023-12-07 01:07:09.074895` | `17.776742458343506` |
+| `688600e24f4f` | `91.92.251.103` | `53496` | `2222` | `2023-12-07 11:54:15.176518` | `2023-12-07 11:54:32.913432` | `17.73623824119568` |
 
 <details>
 <summary>
@@ -228,6 +292,12 @@ Last activity logged: `2023-12-07 01:07:09.074895`
 | `8733d5249d99` | `91.92.251.103` | `33434` | `2222` | `2023-12-06 21:12:39.345418` | `2023-12-06 21:12:57.103772` | `17.757590532302856` |
 | `800b214ea789` | `91.92.251.103` | `60038` | `2222` | `2023-12-07 01:03:32.024035` | `2023-12-07 01:03:49.784164` | `17.75946879386902` |
 | `3469b768a0ac` | `91.92.251.103` | `59472` | `2222` | `2023-12-07 01:06:51.297514` | `2023-12-07 01:07:09.074895` | `17.776742458343506` |
+| `17035e3ca28f` | `91.92.251.103` | `59370` | `2222` | `2023-12-07 04:57:21.137651` | `2023-12-07 04:57:38.885510` | `17.747225284576416` |
+| `f7c9a6e87228` | `91.92.251.103` | `40984` | `2222` | `2023-12-07 05:00:42.521429` | `2023-12-07 05:01:00.282623` | `17.760563373565674` |
+| `f7534c805af9` | `91.92.251.103` | `53758` | `2222` | `2023-12-07 08:50:52.495513` | `2023-12-07 08:51:10.256622` | `17.76042914390564` |
+| `b5761c3d45fa` | `91.92.251.103` | `56156` | `2222` | `2023-12-07 08:54:11.737739` | `2023-12-07 08:54:29.518574` | `17.780158281326294` |
+| `b19cd9aeff97` | `91.92.251.103` | `51874` | `2222` | `2023-12-07 11:52:16.233976` | `2023-12-07 11:52:33.950695` | `17.716052055358887` |
+| `688600e24f4f` | `91.92.251.103` | `53496` | `2222` | `2023-12-07 11:54:15.176518` | `2023-12-07 11:54:32.913432` | `17.73623824119568` |
 
 </details>
 
@@ -249,12 +319,12 @@ Last activity logged: `2023-12-07 01:07:09.074895`
 
 | Log Name | Lines |
 | --- | --- |
-| cowrie.log | 570 |
-| cowrie.json | 352 |
-| dshield.log | 52 |
+| cowrie.log | 762 |
+| cowrie.json | 448 |
+| dshield.log | 68 |
 
 ## Cowrie .log Logs
-Total Cowrie logs: `570`
+Total Cowrie logs: `762`
 
 #### First Session With Commands 13da7b98b8d4 Cowrie .log Logs
 This sample shows the Cowrie `.log` Logs for session_id `13da7b98b8d4` the first session in this attack where the attacker exectuted commands in on the honeypot system.Here is the full log:
@@ -296,6 +366,96 @@ This sample shows the Cowrie `.log` Logs for session_id `13da7b98b8d4` the first
 2023-12-07T01:07:04.885981Z [HoneyPotSSHTransport,720,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
 2023-12-07T01:07:04.934939Z [HoneyPotSSHTransport,720,91.92.251.103] login attempt [b'admin'/b'!QAZ2wsx'] failed
 2023-12-07T01:07:09.074895Z [HoneyPotSSHTransport,720,91.92.251.103] Connection lost after 17 seconds
+2023-12-07T04:57:21.138361Z [HoneyPotSSHTransport,67,91.92.251.103] Remote SSH version: SSH-2.0-libssh2_1.8.2
+2023-12-07T04:57:21.279227Z [HoneyPotSSHTransport,67,91.92.251.103] SSH client hassh fingerprint: a7a87fbe86774c2e40cc4a7ea2ab1b3c
+2023-12-07T04:57:22.100311Z [HoneyPotSSHTransport,67,91.92.251.103] login attempt: 49
+2023-12-07T04:57:22.100428Z [HoneyPotSSHTransport,67,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T04:57:22.150288Z [HoneyPotSSHTransport,67,91.92.251.103] login attempt [b'admin'/b'!QAZ2wsx#EDC'] failed
+2023-12-07T04:57:26.300598Z [HoneyPotSSHTransport,67,91.92.251.103] login attempt: 50
+2023-12-07T04:57:26.300718Z [HoneyPotSSHTransport,67,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T04:57:26.347939Z [HoneyPotSSHTransport,67,91.92.251.103] login attempt [b'admin'/b'!QAZ2wsx#EDC4rfv'] failed
+2023-12-07T04:57:30.497995Z [HoneyPotSSHTransport,67,91.92.251.103] login attempt: 51
+2023-12-07T04:57:30.498136Z [HoneyPotSSHTransport,67,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T04:57:30.546590Z [HoneyPotSSHTransport,67,91.92.251.103] login attempt [b'admin'/b'!QAZ2wsx3edc'] failed
+2023-12-07T04:57:34.697285Z [HoneyPotSSHTransport,67,91.92.251.103] login attempt: 52
+2023-12-07T04:57:34.697398Z [HoneyPotSSHTransport,67,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T04:57:34.745249Z [HoneyPotSSHTransport,67,91.92.251.103] login attempt [b'admin'/b'!QAZ@WSX#EDC'] failed
+2023-12-07T04:57:38.885510Z [HoneyPotSSHTransport,67,91.92.251.103] Connection lost after 17 seconds
+2023-12-07T05:00:42.522132Z [HoneyPotSSHTransport,69,91.92.251.103] Remote SSH version: SSH-2.0-libssh2_1.8.2
+2023-12-07T05:00:42.660495Z [HoneyPotSSHTransport,69,91.92.251.103] SSH client hassh fingerprint: a7a87fbe86774c2e40cc4a7ea2ab1b3c
+2023-12-07T05:00:43.467305Z [HoneyPotSSHTransport,69,91.92.251.103] login attempt: 53
+2023-12-07T05:00:43.467441Z [HoneyPotSSHTransport,69,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T05:00:43.517363Z [HoneyPotSSHTransport,69,91.92.251.103] login attempt [b'admin'/b'!QAZ2wsx#EDC'] failed
+2023-12-07T05:00:47.684232Z [HoneyPotSSHTransport,69,91.92.251.103] login attempt: 54
+2023-12-07T05:00:47.685820Z [HoneyPotSSHTransport,69,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T05:00:47.735243Z [HoneyPotSSHTransport,69,91.92.251.103] login attempt [b'admin'/b'!QAZ2wsx#EDC4rfv'] failed
+2023-12-07T05:00:51.885698Z [HoneyPotSSHTransport,69,91.92.251.103] login attempt: 55
+2023-12-07T05:00:51.885822Z [HoneyPotSSHTransport,69,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T05:00:51.933971Z [HoneyPotSSHTransport,69,91.92.251.103] login attempt [b'admin'/b'!QAZ2wsx3edc'] failed
+2023-12-07T05:00:56.094688Z [HoneyPotSSHTransport,69,91.92.251.103] login attempt: 56
+2023-12-07T05:00:56.094807Z [HoneyPotSSHTransport,69,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T05:00:56.142405Z [HoneyPotSSHTransport,69,91.92.251.103] login attempt [b'admin'/b'!QAZ@WSX#EDC'] failed
+2023-12-07T05:01:00.282623Z [HoneyPotSSHTransport,69,91.92.251.103] Connection lost after 17 seconds
+2023-12-07T08:50:52.496302Z [HoneyPotSSHTransport,110,91.92.251.103] Remote SSH version: SSH-2.0-libssh2_1.8.2
+2023-12-07T08:50:52.637968Z [HoneyPotSSHTransport,110,91.92.251.103] SSH client hassh fingerprint: a7a87fbe86774c2e40cc4a7ea2ab1b3c
+2023-12-07T08:50:53.453830Z [HoneyPotSSHTransport,110,91.92.251.103] login attempt: 57
+2023-12-07T08:50:53.453951Z [HoneyPotSSHTransport,110,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T08:50:53.504041Z [HoneyPotSSHTransport,110,91.92.251.103] login attempt [b'admin'/b'!QAZ@WSX3edc'] failed
+2023-12-07T08:50:57.656265Z [HoneyPotSSHTransport,110,91.92.251.103] login attempt: 58
+2023-12-07T08:50:57.656385Z [HoneyPotSSHTransport,110,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T08:50:57.706766Z [HoneyPotSSHTransport,110,91.92.251.103] login attempt [b'admin'/b'!QAZ@WSX3edc.'] failed
+2023-12-07T08:51:01.858494Z [HoneyPotSSHTransport,110,91.92.251.103] login attempt: 59
+2023-12-07T08:51:01.858635Z [HoneyPotSSHTransport,110,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T08:51:01.908698Z [HoneyPotSSHTransport,110,91.92.251.103] login attempt [b'admin'/b'!QAZXCDE#@WS'] failed
+2023-12-07T08:51:06.060704Z [HoneyPotSSHTransport,110,91.92.251.103] login attempt: 60
+2023-12-07T08:51:06.060843Z [HoneyPotSSHTransport,110,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T08:51:06.111503Z [HoneyPotSSHTransport,110,91.92.251.103] login attempt [b'admin'/b'!QAZXCDE#@WSX'] failed
+2023-12-07T08:51:10.256622Z [HoneyPotSSHTransport,110,91.92.251.103] Connection lost after 17 seconds
+2023-12-07T08:54:11.738496Z [HoneyPotSSHTransport,123,91.92.251.103] Remote SSH version: SSH-2.0-libssh2_1.8.2
+2023-12-07T08:54:11.877025Z [HoneyPotSSHTransport,123,91.92.251.103] SSH client hassh fingerprint: a7a87fbe86774c2e40cc4a7ea2ab1b3c
+2023-12-07T08:54:12.680848Z [HoneyPotSSHTransport,123,91.92.251.103] login attempt: 61
+2023-12-07T08:54:12.680970Z [HoneyPotSSHTransport,123,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T08:54:12.730572Z [HoneyPotSSHTransport,123,91.92.251.103] login attempt [b'admin'/b'!QAZ@WSX3edc'] failed
+2023-12-07T08:54:16.892955Z [HoneyPotSSHTransport,123,91.92.251.103] login attempt: 62
+2023-12-07T08:54:16.893099Z [HoneyPotSSHTransport,123,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T08:54:16.942146Z [HoneyPotSSHTransport,123,91.92.251.103] login attempt [b'admin'/b'!QAZ@WSX3edc.'] failed
+2023-12-07T08:54:21.121352Z [HoneyPotSSHTransport,123,91.92.251.103] login attempt: 63
+2023-12-07T08:54:21.121539Z [HoneyPotSSHTransport,123,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T08:54:21.171866Z [HoneyPotSSHTransport,123,91.92.251.103] login attempt [b'admin'/b'!QAZXCDE#@WS'] failed
+2023-12-07T08:54:25.326807Z [HoneyPotSSHTransport,123,91.92.251.103] login attempt: 64
+2023-12-07T08:54:25.326946Z [HoneyPotSSHTransport,123,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T08:54:25.377171Z [HoneyPotSSHTransport,123,91.92.251.103] login attempt [b'admin'/b'!QAZXCDE#@WSX'] failed
+2023-12-07T08:54:29.518574Z [HoneyPotSSHTransport,123,91.92.251.103] Connection lost after 17 seconds
+2023-12-07T11:52:16.240425Z [HoneyPotSSHTransport,126,91.92.251.103] Remote SSH version: SSH-2.0-libssh2_1.8.2
+2023-12-07T11:52:16.376543Z [HoneyPotSSHTransport,126,91.92.251.103] SSH client hassh fingerprint: a7a87fbe86774c2e40cc4a7ea2ab1b3c
+2023-12-07T11:52:17.145813Z [HoneyPotSSHTransport,126,91.92.251.103] login attempt: 65
+2023-12-07T11:52:17.145925Z [HoneyPotSSHTransport,126,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T11:52:17.196026Z [HoneyPotSSHTransport,126,91.92.251.103] login attempt [b'admin'/b'!QAZXSW@'] failed
+2023-12-07T11:52:21.351060Z [HoneyPotSSHTransport,126,91.92.251.103] login attempt: 66
+2023-12-07T11:52:21.351166Z [HoneyPotSSHTransport,126,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T11:52:21.400837Z [HoneyPotSSHTransport,126,91.92.251.103] login attempt [b'admin'/b'!QAZxsw2'] failed
+2023-12-07T11:52:25.551192Z [HoneyPotSSHTransport,126,91.92.251.103] login attempt: 67
+2023-12-07T11:52:25.551338Z [HoneyPotSSHTransport,126,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T11:52:25.602077Z [HoneyPotSSHTransport,126,91.92.251.103] login attempt [b'admin'/b'!QAZzaq1'] failed
+2023-12-07T11:52:29.758148Z [HoneyPotSSHTransport,126,91.92.251.103] login attempt: 68
+2023-12-07T11:52:29.758281Z [HoneyPotSSHTransport,126,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T11:52:29.809428Z [HoneyPotSSHTransport,126,91.92.251.103] login attempt [b'admin'/b'!Qwerty!23456!'] failed
+2023-12-07T11:52:33.950695Z [HoneyPotSSHTransport,126,91.92.251.103] Connection lost after 17 seconds
+2023-12-07T11:54:15.177296Z [HoneyPotSSHTransport,136,91.92.251.103] Remote SSH version: SSH-2.0-libssh2_1.8.2
+2023-12-07T11:54:15.314883Z [HoneyPotSSHTransport,136,91.92.251.103] SSH client hassh fingerprint: a7a87fbe86774c2e40cc4a7ea2ab1b3c
+2023-12-07T11:54:16.119595Z [HoneyPotSSHTransport,136,91.92.251.103] login attempt: 69
+2023-12-07T11:54:16.119714Z [HoneyPotSSHTransport,136,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T11:54:16.169154Z [HoneyPotSSHTransport,136,91.92.251.103] login attempt [b'admin'/b'!QAZXSW@'] failed
+2023-12-07T11:54:20.321746Z [HoneyPotSSHTransport,136,91.92.251.103] login attempt: 70
+2023-12-07T11:54:20.321872Z [HoneyPotSSHTransport,136,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T11:54:20.371958Z [HoneyPotSSHTransport,136,91.92.251.103] login attempt [b'admin'/b'!QAZxsw2'] failed
+2023-12-07T11:54:24.522417Z [HoneyPotSSHTransport,136,91.92.251.103] login attempt: 71
+2023-12-07T11:54:24.522544Z [HoneyPotSSHTransport,136,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T11:54:24.572767Z [HoneyPotSSHTransport,136,91.92.251.103] login attempt [b'admin'/b'!QAZzaq1'] failed
+2023-12-07T11:54:28.723688Z [HoneyPotSSHTransport,136,91.92.251.103] login attempt: 72
+2023-12-07T11:54:28.723811Z [HoneyPotSSHTransport,136,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T11:54:28.773104Z [HoneyPotSSHTransport,136,91.92.251.103] login attempt [b'admin'/b'!Qwerty!23456!'] failed
+2023-12-07T11:54:32.913432Z [HoneyPotSSHTransport,136,91.92.251.103] Connection lost after 17 seconds
 2023-12-07T01:03:32.024769Z [HoneyPotSSHTransport,703,91.92.251.103] Remote SSH version: SSH-2.0-libssh2_1.8.2
 2023-12-07T01:03:32.163503Z [HoneyPotSSHTransport,703,91.92.251.103] SSH client hassh fingerprint: a7a87fbe86774c2e40cc4a7ea2ab1b3c
 2023-12-07T01:03:32.986530Z [HoneyPotSSHTransport,703,91.92.251.103] login attempt: 41
@@ -326,6 +486,96 @@ This sample shows the Cowrie `.log` Logs for session_id `13da7b98b8d4` the first
 2023-12-07T01:07:04.885981Z [HoneyPotSSHTransport,720,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
 2023-12-07T01:07:04.934939Z [HoneyPotSSHTransport,720,91.92.251.103] login attempt [b'admin'/b'!QAZ2wsx'] failed
 2023-12-07T01:07:09.074895Z [HoneyPotSSHTransport,720,91.92.251.103] Connection lost after 17 seconds
+2023-12-07T04:57:21.138361Z [HoneyPotSSHTransport,67,91.92.251.103] Remote SSH version: SSH-2.0-libssh2_1.8.2
+2023-12-07T04:57:21.279227Z [HoneyPotSSHTransport,67,91.92.251.103] SSH client hassh fingerprint: a7a87fbe86774c2e40cc4a7ea2ab1b3c
+2023-12-07T04:57:22.100311Z [HoneyPotSSHTransport,67,91.92.251.103] login attempt: 49
+2023-12-07T04:57:22.100428Z [HoneyPotSSHTransport,67,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T04:57:22.150288Z [HoneyPotSSHTransport,67,91.92.251.103] login attempt [b'admin'/b'!QAZ2wsx#EDC'] failed
+2023-12-07T04:57:26.300598Z [HoneyPotSSHTransport,67,91.92.251.103] login attempt: 50
+2023-12-07T04:57:26.300718Z [HoneyPotSSHTransport,67,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T04:57:26.347939Z [HoneyPotSSHTransport,67,91.92.251.103] login attempt [b'admin'/b'!QAZ2wsx#EDC4rfv'] failed
+2023-12-07T04:57:30.497995Z [HoneyPotSSHTransport,67,91.92.251.103] login attempt: 51
+2023-12-07T04:57:30.498136Z [HoneyPotSSHTransport,67,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T04:57:30.546590Z [HoneyPotSSHTransport,67,91.92.251.103] login attempt [b'admin'/b'!QAZ2wsx3edc'] failed
+2023-12-07T04:57:34.697285Z [HoneyPotSSHTransport,67,91.92.251.103] login attempt: 52
+2023-12-07T04:57:34.697398Z [HoneyPotSSHTransport,67,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T04:57:34.745249Z [HoneyPotSSHTransport,67,91.92.251.103] login attempt [b'admin'/b'!QAZ@WSX#EDC'] failed
+2023-12-07T04:57:38.885510Z [HoneyPotSSHTransport,67,91.92.251.103] Connection lost after 17 seconds
+2023-12-07T05:00:42.522132Z [HoneyPotSSHTransport,69,91.92.251.103] Remote SSH version: SSH-2.0-libssh2_1.8.2
+2023-12-07T05:00:42.660495Z [HoneyPotSSHTransport,69,91.92.251.103] SSH client hassh fingerprint: a7a87fbe86774c2e40cc4a7ea2ab1b3c
+2023-12-07T05:00:43.467305Z [HoneyPotSSHTransport,69,91.92.251.103] login attempt: 53
+2023-12-07T05:00:43.467441Z [HoneyPotSSHTransport,69,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T05:00:43.517363Z [HoneyPotSSHTransport,69,91.92.251.103] login attempt [b'admin'/b'!QAZ2wsx#EDC'] failed
+2023-12-07T05:00:47.684232Z [HoneyPotSSHTransport,69,91.92.251.103] login attempt: 54
+2023-12-07T05:00:47.685820Z [HoneyPotSSHTransport,69,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T05:00:47.735243Z [HoneyPotSSHTransport,69,91.92.251.103] login attempt [b'admin'/b'!QAZ2wsx#EDC4rfv'] failed
+2023-12-07T05:00:51.885698Z [HoneyPotSSHTransport,69,91.92.251.103] login attempt: 55
+2023-12-07T05:00:51.885822Z [HoneyPotSSHTransport,69,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T05:00:51.933971Z [HoneyPotSSHTransport,69,91.92.251.103] login attempt [b'admin'/b'!QAZ2wsx3edc'] failed
+2023-12-07T05:00:56.094688Z [HoneyPotSSHTransport,69,91.92.251.103] login attempt: 56
+2023-12-07T05:00:56.094807Z [HoneyPotSSHTransport,69,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T05:00:56.142405Z [HoneyPotSSHTransport,69,91.92.251.103] login attempt [b'admin'/b'!QAZ@WSX#EDC'] failed
+2023-12-07T05:01:00.282623Z [HoneyPotSSHTransport,69,91.92.251.103] Connection lost after 17 seconds
+2023-12-07T08:50:52.496302Z [HoneyPotSSHTransport,110,91.92.251.103] Remote SSH version: SSH-2.0-libssh2_1.8.2
+2023-12-07T08:50:52.637968Z [HoneyPotSSHTransport,110,91.92.251.103] SSH client hassh fingerprint: a7a87fbe86774c2e40cc4a7ea2ab1b3c
+2023-12-07T08:50:53.453830Z [HoneyPotSSHTransport,110,91.92.251.103] login attempt: 57
+2023-12-07T08:50:53.453951Z [HoneyPotSSHTransport,110,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T08:50:53.504041Z [HoneyPotSSHTransport,110,91.92.251.103] login attempt [b'admin'/b'!QAZ@WSX3edc'] failed
+2023-12-07T08:50:57.656265Z [HoneyPotSSHTransport,110,91.92.251.103] login attempt: 58
+2023-12-07T08:50:57.656385Z [HoneyPotSSHTransport,110,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T08:50:57.706766Z [HoneyPotSSHTransport,110,91.92.251.103] login attempt [b'admin'/b'!QAZ@WSX3edc.'] failed
+2023-12-07T08:51:01.858494Z [HoneyPotSSHTransport,110,91.92.251.103] login attempt: 59
+2023-12-07T08:51:01.858635Z [HoneyPotSSHTransport,110,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T08:51:01.908698Z [HoneyPotSSHTransport,110,91.92.251.103] login attempt [b'admin'/b'!QAZXCDE#@WS'] failed
+2023-12-07T08:51:06.060704Z [HoneyPotSSHTransport,110,91.92.251.103] login attempt: 60
+2023-12-07T08:51:06.060843Z [HoneyPotSSHTransport,110,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T08:51:06.111503Z [HoneyPotSSHTransport,110,91.92.251.103] login attempt [b'admin'/b'!QAZXCDE#@WSX'] failed
+2023-12-07T08:51:10.256622Z [HoneyPotSSHTransport,110,91.92.251.103] Connection lost after 17 seconds
+2023-12-07T08:54:11.738496Z [HoneyPotSSHTransport,123,91.92.251.103] Remote SSH version: SSH-2.0-libssh2_1.8.2
+2023-12-07T08:54:11.877025Z [HoneyPotSSHTransport,123,91.92.251.103] SSH client hassh fingerprint: a7a87fbe86774c2e40cc4a7ea2ab1b3c
+2023-12-07T08:54:12.680848Z [HoneyPotSSHTransport,123,91.92.251.103] login attempt: 61
+2023-12-07T08:54:12.680970Z [HoneyPotSSHTransport,123,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T08:54:12.730572Z [HoneyPotSSHTransport,123,91.92.251.103] login attempt [b'admin'/b'!QAZ@WSX3edc'] failed
+2023-12-07T08:54:16.892955Z [HoneyPotSSHTransport,123,91.92.251.103] login attempt: 62
+2023-12-07T08:54:16.893099Z [HoneyPotSSHTransport,123,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T08:54:16.942146Z [HoneyPotSSHTransport,123,91.92.251.103] login attempt [b'admin'/b'!QAZ@WSX3edc.'] failed
+2023-12-07T08:54:21.121352Z [HoneyPotSSHTransport,123,91.92.251.103] login attempt: 63
+2023-12-07T08:54:21.121539Z [HoneyPotSSHTransport,123,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T08:54:21.171866Z [HoneyPotSSHTransport,123,91.92.251.103] login attempt [b'admin'/b'!QAZXCDE#@WS'] failed
+2023-12-07T08:54:25.326807Z [HoneyPotSSHTransport,123,91.92.251.103] login attempt: 64
+2023-12-07T08:54:25.326946Z [HoneyPotSSHTransport,123,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T08:54:25.377171Z [HoneyPotSSHTransport,123,91.92.251.103] login attempt [b'admin'/b'!QAZXCDE#@WSX'] failed
+2023-12-07T08:54:29.518574Z [HoneyPotSSHTransport,123,91.92.251.103] Connection lost after 17 seconds
+2023-12-07T11:52:16.240425Z [HoneyPotSSHTransport,126,91.92.251.103] Remote SSH version: SSH-2.0-libssh2_1.8.2
+2023-12-07T11:52:16.376543Z [HoneyPotSSHTransport,126,91.92.251.103] SSH client hassh fingerprint: a7a87fbe86774c2e40cc4a7ea2ab1b3c
+2023-12-07T11:52:17.145813Z [HoneyPotSSHTransport,126,91.92.251.103] login attempt: 65
+2023-12-07T11:52:17.145925Z [HoneyPotSSHTransport,126,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T11:52:17.196026Z [HoneyPotSSHTransport,126,91.92.251.103] login attempt [b'admin'/b'!QAZXSW@'] failed
+2023-12-07T11:52:21.351060Z [HoneyPotSSHTransport,126,91.92.251.103] login attempt: 66
+2023-12-07T11:52:21.351166Z [HoneyPotSSHTransport,126,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T11:52:21.400837Z [HoneyPotSSHTransport,126,91.92.251.103] login attempt [b'admin'/b'!QAZxsw2'] failed
+2023-12-07T11:52:25.551192Z [HoneyPotSSHTransport,126,91.92.251.103] login attempt: 67
+2023-12-07T11:52:25.551338Z [HoneyPotSSHTransport,126,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T11:52:25.602077Z [HoneyPotSSHTransport,126,91.92.251.103] login attempt [b'admin'/b'!QAZzaq1'] failed
+2023-12-07T11:52:29.758148Z [HoneyPotSSHTransport,126,91.92.251.103] login attempt: 68
+2023-12-07T11:52:29.758281Z [HoneyPotSSHTransport,126,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T11:52:29.809428Z [HoneyPotSSHTransport,126,91.92.251.103] login attempt [b'admin'/b'!Qwerty!23456!'] failed
+2023-12-07T11:52:33.950695Z [HoneyPotSSHTransport,126,91.92.251.103] Connection lost after 17 seconds
+2023-12-07T11:54:15.177296Z [HoneyPotSSHTransport,136,91.92.251.103] Remote SSH version: SSH-2.0-libssh2_1.8.2
+2023-12-07T11:54:15.314883Z [HoneyPotSSHTransport,136,91.92.251.103] SSH client hassh fingerprint: a7a87fbe86774c2e40cc4a7ea2ab1b3c
+2023-12-07T11:54:16.119595Z [HoneyPotSSHTransport,136,91.92.251.103] login attempt: 69
+2023-12-07T11:54:16.119714Z [HoneyPotSSHTransport,136,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T11:54:16.169154Z [HoneyPotSSHTransport,136,91.92.251.103] login attempt [b'admin'/b'!QAZXSW@'] failed
+2023-12-07T11:54:20.321746Z [HoneyPotSSHTransport,136,91.92.251.103] login attempt: 70
+2023-12-07T11:54:20.321872Z [HoneyPotSSHTransport,136,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T11:54:20.371958Z [HoneyPotSSHTransport,136,91.92.251.103] login attempt [b'admin'/b'!QAZxsw2'] failed
+2023-12-07T11:54:24.522417Z [HoneyPotSSHTransport,136,91.92.251.103] login attempt: 71
+2023-12-07T11:54:24.522544Z [HoneyPotSSHTransport,136,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T11:54:24.572767Z [HoneyPotSSHTransport,136,91.92.251.103] login attempt [b'admin'/b'!QAZzaq1'] failed
+2023-12-07T11:54:28.723688Z [HoneyPotSSHTransport,136,91.92.251.103] login attempt: 72
+2023-12-07T11:54:28.723811Z [HoneyPotSSHTransport,136,91.92.251.103] login return, expect: [b'0aduserog34oxf4Bsf4Bsr_wasadmin'/b'og34oxf4Bsf4Bsr_']
+2023-12-07T11:54:28.773104Z [HoneyPotSSHTransport,136,91.92.251.103] login attempt [b'admin'/b'!Qwerty!23456!'] failed
+2023-12-07T11:54:32.913432Z [HoneyPotSSHTransport,136,91.92.251.103] Connection lost after 17 seconds
 2023-12-06T21:09:18.112229Z [HoneyPotSSHTransport,226,91.92.251.103] Remote SSH version: SSH-2.0-libssh2_1.8.2
 2023-12-06T21:09:18.254631Z [HoneyPotSSHTransport,226,91.92.251.103] SSH client hassh fingerprint: a7a87fbe86774c2e40cc4a7ea2ab1b3c
 2023-12-06T21:09:19.106354Z [HoneyPotSSHTransport,226,91.92.251.103] login attempt: 33
@@ -808,7 +1058,7 @@ This sample shows the Cowrie `.log` Logs for session_id `13da7b98b8d4` the first
 COMMENTARY ON LOGS
 
 ## Cowrie .json Logs
-Total Cowrie logs: `352`
+Total Cowrie logs: `448`
 
 #### First Session With Commands 13da7b98b8d4 Cowrie .json Logs
 This sample shows the Cowrie `.json` Logs for session_id `13da7b98b8d4` the first session in this attack where the attacker exectuted commands in on the honeypot system.Here is the full log:
@@ -892,9 +1142,9 @@ This sample shows the Cowrie `.json` Logs for session_id `13da7b98b8d4` the firs
 COMMENTARY ON LOGS
 
 ## DShield Logs
-Total DShield logs: `52`
+Total DShield logs: `68`
 
-#### The `19` sessions in this attack were logged as connection in the following DShield firewall logs:
+#### The `25` sessions in this attack were logged as connection in the following DShield firewall logs:
 Here is a sample of the log lines:
 
 ```log
@@ -924,6 +1174,14 @@ Here is a sample of the log lines:
 1701897159 BigDshield kernel:[27245.788584]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=91.92.251.103 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=48 ID=46605 DF PROTO=TCP SPT=33434 DPT=2222 WINDOW=64240 RES=0x00 SYN URGP=0 
 1701911011 BigDshield kernel:[41098.512428]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=91.92.251.103 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=49 ID=10200 DF PROTO=TCP SPT=60038 DPT=22 WINDOW=64240 RES=0x00 SYN URGP=0 
 1701911211 BigDshield kernel:[41297.787530]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=91.92.251.103 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=48 ID=65243 DF PROTO=TCP SPT=59472 DPT=2222 WINDOW=64240 RES=0x00 SYN URGP=0 
+1701925242 BigDshield kernel:[55329.057269]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=91.92.251.103 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=48 ID=30899 DF PROTO=TCP SPT=40984 DPT=2222 WINDOW=64240 RES=0x00 SYN URGP=0 
+1701939052 BigDshield kernel:[69139.075322]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=91.92.251.103 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=49 ID=22922 DF PROTO=TCP SPT=53758 DPT=22 WINDOW=64240 RES=0x00 SYN URGP=0 
+1701939251 BigDshield kernel:[69338.319209]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=91.92.251.103 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=48 ID=59729 DF PROTO=TCP SPT=56156 DPT=2222 WINDOW=64240 RES=0x00 SYN URGP=0 
+1701950055 BigDshield kernel:[80141.794320]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=91.92.251.103 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=48 ID=18659 DF PROTO=TCP SPT=53496 DPT=2222 WINDOW=64240 RES=0x00 SYN URGP=0 
+1701958201 BigDshield kernel:[ 1889.706713]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=91.92.251.103 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=49 ID=63520 DF PROTO=TCP SPT=44494 DPT=22 WINDOW=64240 RES=0x00 SYN URGP=0 
+1701958326 BigDshield kernel:[ 2014.461914]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=91.92.251.103 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=49 ID=59164 DF PROTO=TCP SPT=50154 DPT=2222 WINDOW=64240 RES=0x00 SYN URGP=0 
+1701967144 BigDshield kernel:[10832.597455]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=91.92.251.103 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=49 ID=50160 DF PROTO=TCP SPT=50550 DPT=22 WINDOW=64240 RES=0x00 SYN URGP=0 
+1701967271 BigDshield kernel:[10959.645631]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=91.92.251.103 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=49 ID=16554 DF PROTO=TCP SPT=42510 DPT=2222 WINDOW=64240 RES=0x00 SYN URGP=0 
 1701592740 BigDshield kernel:[68427.492998]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=91.92.251.103 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=48 ID=41146 DF PROTO=TCP SPT=59142 DPT=2222 WINDOW=64240 RES=0x00 SYN URGP=0 
 1701604783 BigDshield kernel:[80470.436953]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=91.92.251.103 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=49 ID=26604 DF PROTO=TCP SPT=44494 DPT=22 WINDOW=64240 RES=0x00 SYN URGP=0 
 1701622480 BigDshield kernel:[11765.426921]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=91.92.251.103 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=48 ID=51162 DF PROTO=TCP SPT=58640 DPT=2222 WINDOW=64240 RES=0x00 SYN URGP=0 
@@ -950,6 +1208,14 @@ Here is a sample of the log lines:
 1701897159 BigDshield kernel:[27245.788584]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=91.92.251.103 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=48 ID=46605 DF PROTO=TCP SPT=33434 DPT=2222 WINDOW=64240 RES=0x00 SYN URGP=0 
 1701911011 BigDshield kernel:[41098.512428]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=91.92.251.103 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=49 ID=10200 DF PROTO=TCP SPT=60038 DPT=22 WINDOW=64240 RES=0x00 SYN URGP=0 
 1701911211 BigDshield kernel:[41297.787530]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=91.92.251.103 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=48 ID=65243 DF PROTO=TCP SPT=59472 DPT=2222 WINDOW=64240 RES=0x00 SYN URGP=0 
+1701925242 BigDshield kernel:[55329.057269]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=91.92.251.103 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=48 ID=30899 DF PROTO=TCP SPT=40984 DPT=2222 WINDOW=64240 RES=0x00 SYN URGP=0 
+1701939052 BigDshield kernel:[69139.075322]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=91.92.251.103 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=49 ID=22922 DF PROTO=TCP SPT=53758 DPT=22 WINDOW=64240 RES=0x00 SYN URGP=0 
+1701939251 BigDshield kernel:[69338.319209]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=91.92.251.103 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=48 ID=59729 DF PROTO=TCP SPT=56156 DPT=2222 WINDOW=64240 RES=0x00 SYN URGP=0 
+1701950055 BigDshield kernel:[80141.794320]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=91.92.251.103 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=48 ID=18659 DF PROTO=TCP SPT=53496 DPT=2222 WINDOW=64240 RES=0x00 SYN URGP=0 
+1701958201 BigDshield kernel:[ 1889.706713]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=91.92.251.103 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=49 ID=63520 DF PROTO=TCP SPT=44494 DPT=22 WINDOW=64240 RES=0x00 SYN URGP=0 
+1701958326 BigDshield kernel:[ 2014.461914]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=91.92.251.103 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=49 ID=59164 DF PROTO=TCP SPT=50154 DPT=2222 WINDOW=64240 RES=0x00 SYN URGP=0 
+1701967144 BigDshield kernel:[10832.597455]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=91.92.251.103 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=49 ID=50160 DF PROTO=TCP SPT=50550 DPT=22 WINDOW=64240 RES=0x00 SYN URGP=0 
+1701967271 BigDshield kernel:[10959.645631]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=91.92.251.103 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=49 ID=16554 DF PROTO=TCP SPT=42510 DPT=2222 WINDOW=64240 RES=0x00 SYN URGP=0 
 
 ```
 COMMENTARY ON LOGS
@@ -978,12 +1244,12 @@ The consistent use of destination port `2222` suggests that the honeypot may hav
 <h3>Top 1 Source Ips</h3>
 </summary>
 
-Total Source IPs: `19`
+Total Source IPs: `25`
 Unique: `1`
 
 | Source IP | Times Seen |
 | --- | --- |
-| `91.92.251.103` | `19` |
+| `91.92.251.103` | `25` |
 
 </details>
 
@@ -995,12 +1261,12 @@ Unique: `1`
 <h3>Top 1 Destination Ips</h3>
 </summary>
 
-Total Destination IPs: `19`
+Total Destination IPs: `25`
 Unique: `1`
 
 | Destination IP | Times Seen |
 | --- | --- |
-| `172.31.5.68` | `19` |
+| `172.31.5.68` | `25` |
 
 </details>
 
@@ -1012,8 +1278,8 @@ Unique: `1`
 <h3>Top 10 Source Ports</h3>
 </summary>
 
-Total Source Ports: `19`
-Unique: `19`
+Total Source Ports: `25`
+Unique: `25`
 
 | Source Port | Times Seen |
 | --- | --- |
@@ -1038,12 +1304,12 @@ Unique: `19`
 <h3>Top 1 Destination Ports</h3>
 </summary>
 
-Total Destination Ports: `19`
+Total Destination Ports: `25`
 Unique: `1`
 
 | Destination Port | Times Seen |
 | --- | --- |
-| `2222` | `19` |
+| `2222` | `25` |
 
 </details>
 
@@ -1073,12 +1339,12 @@ This consistent use of a single SSH client version and HASSH across multiple con
 <h3>Top 6 Usernames</h3>
 </summary>
 
-Total Usernames: `50`
+Total Usernames: `74`
 Unique: `6`
 
 | Username | Times Seen |
 | --- | --- |
-| `admin` | `22` |
+| `admin` | `46` |
 | `Admin` | `6` |
 | `guest` | `6` |
 | `support` | `6` |
@@ -1096,8 +1362,8 @@ Unique: `6`
 <h3>Top 10 Passwords</h3>
 </summary>
 
-Total Passwords: `50`
-Unique: `15`
+Total Passwords: `74`
+Unique: `27`
 
 | Password | Times Seen |
 | --- | --- |
@@ -1123,8 +1389,8 @@ Unique: `15`
 <h3>Top 10 Username/Password Pairs</h3>
 </summary>
 
-Total Username/Password Pairs: `50`
-Unique: `25`
+Total Username/Password Pairs: `74`
+Unique: `37`
 
 | Username/Password Pair | Times Seen |
 | --- | --- |
@@ -1204,12 +1470,12 @@ Unique: `1`
 <h3>Top 1 Ssh Versions</h3>
 </summary>
 
-Total SSH Versions: `19`
+Total SSH Versions: `25`
 Unique: `1`
 
 | SSH Version | Times Seen |
 | --- | --- |
-| `SSH-2.0-libssh2_1.8.2` | `19` |
+| `SSH-2.0-libssh2_1.8.2` | `25` |
 
 </details>
 
@@ -1222,12 +1488,12 @@ Unique: `1`
 <h3>Top 1 Ssh Hasshs</h3>
 </summary>
 
-Total SSH Hasshs: `19`
+Total SSH Hasshs: `25`
 Unique: `1`
 
 | SSH Hassh | Times Seen |
 | --- | --- |
-| `a7a87fbe86774c2e40cc4a7ea2ab1b3c` | `19` |
+| `a7a87fbe86774c2e40cc4a7ea2ab1b3c` | `25` |
 
 </details>
 
