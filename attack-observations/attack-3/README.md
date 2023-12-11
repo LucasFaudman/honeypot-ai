@@ -167,6 +167,7 @@ This attack shows signs of an adversary attempting to gain and potentially maint
 | [markdownwriterbase.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/markdownwriter/markdownwriterbase.py) | Base class for all markdown writers and markdown shortcut functions |
 | [cowrieattackmarkdownwriter.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/markdownwriter/cowrieattackmarkdownwriter.py) | Markdown writer for Cowrie Attack objects |
 | [ipmarkdownwriter.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/markdownwriter/ipmarkdownwriter.py) | Markdown writer for ipdata added to Attack objects by IPAnalyzer |
+| [visualizer.py](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/markdownwriter/visualizer.py) | Graphing functions for visualizing data from Attack objects |
 
 #### [tests](https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/tests)
 > Tests for all analyzer modules
@@ -515,16 +516,14 @@ COMMENTARY ON LOGS
 <h1>IP and Ports</h1>
 </summary>
 
-The commands used in the attack are as follows:
+The IP addresses and ports involved in the attack are as follows:
 
-1. `enable`: This command is often used to enter privileged mode on network devices, such as routers and switches. It looks like the attacker was trying common network equipment commands.
-2. `system`: Similarly to `enable`, this is likely another attempt at finding a command-line interface for network management systems.
-3. `shell`, `sh`, `linuxshell`: These commands indicate attempts to open a shell environment, either with the assumption that `shell` or `sh` is an alias for the shell, or looking for a custom-named `linuxshell` command.
-4. `cd /tmp/; echo \"senpai\" > rootsenpai; cat rootsenpai; rm -rf rootsenpai`: This is a series of commands concatenated with `;`. They change the directory to `/tmp/`, create a file called `rootsenpai` with the content "senpai", display its content, and then remove it. This could be a test to check if the system is writable and the attacker has enough permissions.
-5. A complex `for` loop script that searches for deleted files still in use by processes (`grep -q \"(deleted)\" \"$dir/maps\"`) and then kills those processes (`kill -9 $(basename $dir)`). It ends with downloading an executable (`ah`) from `http://94.156.68.152`, making it executable (`chmod 777 ah`), running it, and then removing it. This indicates the attacker downloaded and executed malicious software.
-6. `basename $dir`: This command extracts the directory base name, which was used in the `for` loop to extract PID values from the path.
+- Source IP: `204.76.203.13` (attacker's IP)
+- Destination IP: `172.31.5.68` (honeypot's IP)
+- Source Ports (used by the attacker): `56388`, `56398`, `56402`, `54312`, `54330`
+- Destination Port (honeypot's SSH port): `2222`
 
-Overall, the attacker attempted to gain higher privileges, executed tests to see if they could manipulate the file system, and then downloaded and executed a potentially malicious file.
+Please note that these are the ports from which the attacker established their connections. There could be other ports used for the downloads or data exfiltration that are not listed.
 
 <details>
 <summary>
@@ -608,7 +607,7 @@ Unique: `1`
 <h1>SSH Analysis</h1>
 </summary>
 
-Briefly explain the malware used in the attack.
+The SSH data shows that during the attack, the attacker was using an SSH client that identifies itself as libssh2 version 1.10.0, which is a library for implementing SSH2 protocol clients. The reported version shown is `"SSH-2.0-libssh2_1.10.0"`. No SSH handshake hashes (`ssh_hasshs`) were reported, which means there is no additional SSH fingerprint data available. However, the consistent use of the same SSH client version suggests the attacker may have been using an automated script or tool to attempt SSH connections or carry out the attack. The version information can be useful for understanding the capabilities and possibly the origin of the tools used by the attacker.
 
 <details>
 <summary>
@@ -771,20 +770,16 @@ Unique: `1`
 
 # Commands Used
 This attack used a total of `9` inputs to execute the following `17` commands:
-The ISC (Internet Storm Center) data for the IP address `204.76.203.13` involved in the attack provides the following information:
+The commands used in the attack are as follows:
 
-- **Total Reports**: There have been 2 reports of malicious activity associated with this IP.
-- **Honeypots Targeted**: This IP has targeted 1 honeypot.
-- **First Seen**: The IP was first observed by ISC on 2023-10-24.
-- **Last Seen**: The most recent observation of this IP by ISC was on 2023-12-03.
-- **Network**: The IP is part of the `204.76.203.0/24` network range.
-- **AS Name**: The Autonomous System Name is "INTELLIGENCE-ATOM-HOSTING".
-- **AS Country Code**: The country code associated with the Autonomous System is "KN", which is Saint Kitts and Nevis.
-- **Threat Feeds**: The IP address has been listed on at least two threat feeds:
-  - `blocklistde22`: It first appeared on this feed on 2023-11-30 and was last seen on 2023-12-03.
-  - `ciarmy`: This feed first saw the IP on 2023-11-12 and last on 2023-12-03.
+1. `enable`: This command is often used to enter privileged mode on network devices, such as routers and switches. It looks like the attacker was trying common network equipment commands.
+2. `system`: Similarly to `enable`, this is likely another attempt at finding a command-line interface for network management systems.
+3. `shell`, `sh`, `linuxshell`: These commands indicate attempts to open a shell environment, either with the assumption that `shell` or `sh` is an alias for the shell, or looking for a custom-named `linuxshell` command.
+4. `cd /tmp/; echo \"senpai\" > rootsenpai; cat rootsenpai; rm -rf rootsenpai`: This is a series of commands concatenated with `;`. They change the directory to `/tmp/`, create a file called `rootsenpai` with the content "senpai", display its content, and then remove it. This could be a test to check if the system is writable and the attacker has enough permissions.
+5. A complex `for` loop script that searches for deleted files still in use by processes (`grep -q \"(deleted)\" \"$dir/maps\"`) and then kills those processes (`kill -9 $(basename $dir)`). It ends with downloading an executable (`ah`) from `http://94.156.68.152`, making it executable (`chmod 777 ah`), running it, and then removing it. This indicates the attacker downloaded and executed malicious software.
+6. `basename $dir`: This command extracts the directory base name, which was used in the `for` loop to extract PID values from the path.
 
-These details suggest that the IP address `204.76.203.13` has a history of suspicious or malicious activities and has been flagged by multiple threat intelligence sources. Its association with a specific AS and country may provide clues to the attacker's geographical location and possibly their internet service provider or hosting service.
+Overall, the attacker attempted to gain higher privileges, executed tests to see if they could manipulate the file system, and then downloaded and executed a potentially malicious file.
 
 <details>
 <summary>
@@ -901,7 +896,7 @@ These commands use `basename`, which **strips the directory portion from a given
 
 # Malware Analysis
 
-The ThreatFox database does not provide any information on the IP address `204.76.203.13` involved in the attack. There is no data returned, indicating that threat intelligence related to this IP address may not be available in ThreatFox or that the IP has not been associated with known indicators of compromise (IoCs) in their database. Without any detailed information from ThreatFox, we don't have additional context regarding this IP's involvement in known malware campaigns or other malicious activities. Further investigation using other threat intelligence sources or analysis methods would be required to learn more about potential threats associated with this IP address.
+Briefly explain the malware used in the attack.
 This attack downloaded `2` raw malware samples which can be standardized into `2` samples:
 
 ### Raw Malware Samples
@@ -1043,29 +1038,58 @@ The 'commands' field suggests the attacker was engaging in behavior typically as
 
 
 # Which vulnerability does the attack attempt to exploit?
-The following summarized information about the IP address `204.76.203.13` involved in the attack has been gathered using CyberGordon:
+The provided information doesn't explicitly state the exact vulnerability that is being exploited. However, I can make an educated guess based on the observed behavior of the attacker:
 
-- **GreyNoise**: Classified as malicious, the IP has been actively scanning the Internet in the last 3 months, with the last report on 03 December 2023.
-- **MetaDefender**: The IP is found in three different sources indicating high risk, with activities related to brute force and scanning.
-- **IPdata.co**: Geolocation points to Saint Kitts and Nevis. The IP is involved in malicious/attacker activity and abuse/bot activity, appearing on numerous blocklists.
-- **AbuseIPDB**: The service provider is Intelligence Hosting LLC, utilizing the network primarily for data center/web hosting/transit usage. It poses a 100% risk with 1354 reports by 646 users, with the last report on 04 December 2023.
-- **Pulsedive**: Medium risk assessment with recent activity observed on 29 Nov 2023. The IP is listed in threat lists related to SSH brute force attacks and appears on several brute force hosts feeds.
-- **DShield/ISC**: Appears in 2 reports targeting 1 honeypot, with the most recent activity on 3 Dec 2023.
-- **BlackList DE**: Found in 133 attacks and 3 reports, indicating a significant track record of malicious activity.
-- **Offline Feeds**: Appearances on IPsum and other blocklists indicate recognition in EU botnets/zombies/scanners lists.
+The attacker executed commands that are not typically part of a normal SSH session (`enable`, `system`, `shell`, etc.), which suggests they might have been probing for a specific type of insecure or misconfigured service—possibly a network device management interface. This could indicate an attempt to exploit default credentials or a known command injection vulnerability in such interfaces.
 
-Overall, the data paints a picture of `204.76.203.13` as an IP with a high level of malicious intent, frequently engaged in online scanning and brute force attacks, with numerous reports across various security platforms.
+Moreover, the attacker downloaded and executed a file named `ah` from an external server. This file contained a script that downloaded additional binaries for various architectures and executed them. Without a specific CVE number or a known exploit name, it's not possible to determine the exact vulnerability from the information given.
+
+To identify the vulnerability being exploited, we would typically analyze the malware code, system logs to see what changes it made to the system, or network traffic to see if the malware communicates with any known command and control servers associated with a specific vulnerability.
+
+Exploit databases like CVE Details, Exploit Database, and the National Vulnerability Database (NVD) may provide information on vulnerabilities associated with the indicators we have (e.g., the SSH client version or the pattern of commands attempted), but without more details or contexts, such as system logs or file analysis, it's not possible to definitively identify the exploit used. Please provide additional information or system logs if available to further investigate the exploit used in this attack.
 
 
 # MITRE ATT&CK
-Based on the Open Source Intelligence (OSINT) sources, we've gathered the following critical findings about the IP address `204.76.203.13` involved in the attack:
+In the MITRE ATT&CK framework, which outlines the various tactics and techniques used by threat actors, this attack can be classified under several categories:
 
-- **Shodan**: No information was found in the Shodan database.
-- **ISC**: The IP has been reported for malicious activity twice and has targeted at least one honeypot. It was first seen on 2023-10-24 and last seen on 2023-12-03. The IP is associated with the Autonomous System "INTELLIGENCE-ATOM-HOSTING" and is based in Saint Kitts and Nevis. It is listed on threat feeds such as blocklistde22 and ciarmy.
-- **ThreatFox**: No data was available from ThreatFox for this IP address.
-- **CyberGordon**: The IP has been reported as malicious over several months and is known for internet scanning activities. It is associated with high risk and brute force attacks, especially targeting SSH. It is on multiple blocklists indicating a history of abuse and bot activity. The IP is associated with a data center or web hosting services with a 100% risk score on AbuseIPDB and reported in many other feeds and lists as a source of attack attempts.
+1. **Initial Access**
+   - T1190: **Exploit Public-Facing Application** - The attacker may have tried to exploit a public-facing application or service (SSH in this case).
 
-In summary, the IP address `204.76.203.13` is a known source of malicious activity with multiple reports of scanning and brute force attacks, particularly on SSH services. The IP is associated with a high level of threat, has targeted honeypots, and is featured in various security-related blocklists, indicating a substantial risk. The geographical location of the attacker's IP is Saint Kitts and Nevis, and it appears to be associated with a hosting provider specialized in data center and transit services.
+2. **Execution**
+   - T1059: **Command and Scripting Interpreter** - The attacker used shell commands to execute actions.
+
+3. **Persistence**
+   - (Information not available unless the malware or commands were specifically designed to maintain persistence)
+
+4. **Privilege Escalation**
+   - (Information not available unless the attack specifically attempted to gain higher privileges beyond what was seen in the commands)
+
+5. **Defense Evasion**
+   - T1070: **Indicator Removal on Host** - The attacker used commands to delete files (`rm -rf rootsenpai` and others) to remove evidence of their presence.
+   - T1027: **Obfuscated Files or Information** - The attacker may have used this technique since the malware was fetched and executed then erased.
+
+6. **Credential Access**
+   - (Information not available unless the attack involved theft or attempt to access credentials)
+
+7. **Discovery**
+   - (Information not available unless the attacker performed actions to discover more about the system)
+
+8. **Lateral Movement**
+   - (Information not available unless there's evidence of movement across the network)
+
+9. **Collection**
+   - (Information not available unless the attack involved data collection)
+
+10. **Command and Control**
+    - T1105: **Ingress Tool Transfer** - The attacker transferred tools or malicious software from an external server to the target system.
+
+11. **Exfiltration**
+    - (Information not available unless the attack involved data being exfiltrated)
+
+12. **Impact**
+    - (Information not available unless the commands were designed to damage, disrupt, or negatively impact business processes)
+
+Without more context or details on the rest of the attacker's actions post-compromise, it's difficult to classify other aspects under the MITRE framework. As more information becomes available, other MITRE ATT&CK techniques may apply to this attack.
 
 # What Is The Goal Of The Attack?
 Based on the analysis of the commands used and the malware involved, the goals of the attack appear to be the following:
@@ -1189,7 +1213,14 @@ Indicators of Compromise (IOCs) are evidence on a digital system that indicates 
 Identifying these IOCs in a system can help determine if a compromise has occurred and guide the response and remediation actions. It is important to remember that IOCs can change over time as attackers modify their tactics, so it is crucial to stay updated with the latest threat intelligence data.
 
 # What do you know about the attacker?
-The Shodan database does not provide any information on the IP address `204.76.203.13` involved in the attack. The database returned an `ERROR: 404: Not Found`, which means there are no records or that the IP address might not be indexed by Shodan. As a result, we have no data from Shodan regarding open ports, running services, geolocation, or other attributes typically assessed during an IP address analysis. If more detailed information is needed, alternative sources or methods would need to be employed to gather intelligence about this IP address.
+Based on the Open Source Intelligence (OSINT) sources, we've gathered the following critical findings about the IP address `204.76.203.13` involved in the attack:
+
+- **Shodan**: No information was found in the Shodan database.
+- **ISC**: The IP has been reported for malicious activity twice and has targeted at least one honeypot. It was first seen on 2023-10-24 and last seen on 2023-12-03. The IP is associated with the Autonomous System "INTELLIGENCE-ATOM-HOSTING" and is based in Saint Kitts and Nevis. It is listed on threat feeds such as blocklistde22 and ciarmy.
+- **ThreatFox**: No data was available from ThreatFox for this IP address.
+- **CyberGordon**: The IP has been reported as malicious over several months and is known for internet scanning activities. It is associated with high risk and brute force attacks, especially targeting SSH. It is on multiple blocklists indicating a history of abuse and bot activity. The IP is associated with a data center or web hosting services with a 100% risk score on AbuseIPDB and reported in many other feeds and lists as a source of attack attempts.
+
+In summary, the IP address `204.76.203.13` is a known source of malicious activity with multiple reports of scanning and brute force attacks, particularly on SSH services. The IP is associated with a high level of threat, has targeted honeypots, and is featured in various security-related blocklists, indicating a substantial risk. The geographical location of the attacker's IP is Saint Kitts and Nevis, and it appears to be associated with a hosting provider specialized in data center and transit services.
 
 <details>
 <summary>
@@ -1198,14 +1229,9 @@ The Shodan database does not provide any information on the IP address `204.76.2
 
 
 ### IP Locations Summary
-The IP addresses and ports involved in the attack are as follows:
+Based on the data retrieved from the Shodan database, there is no information available for the IP address `204.76.203.13`. The Shodan database returned a `404: Not Found` error which indicates that there may be no records or the IP might not be indexed.
 
-- Source IP: `204.76.203.13` (attacker's IP)
-- Destination IP: `172.31.5.68` (honeypot's IP)
-- Source Ports (used by the attacker): `56388`, `56398`, `56402`, `54312`, `54330`
-- Destination Port (honeypot's SSH port): `2222`
-
-Please note that these are the ports from which the attacker established their connections. There could be other ports used for the downloads or data exfiltration that are not listed.
+Without further details from Shodan or other geolocation services, we have limited knowledge about the physical location or the associated network information of the attacking IP address. We could attempt to use alternative sources for geolocation and IP analysis to gather more contextual information about the attacker's location.
 
 * This attack involved `2` unique IP addresses. `1` were source IPs.`1` unique IPs and `1` unique URLS were found in the commands.`1` unique IPs and `1` unique URLS were found in malware.
 * The most common **Country** of origin was `Netherlands`, which was seen `1` times.
@@ -1232,9 +1258,18 @@ Please note that these are the ports from which the attacker established their c
 
 
 ### CyberGordon Results Summary
-Based on the data retrieved from the Shodan database, there is no information available for the IP address `204.76.203.13`. The Shodan database returned a `404: Not Found` error which indicates that there may be no records or the IP might not be indexed.
+The following summarized information about the IP address `204.76.203.13` involved in the attack has been gathered using CyberGordon:
 
-Without further details from Shodan or other geolocation services, we have limited knowledge about the physical location or the associated network information of the attacking IP address. We could attempt to use alternative sources for geolocation and IP analysis to gather more contextual information about the attacker's location.
+- **GreyNoise**: Classified as malicious, the IP has been actively scanning the Internet in the last 3 months, with the last report on 03 December 2023.
+- **MetaDefender**: The IP is found in three different sources indicating high risk, with activities related to brute force and scanning.
+- **IPdata.co**: Geolocation points to Saint Kitts and Nevis. The IP is involved in malicious/attacker activity and abuse/bot activity, appearing on numerous blocklists.
+- **AbuseIPDB**: The service provider is Intelligence Hosting LLC, utilizing the network primarily for data center/web hosting/transit usage. It poses a 100% risk with 1354 reports by 646 users, with the last report on 04 December 2023.
+- **Pulsedive**: Medium risk assessment with recent activity observed on 29 Nov 2023. The IP is listed in threat lists related to SSH brute force attacks and appears on several brute force hosts feeds.
+- **DShield/ISC**: Appears in 2 reports targeting 1 honeypot, with the most recent activity on 3 Dec 2023.
+- **BlackList DE**: Found in 133 attacks and 3 reports, indicating a significant track record of malicious activity.
+- **Offline Feeds**: Appearances on IPsum and other blocklists indicate recognition in EU botnets/zombies/scanners lists.
+
+Overall, the data paints a picture of `204.76.203.13` as an IP with a high level of malicious intent, frequently engaged in online scanning and brute force attacks, with numerous reports across various security platforms.
 
 * `22` total alerts were found across all engines.
 * `6` were **high** priority. 
@@ -1316,7 +1351,7 @@ Without further details from Shodan or other geolocation services, we have limit
 
 
 ### Shodan Results Summary
-The SSH data shows that during the attack, the attacker was using an SSH client that identifies itself as libssh2 version 1.10.0, which is a library for implementing SSH2 protocol clients. The reported version shown is `"SSH-2.0-libssh2_1.10.0"`. No SSH handshake hashes (`ssh_hasshs`) were reported, which means there is no additional SSH fingerprint data available. However, the consistent use of the same SSH client version suggests the attacker may have been using an automated script or tool to attempt SSH connections or carry out the attack. The version information can be useful for understanding the capabilities and possibly the origin of the tools used by the attacker.
+The Shodan database does not provide any information on the IP address `204.76.203.13` involved in the attack. The database returned an `ERROR: 404: Not Found`, which means there are no records or that the IP address might not be indexed by Shodan. As a result, we have no data from Shodan regarding open ports, running services, geolocation, or other attributes typically assessed during an IP address analysis. If more detailed information is needed, alternative sources or methods would need to be employed to gather intelligence about this IP address.
 
 - The most common **open port** was `21`, which was seen `1` times.
 - The most common **protocol** was `tcp`, which was seen `3` times.
@@ -1708,46 +1743,7 @@ Content-Type: text/html; charset=UTF-8
 
 
 ### ThreatFox Results Summary
-In the MITRE ATT&CK framework, which outlines the various tactics and techniques used by threat actors, this attack can be classified under several categories:
-
-1. **Initial Access**
-   - T1190: **Exploit Public-Facing Application** - The attacker may have tried to exploit a public-facing application or service (SSH in this case).
-
-2. **Execution**
-   - T1059: **Command and Scripting Interpreter** - The attacker used shell commands to execute actions.
-
-3. **Persistence**
-   - (Information not available unless the malware or commands were specifically designed to maintain persistence)
-
-4. **Privilege Escalation**
-   - (Information not available unless the attack specifically attempted to gain higher privileges beyond what was seen in the commands)
-
-5. **Defense Evasion**
-   - T1070: **Indicator Removal on Host** - The attacker used commands to delete files (`rm -rf rootsenpai` and others) to remove evidence of their presence.
-   - T1027: **Obfuscated Files or Information** - The attacker may have used this technique since the malware was fetched and executed then erased.
-
-6. **Credential Access**
-   - (Information not available unless the attack involved theft or attempt to access credentials)
-
-7. **Discovery**
-   - (Information not available unless the attacker performed actions to discover more about the system)
-
-8. **Lateral Movement**
-   - (Information not available unless there's evidence of movement across the network)
-
-9. **Collection**
-   - (Information not available unless the attack involved data collection)
-
-10. **Command and Control**
-    - T1105: **Ingress Tool Transfer** - The attacker transferred tools or malicious software from an external server to the target system.
-
-11. **Exfiltration**
-    - (Information not available unless the attack involved data being exfiltrated)
-
-12. **Impact**
-    - (Information not available unless the commands were designed to damage, disrupt, or negatively impact business processes)
-
-Without more context or details on the rest of the attacker's actions post-compromise, it's difficult to classify other aspects under the MITRE framework. As more information becomes available, other MITRE ATT&CK techniques may apply to this attack.
+The ThreatFox database does not provide any information on the IP address `204.76.203.13` involved in the attack. There is no data returned, indicating that threat intelligence related to this IP address may not be available in ThreatFox or that the IP has not been associated with known indicators of compromise (IoCs) in their database. Without any detailed information from ThreatFox, we don't have additional context regarding this IP's involvement in known malware campaigns or other malicious activities. Further investigation using other threat intelligence sources or analysis methods would be required to learn more about potential threats associated with this IP address.
 
 </details>
 
@@ -1761,15 +1757,20 @@ Without more context or details on the rest of the attacker's actions post-compr
 
 
 ### Internet Storm Center (ISC) [https://isc.sans.edu/ipinfo/](https://isc.sans.edu/ipinfo/)
-The provided information doesn't explicitly state the exact vulnerability that is being exploited. However, I can make an educated guess based on the observed behavior of the attacker:
+The ISC (Internet Storm Center) data for the IP address `204.76.203.13` involved in the attack provides the following information:
 
-The attacker executed commands that are not typically part of a normal SSH session (`enable`, `system`, `shell`, etc.), which suggests they might have been probing for a specific type of insecure or misconfigured service—possibly a network device management interface. This could indicate an attempt to exploit default credentials or a known command injection vulnerability in such interfaces.
+- **Total Reports**: There have been 2 reports of malicious activity associated with this IP.
+- **Honeypots Targeted**: This IP has targeted 1 honeypot.
+- **First Seen**: The IP was first observed by ISC on 2023-10-24.
+- **Last Seen**: The most recent observation of this IP by ISC was on 2023-12-03.
+- **Network**: The IP is part of the `204.76.203.0/24` network range.
+- **AS Name**: The Autonomous System Name is "INTELLIGENCE-ATOM-HOSTING".
+- **AS Country Code**: The country code associated with the Autonomous System is "KN", which is Saint Kitts and Nevis.
+- **Threat Feeds**: The IP address has been listed on at least two threat feeds:
+  - `blocklistde22`: It first appeared on this feed on 2023-11-30 and was last seen on 2023-12-03.
+  - `ciarmy`: This feed first saw the IP on 2023-11-12 and last on 2023-12-03.
 
-Moreover, the attacker downloaded and executed a file named `ah` from an external server. This file contained a script that downloaded additional binaries for various architectures and executed them. Without a specific CVE number or a known exploit name, it's not possible to determine the exact vulnerability from the information given.
-
-To identify the vulnerability being exploited, we would typically analyze the malware code, system logs to see what changes it made to the system, or network traffic to see if the malware communicates with any known command and control servers associated with a specific vulnerability.
-
-Exploit databases like CVE Details, Exploit Database, and the National Vulnerability Database (NVD) may provide information on vulnerabilities associated with the indicators we have (e.g., the SSH client version or the pattern of commands attempted), but without more details or contexts, such as system logs or file analysis, it's not possible to definitively identify the exploit used. Please provide additional information or system logs if available to further investigate the exploit used in this attack.
+These details suggest that the IP address `204.76.203.13` has a history of suspicious or malicious activities and has been flagged by multiple threat intelligence sources. Its association with a specific AS and country may provide clues to the attacker's geographical location and possibly their internet service provider or hosting service.
 
 * `2` of the `2` unique source IPs have reports on the Internet Storm Center (ISC).
 * `480` total attacks were reported.
