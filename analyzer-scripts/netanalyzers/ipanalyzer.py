@@ -514,24 +514,24 @@ class IPAnalyzer:
 
                 else:
                     #Only leave error message
-                    ipdata[ip][source] = ipdata[ip][source]['error']
+                    ipdata[ip][source] = ipdata[ip][source].get('error')
                     continue
 
                 if source == "isc":
                     reduced_isc_data = {}
-                    reduced_isc_data['total_reports'] = ipdata[ip][source].pop("count")
-                    reduced_isc_data['honeypots_targeted'] = ipdata[ip][source].pop("attacks")
-                    reduced_isc_data['firstseen'] = ipdata[ip][source].pop("mindate")
-                    reduced_isc_data['lastseen'] = ipdata[ip][source].pop("maxdate")
-                    reduced_isc_data['network'] = ipdata[ip][source].pop("network")
-                    reduced_isc_data['asname'] = ipdata[ip][source].pop("asname")
-                    reduced_isc_data['as_country_code'] = ipdata[ip][source].pop("ascountry")    
+                    reduced_isc_data['total_reports'] = ipdata[ip][source].pop("count", None)
+                    reduced_isc_data['honeypots_targeted'] = ipdata[ip][source].pop("attacks", None)
+                    reduced_isc_data['firstseen'] = ipdata[ip][source].pop("mindate", None)
+                    reduced_isc_data['lastseen'] = ipdata[ip][source].pop("maxdate", None)
+                    reduced_isc_data['network'] = ipdata[ip][source].pop("network", None)
+                    reduced_isc_data['asname'] = ipdata[ip][source].pop("asname", None)
+                    reduced_isc_data['as_country_code'] = ipdata[ip][source].pop("ascountry")   , None 
 
                     weblogs = ipdata[ip][source].pop("weblogs", None)
                     if weblogs:
                         reduced_isc_data['weblogs'] = weblogs
 
-                    reduced_isc_data['threatfeeds'] = ipdata[ip][source].pop("threatfeeds")
+                    reduced_isc_data['threatfeeds'] = ipdata[ip][source].pop("threatfeeds", None)
 
                     ipdata[ip][source] = reduced_isc_data
 
@@ -548,7 +548,7 @@ class IPAnalyzer:
                 if source == "shodan":
                     reduced_shodan_data = {}
                     for port, port_data in ipdata[ip][source].get("ports", {}).items():
-                        if port_data["service_name"] == "unknown":
+                        if port_data["service_name"] != "unknown":
                             del port_data["service_data_raw"]
 
                         del port_data["service_data"]

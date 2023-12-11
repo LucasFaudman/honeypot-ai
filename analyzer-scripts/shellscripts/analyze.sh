@@ -7,7 +7,7 @@ zeek_remote_logs_dir="/srv/zeek/logs"
 zeek_local_destination="${local_logs_path}/zeek"
 
 web_remote_logs_dir="/srv/db/"
-web_local_destination="${local_logs_path}/weblogs"
+web_local_destination="${local_logs_path}/web"
 
 cowrie_remote_logs_dir="/srv/cowrie/var/log/cowrie/"
 cowrie_local_destination="${local_logs_path}/cowrie/"

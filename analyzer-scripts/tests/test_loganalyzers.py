@@ -5,11 +5,11 @@ from analyzerbase import *
 from loganalyzers.logparser import LogParser, CowrieParser, WebLogParser, DshieldParser
 from loganalyzers.cowrieloganalyzer import CowrieLogAnalyzer
 from loganalyzers.webloganalyzer import WebLogAnalyzer
-from loganalyzers.attacklogorganizer import AttackLogOrganizer, AttackLogReader
+from loganalyzers.attackdirorganizer import AttackDirOrganizer, ThreadPoolExecutor, ProcessPoolExecutor
+from loganalyzers.attackdirreader import AttackDirReader
 
 
-
-test_logs_path = Path("tests/tl2")
+test_logs_path = Path("tests/logs")
 test_attacks_path = Path("tests/a2")
 
 
@@ -213,34 +213,20 @@ class TestCowrieLogAnalyzer(CowrieAnalyzerTestCase):
 
 
 
-class TestAttackLogReader(CowrieAnalyzerTestCase):
+class TestAttackDirReader(CowrieAnalyzerTestCase):
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
 
-        cls.attack_log_reader = AttackLogReader(cls.parser, test_attacks_path, attacks=cls.attacks)
+        cls.attack_log_reader = AttackDirReader(cls.parser, test_attacks_path, attacks=cls.attacks)
         
 
     
     def test_attack_log_reader_counts(self):
         print(self.attack0)
         self.attack0.add_postprocessor(self.attack_log_reader)
-        
-        # log_paths_before = self.attack0.get_log_paths()
-        # log_names_before = self.attack0.get_log_names()
-        # log_counts_before = self.attack0.log_counts
-
-        # print(self.attack0.get_log_paths())
-        # print(self.attack0.get_log_names())
-        # print(self.attack0.log_counts)
-        
-        # self.assertEqual(log_paths_before, [])
-        # self.assertEqual(log_names_before, [])
-        # self.assertDictEqual(log_counts_before, {'all': {}})
-
-        
         self.attack_log_reader.update_all_log_paths()
         self.attack_log_reader.update_all_log_counts()
 
@@ -248,10 +234,7 @@ class TestAttackLogReader(CowrieAnalyzerTestCase):
         print(self.attack0.get_log_names())
         print(self.attack0.log_counts)
 
-        # self.assertNotEqual(log_paths_before,  self.attack0.get_log_paths())
-        # self.assertNotEqual(log_names_before, self.attack0.get_log_names())
-        # self.assertNotEqual(log_counts_before, self.attack0.log_counts)
-        
+
         self.assertGreaterEqual(len(self.attack0.get_log_paths()), 0)
         self.assertGreaterEqual(len(self.attack0.get_log_names()), 0)
         self.assertGreaterEqual(len(self.attack0.log_counts), 0)
@@ -291,121 +274,61 @@ class TestAttackLogReader(CowrieAnalyzerTestCase):
 
 
 
-class TestAttackLogOrganizer(CowrieAnalyzerTestCase):
+class TestAttackDirOrganizer(CowrieAnalyzerTestCase):
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
 
-        cls.attack_log_reader = AttackLogReader(cls.parser, test_attacks_path, attacks=cls.attacks)
-        cls.attack_log_organizer = AttackLogOrganizer(cls.parser, test_attacks_path, attacks=cls.attacks)
+        cls.attack_log_reader = AttackDirReader(cls.parser, test_attacks_path, attacks=cls.attacks)
+        cls.attack_log_organizer = AttackDirOrganizer(cls.parser, test_attacks_path, attacks=cls.attacks)
 
         cls.run_times = {}
         cls.max_workers = 10
-        cls.chunksize = 2
+        cls.chunksize = 1
 
 
-
-
-    def test_organize_by_iter_logs(self):
-        #self.alr.update_all_log_paths_and_counts()
-
-        start_time = time()
-        for output in self.attack_log_organizer.organize_by_iter_logs():
-            print(output)
-        fn_name = "test_organize_by_iter_logs"
-        elapsed_time = time() - start_time
-        print(f"{fn_name}\nElapsed Time:{elapsed_time}")
-        self.run_times[fn_name] = elapsed_time
+    def test_organize(self):
+        for iterby in ["logs", "attacks"]:
+            for executor_cls in [None, ThreadPoolExecutor, ProcessPoolExecutor]:
+                for yield_order in ["as_completed", "as_submitted"]:
+                    start_time = time()
+                    for output in self.attack_log_organizer.organize(
+                            iterby=iterby, 
+                            executor_cls=executor_cls, 
+                            max_workers=self.max_workers, 
+                            chunksize=self.chunksize, 
+                            yield_order=yield_order
+                            ):
+                                print(output)
+                    
+                    elapsed_time = time() - start_time
+                    test_name = f"test_organize_{iterby}_{executor_cls}_{yield_order}"
+                    print(f"{test_name}\nElapsed Time:{elapsed_time}")
+                    self.run_times[test_name] = elapsed_time
         
-        ##self.alr.update_all_log_paths_and_counts()
-        
 
-
-    def test_organize_by_iter_attacks(self):
-        #self.alr.update_all_log_paths_and_counts()
-
-        start_time = time()
-        for output in self.attack_log_organizer.organize_by_iter_attacks():
-            print(output)
-        fn_name = "test_organize_by_iter_attacks"
-        elapsed_time = time() - start_time
-        print(f"{fn_name}\nElapsed Time:{elapsed_time}")
-        self.run_times[fn_name] = elapsed_time
-        
-        #self.alr.update_all_log_paths_and_counts()
-
-
-
-    def test_organize_by_iter_logs_multithreaded(self):
-        
-        #self.alr.update_all_log_paths_and_counts()
-
-        start_time = time()
-        for output in self.attack_log_organizer.organize_by_iter_logs_multithreaded(self.max_workers, self.chunksize):
-            print(output)
-        fn_name = "test_organize_by_iter_logs_multithreaded"
-        elapsed_time = time() - start_time
-        print(f"{fn_name}\nElapsed Time:{elapsed_time}")
-        self.run_times[fn_name] = elapsed_time
-        
-        ##self.alr.update_all_log_paths_and_counts()
-
-
-
-    def test_organize_by_iter_attacks_multithreaded(self):
-        
-        #self.alr.update_all_log_paths_and_counts()
-
-        start_time = time()
-        for output in self.attack_log_organizer.organize_by_iter_attacks_multithreaded(self.max_workers, self.chunksize):
-            print(output)
-        fn_name = "test_organize_by_iter_attacks_multithreaded"
-        elapsed_time = time() - start_time
-        print(f"{fn_name}\nElapsed Time:{elapsed_time}")
-        self.run_times[fn_name] = elapsed_time
-        
-        ##self.alr.update_all_log_paths_and_counts()
-
-
-
-    def test_organize_by_iter_logs_multiprocess(self):
-
-        #self.alr.update_all_log_paths_and_counts()
-
-        start_time = time()
-        for output in self.attack_log_organizer.organize_by_iter_logs_multiprocess(self.max_workers, self.chunksize):
-            print(output)
-        fn_name = "test_organize_by_iter_logs_multiprocess"
-        elapsed_time = time() - start_time
-        print(f"{fn_name}\nElapsed Time:{elapsed_time}")
-        self.run_times[fn_name] = elapsed_time
-        
-        ##self.alr.update_all_log_paths_and_counts()
-
-
-
-    def test_organize_by_iter_attacks_multiprocess(self):
-        
-        #self.alr.update_all_log_paths_and_counts()
-
-        start_time = time()
-        for output in self.attack_log_organizer.organize_by_iter_attacks_multiprocess(self.max_workers, self.chunksize):
-            print(output)
-        fn_name = "test_organize_by_iter_attacks_multiprocess"
-        elapsed_time = time() - start_time
-        print(f"{fn_name}\nElapsed Time: {elapsed_time}")
-        self.run_times[fn_name] = elapsed_time
-        
-        ##self.alr.update_all_log_paths_and_counts()
-
-    
-    
-    def test_print_run_times(self):
         sorted_run_times = sorted(self.run_times.items(), key=lambda item: item[1])
-        for fn_name, elapsed_time in sorted_run_times:
-            print(f"{fn_name}: {elapsed_time}")
+        for test_name, elapsed_time in sorted_run_times:
+            print(f"{test_name}: {elapsed_time}")
+
+
+
+        """
+        test_organize_attacks_<class 'concurrent.futures.process.ProcessPoolExecutor'>_as_submitted: 7630.16948723793
+test_organize_attacks_<class 'concurrent.futures.process.ProcessPoolExecutor'>_as_completed: 8236.926615953445
+test_organize_attacks_<class 'concurrent.futures.thread.ThreadPoolExecutor'>_as_submitted: 8770.862429857254
+test_organize_attacks_None_as_completed: 8916.230272054672
+test_organize_logs_<class 'concurrent.futures.thread.ThreadPoolExecutor'>_as_completed: 8944.795355081558
+test_organize_logs_None_as_submitted: 8954.41579413414
+test_organize_attacks_None_as_submitted: 9314.279464244843
+test_organize_attacks_<class 'concurrent.futures.thread.ThreadPoolExecutor'>_as_completed: 9451.206767082214
+test_organize_logs_<class 'concurrent.futures.process.ProcessPoolExecutor'>_as_submitted: 10328.38061618805
+test_organize_logs_None_as_completed: 10841.376113891602
+test_organize_logs_<class 'concurrent.futures.process.ProcessPoolExecutor'>_as_completed: 11813.116040229797
+test_organize_logs_<class 'concurrent.futures.thread.ThreadPoolExecutor'>_as_submitted: 12423.709311962128
+        """
 
 
 

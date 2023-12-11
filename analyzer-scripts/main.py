@@ -5,14 +5,15 @@ from analyzerbase import *
 from loganalyzers.logparser import LogParser, CowrieParser, WebLogParser, DshieldParser
 from loganalyzers.cowrieloganalyzer import CowrieLogAnalyzer
 from loganalyzers.webloganalyzer import WebLogAnalyzer
-from loganalyzers.attacklogorganizer import AttackLogOrganizer, AttackLogReader
+from loganalyzers.attackdirorganizer import AttackDirOrganizer, ProcessPoolExecutor
+from loganalyzers.attackdirreader import AttackDirReader
 
 from netanalyzers.ipanalyzer import IPAnalyzer
 from openaianalyzers.openaianalyzer import OpenAIAnalyzer, OPENAI_API_KEY
 
 
 #test_logs_path = Path("tests/tl2")
-test_attacks_path = Path("tests/a2")
+test_attacks_path = Path("tests/a1")
 test_ipdb_path = Path("tests/ipdb")
 test_aidb_path = Path("tests/aidb")
 test_ai_training_data_path=Path("openai-training-data")
@@ -54,8 +55,8 @@ class AttackAnalyzer:
         self.cowrie_analyzer = CowrieLogAnalyzer(self.cowrie_parser, self.remove_ips)
         self.weblog_analyzer = WebLogAnalyzer(self.weblog_parser, self.remove_ips, self.attacks_path)
         
-        self.attack_organizer = AttackLogOrganizer(self.cowrie_parser, self.attacks_path, self.attacks, self.overwrite)
-        self.attack_reader = AttackLogReader(self.cowrie_parser, self.attacks_path, self.attacks, self.overwrite)
+        self.attack_organizer = AttackDirOrganizer(self.cowrie_parser, self.attacks_path, self.attacks, self.overwrite)
+        self.attack_reader = AttackDirReader(self.cowrie_parser, self.attacks_path, self.attacks, self.overwrite)
 
         self.webdriver_type = webdriver_type
         self.webdriver_path = webdriver_path
@@ -78,20 +79,25 @@ class AttackAnalyzer:
 
 
 
-    def organize_attacks_from_cowrie_logs(self, max_src_ips=50):
+    def organize_attacks_from_cowrie_logs(self, max_src_ips=50,
+                                          iterby='attacks',
+                                          executor_cls=ProcessPoolExecutor,
+                                          max_workers=10,
+                                          chunksize=1):
         """Loads attacks from log files and saves them to json files"""
 
         attacks = self.load_attacks_from_cowrie_logs()
         for attack_id, attack in list(attacks.items()):
-            if attack.num_src_ips > max_src_ips:
+            if attack.num_uniq_src_ips > max_src_ips:
                 del attacks[attack_id]
         
 
         self.attack_organizer.set_attacks(attacks)
             
-        results = list(self.attack_organizer.organize())
-        return results
+        for result in self.attack_organizer.organize(iterby, executor_cls, max_workers, chunksize):
+            print(result)
 
+        return self.attacks
 
 
 
@@ -115,7 +121,7 @@ class AttackAnalyzer:
         
         return self.attacks
     
-        
+
 
     def postprocess_attacks(self):
         self.attack_reader.set_attacks(self.attacks)
@@ -151,13 +157,11 @@ class AttackAnalyzer:
                 malware_source_code = ""
 
             questions = {
-                "commands_analysis": "Briefly explain the commands used in the attack.",
-                "malware_analysis": "Briefly explain the malware used in the attack.",
+                #"initializer": "Breifly describe the attack.",
                 "ips_and_ports": "What are the IP addresses and ports involved in the attack?",
                 "ssh_analysis": "Explain what the SSH data shows in the context of the attack.",
                 
-                "vuln_analysis": "What vulnerability is being exploited? Include the exploit name and CVE number if possible.",
-                "mitre_attack": "How can this attack be classified using the MITRE ATT&CK framework?",
+
                 
                 "ip_locations_summary": "Summarize what is known about the location of the IP addresses involved in the attack.",
                 "shodan_summary": "Summarize what is known about the IP addresses involved in the attack using Shodan data.",
@@ -166,6 +170,12 @@ class AttackAnalyzer:
                 "cybergordon_summary": "Summarize what is known about the IP addresses involved in the attack using CyberGordon.",
                 "osint_summary": "Summarize the critical findings from the OSINT sources.",
                 
+                "commands_analysis": "Briefly explain the commands used in the attack.",
+                "malware_analysis": "Briefly explain the malware used in the attack.",
+                "vuln_analysis": "What vulnerability is being exploited? Include the exploit name and CVE number if possible.",
+                "mitre_attack": "How can this attack be classified using the MITRE ATT&CK framework?",
+
+
                 "goal_of_attack": "What is the goal of the attack?",
                 "would_attack_be_successful": "If the system is vulnerable, would the attack will be successful?",
                 "how_to_protect": "How can a system be protected from this attack?",
@@ -173,10 +183,13 @@ class AttackAnalyzer:
                 "summary": "Summarize attack details, methods and goals to begin the report.",
                 }
             
+            # For testing ignore
             # with open('qa.json', 'r') as f:
             #     qas = json.load(f)
             # answers = qas 
-            # answers_by_question_key = dict(zip(questions.keys(), qas.values()))
+            # answers_by_question_key = {k:qas[v] for k,v in questions.items()}
+
+
             answers = self.openai_analyzer.ass_answer_questions(questions.values(), attack)
             answers_by_question_key = {}
             for key, question in questions.items():

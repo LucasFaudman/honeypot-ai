@@ -120,8 +120,8 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
             if run.status == "requires_action":
                 return self.handle_submit_tool_outputs_required(run, attack, sleep_interval, **kwargs)
 
-            elif run.status == "cancelled":
-                pass
+            elif run.status in ("cancelled", 'failed', 'expired'):
+                raise Exception(f"Run status: {run.status}")
             
             elif run.status == "completed":
                 break
@@ -158,6 +158,44 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
 
         return self.wait_for_response(run.thread_id, run.id, attack, sleep_interval, **kwargs)
     
+
+
+    def _do_tool_call(self, tool_name, arguments, attack, **kwargs):
+        print(f'AI Assistant called tool: {tool_name} with args: {arguments}')
+
+        
+        tool_output = {}
+        if tool_name == "get_attack_attrs":
+            tool_output = {
+                attr: getattr(attack, attr) for attr in arguments["attrs"]
+            }
+        
+        elif tool_name == "get_session_attrs":
+            session = attack.get_session_by_id(arguments['session_id'])
+            tool_output = {
+                attr: getattr(session, attr) for attr in arguments["attrs"]
+            }
+
+        elif tool_name == "get_malware_attrs":
+            malware = attack.get_malware_by_id(arguments['malware_id'])
+            tool_output = {
+                attr: getattr(malware, attr) for attr in arguments["attrs"]
+            }
+        
+        elif tool_name == "get_data_for_ips":
+            if not isinstance(arguments['ips'], list):
+                arguments['ips'] = [arguments['ips']]
+            if not isinstance(arguments['sources'], list):
+                arguments['sources'] = [arguments['sources']]
+
+            tool_output = attack.get_data_for_ips(
+                    arguments["ips"],
+                    arguments['sources']
+                )
+
+        print(f'Returning tool output: {tool_output}')
+        return tool_output
+
 
 
 
@@ -214,6 +252,7 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         "For example if you see that the attacker downloaded malware in the commands, "
         "you should use get_attack_attrs function with the arguement 'malware' to get a list of malware_ids associated with the attack, "
         "then use get_malware_attrs to analyze the malware before answering. "
+        "When getting attrs, always use the uniq_ modifier first when available to get unique values and only get all values if necessary after analyzing the unique values. "
         ])
         
 
@@ -233,10 +272,15 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         ass_id = "asst_R5O9vhLKONwNlqmmxbMYugLo"
         thread_id = None
 
+        attack_questions_dir = self.ai_assistants_dir / attack.attack_id
+        attack_questions_dir.mkdir(exist_ok=True)
+
         for question in questions:
             # Prevent calling same question on an attack
             attack_qa_hash = sha256hex(question + attack.attack_id)
-            question_answer_file = self.ai_question_answers_dir / attack_qa_hash
+            #question_answer_file = self.ai_question_answers_dir / attack_qa_hash
+            question_answer_file = attack_questions_dir / attack_qa_hash
+
             if question_answer_file.exists():
                 with question_answer_file.open("r") as f:
                     question_answer = json.load(f)
@@ -268,41 +312,7 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         return question_answers
 
 
-    def _do_tool_call(self, tool_name, arguments, attack, **kwargs):
-        print(f'AI Assistant called tool: {tool_name} with args: {arguments}')
 
-        
-        tool_output = {}
-        if tool_name == "get_attack_attrs":
-            tool_output = {
-                attr: getattr(attack, attr) for attr in arguments["attrs"]
-            }
-        
-        elif tool_name == "get_session_attrs":
-            session = attack.get_session_by_id(arguments['session_id'])
-            tool_output = {
-                attr: getattr(session, attr) for attr in arguments["attrs"]
-            }
-
-        elif tool_name == "get_malware_attrs":
-            malware = attack.get_malware_by_id(arguments['malware_id'])
-            tool_output = {
-                attr: getattr(malware, attr) for attr in arguments["attrs"]
-            }
-        
-        elif tool_name == "get_data_for_ips":
-            if not isinstance(arguments['ips'], list):
-                arguments['ips'] = [arguments['ips']]
-            if not isinstance(arguments['sources'], list):
-                arguments['sources'] = [arguments['sources']]
-
-            tool_output = attack.get_data_for_ips(
-                    arguments["ips"],
-                    arguments['sources']
-                )
-
-        print(f'Returning tool output: {tool_output}')
-        return tool_output
 
 
 

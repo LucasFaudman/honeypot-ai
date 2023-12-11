@@ -295,26 +295,81 @@ class CowrieAttackMarkdownWriter(MarkdownWriter):
 
 
     def script_link(self, script):
-        return link(script, f"https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/{script}")
+        return link(script.split("/")[-1], f"https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/{script}")
 
 
 
     def add_custom_scripts(self, md, attack: Attack):
         scripts = {
-            "logparser.py": "Base class for reading all logs as json objects with standardized keys",
-            "cowrieloganalyzer.py": "Python script for Analyzing Cowrie logs",
-            "webloganalyzer.py": "Python script for Analyzing Web logs",
-            "soupscraper.py": "Base class for scraping web pages with BeautifulSoup and Selenium",
-            "ipanalyzer.py": "Python script for Analyzing IP addresses and domains",
-            "markdownwriter.py": "Python for writing markdown files",
-            "getlogsbyip.sh": "Bash script for getting all logs for a given IP address",
+            "main.py": {
+                "description":"Main script for running all analyzers through AttackAnalyzer inteface. (IN PROGRESS)",
+            },
+            "runtests.py": {
+                "description": "Script for running tests from the tests directory",
+            },
+            "analyzerbase":{
+                "description" : "Base classes, utility functions, libraries, and constants for all analyzer modules",
+                "attack.py" : "Attack object for storing all data related to a single attack. Constructed by the loganalyzer scripts then processed by openaianlyzers and ipanalyzers before being passed to markdownwriters",
+                "common.py" : "Imports and constants used by all analyzer modules",
+                "malware.py": "Malware object for storing, standardizing and reading a malware sample. Constructed by its parent Session object and accessed by its Attack object",                
+                "session.py": "Session object for storing all data related to a single session. Constructed by its parent SourceIP object and accessed by its parent Attack object",
+                "sourceip.py": "SourceIP object for storing all data related to a single source IP. Constructed by the loganalyzer scripts and accessed by its Attack object",
+                "util.py": "Utility functions for all analyzer modules including functions for extracting IPs and URLs from text, standardizing malware, and hashing text",
+            },
+            "loganalyzers":{
+                "description" : "Scripts for analyzing logs to create Attack objects, organizing and read Attack files",
+                "logparser.py": "Classes for reading all logs as json objects with standardized keys",
+                "cowrieloganalyzer.py": "Reads Cowrie logs to create and merge Attack objects",
+                "webloganalyzer.py": "Reads Web logs to create and merge Attack objects (NOT IMPLEMENTED YET)",
+                "attackdirorganizer.py": "Organizes Attack files into directories by source IP and attack ID for easy reading and quicker loading",
+                "attackdirreader.py": "Reads Attack files from directories organized by attackdirorganizer",
+            },
+            "openaianalyzers":{
+                "description" : "Scripts for analyzing Attack objects using OpenAI's Completion and Assistant APIs",
+                "aibase.py": "Base class used by all OpenAI analyzers that handles catching API errors, formating content for the API, and counting tokens to calculate cost",
+                "completions.py": "OpenAICompletionsAnalyzer uses the the Completions API with few-shot-prompting to explain commands and comment malware source code",
+                "assistant.py": "OpenAIAssistantAnalyzer uses the Assistant API with function-calling to query an Attack object to answer questions about the attack",
+                "tools.py": "Function schemas used by the OpenAIAssistantAnalyzer to structure how the model can iterogate the Attack object and its Session and Malware subobjects",
+            },
+            "netanalyzers":{
+                "description" : "Scripts for collecting OSINT data for IPs found in the Attack object SourceIPs and Malware",
+                "ipanalyzer.py": "Uses requests and SoupScraper to collect data on IPs from ISC, Shodan, Threatfox, Cybergordon, Whois",
+                "soupscraper.py": "Class for simple scraping with BeautifulSoup and Selenium borrowed from my other projects",
+                "getchromedrier.py": "Utility script to download correct chromedriver for Selenium",
+            },
+            "markdownwriter":{
+                "description" : "Scripts for writing markdown files from Attack objects",
+                "markdownwriterbase.py": "Base class for all markdown writers and markdown shortcut functions",
+                "cowrieattackmarkdownwriter.py": "Markdown writer for Cowrie Attack objects",
+                "ipmarkdownwriter.py": "Markdown writer for ipdata added to Attack objects by IPAnalyzer",
+                "visualizer.py": "Graphing functions for visualizing data from Attack objects",
+            },
+            "tests":{
+                "description" : "Tests for all analyzer modules",
+                "test_analyzerbase.py": "Tests for analyzerbase",
+                "test_loganalyzers.py": "Tests for loganalyzers",
+                "test_openaianalyzers.py": "Tests for openaianalyzers",
+                "test_netanalyzers.py": "Tests for netanalyzers",
+                "test_markdownwriter.py": "Tests for markdownwriter",
+            },
         }
 
+        script_md = ""
 
-        script_md = table(["Script", "Description"], [[self.script_link(
-            script), description] for script, description in scripts.items()])
+        for module, module_dict in scripts.items():
+            module_md = h4(self.script_link(module))
+            module_md += blockquote(module_dict.pop("description"))
+            
+            if module_dict:
+                module_md += table(["Script", "Description"], [[self.script_link(
+                    module + "/" + script), description] for script, description in module_dict.items()])
+            
+            script_md += module_md
+        
+        
         md += collapseable_section(script_md,
                                    "Custom Scripts Used To Generate This Report", 1)
+
 
         return md
 
