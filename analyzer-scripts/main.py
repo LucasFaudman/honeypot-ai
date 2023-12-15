@@ -291,7 +291,7 @@ if __name__ == "__main__":
         #"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "440e8a6e0ddc0081c39663b5fcc342a6aa45185eb53c826d5cf6cddd9b87ea64",
         #"0229d56a715f09337b329f1f6ced86e68b6d0125747faafdbdb3af2f211f56ac",
-        #"04a9aabb18e701dbe12c2606538202dc02156f480f3d58d926d20bd9bc613451",
+        "04a9aabb18e701dbe12c2606538202dc02156f480f3d58d926d20bd9bc613451",
         #"275776445b4225c06861b2f6f4e2ccf98e3f919583bddb9965d8cf3d4f6aa18f",
         #"c41b0875c506cc9421ae26ee43bd9821ccd505e9e24a732c8a9c0180eb34a5a8",
         
@@ -306,7 +306,8 @@ if __name__ == "__main__":
     #     pprint(list(attack.uniq_commands))
     #     pprint(list(attack.uniq_split_commands))
 
-    # ipdata = analyzer.get_attack_ipdata(attacks.values())
+    sc = analyzer.ipanalyzer.scraper
+    ipdata = analyzer.get_attack_ipdata(attacks.values())
     # print(ipdata)
 
     mwdata = analyzer.get_attack_mwdata(attacks.values())

@@ -127,6 +127,8 @@ class OpenAIAnalyzerBase:
 
 
     def write_training_data(self, filename, data):
+        """Utility used to write hardcode training data to a file."""
+
         file = (self.training_data_dir / filename)
         if not file.parent.exists():
             file.parent.mkdir(exist_ok=True, parents=True)
@@ -146,8 +148,13 @@ class OpenAIAnalyzerBase:
     
        
     def read_training_data(self, filename, returnas=None):
-        file = self.training_data_dir / filename
+        """
+        Reads training data from a file and returns it as a list, dict, json 
+        or split_firstline which is (firstline, data) 
+        or just read as string if returnas is None or str.
+        """
 
+        file = self.training_data_dir / filename
 
         with file.open("r") as f:
             

@@ -4,6 +4,8 @@ from loganalyzers.logparser import WebLogParser
 
 
 class WebLogAnalyzer:
+    """Processes web logs to create WebAttack object (NOT IMPLEMENTED YET)"""
+
     def __init__(self, parser: WebLogParser, 
                  remove_ips=MYIPS, 
                  attacks_path=test_attacks_path):

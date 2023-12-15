@@ -2,7 +2,7 @@ from .aibase import *
 
 
 class OpenAICompletionsAnalyzer(OpenAIAnalyzerBase):
-
+    """OpenAIAnalyzer using Completions API with few-shot prompting."""
 
     def openai_get_completion(self, messages=[], n=1, **kwargs):
         message_hash = sha256hex(str(messages))

@@ -136,6 +136,8 @@ All relevant logs and scripts can also be found in this repository.
 
 
 class MarkdownWriter:
+    """Base class for writing markdown files."""
+
     def __init__(self, filepath="test.md", mode="a+", md="", data_object: Union[dict, Attack]={}):
         
         self.filepath = Path(filepath)

@@ -10,7 +10,7 @@ from .visualizer import CounterGrapher
 
 
 class IPAnalyzerMarkdownWriter(MarkdownWriter):
-
+    """Writes markdown for IPAnalyzer ipdata"""
 
     def prepare(self):
         

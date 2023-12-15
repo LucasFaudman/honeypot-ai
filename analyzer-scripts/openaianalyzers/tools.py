@@ -9,26 +9,7 @@ https://cookbook.openai.com/examples/how_to_call_functions_with_chat_models
 """
 
 TOOLS = [
-
-        #     {
-        #     "type": "function",
-        #     "function": {
-        #         "name": "select_function",
-        #         "description": "Select a function to call next based on current context",
-        #         "parameters": {
-        #             "type": "object",
-        #             "properties": {
-        #                 "function_name": {
-        #                     "type": "string", 
-        #                     "description": "The name of the function to call next",
-        #                     "enum": ["get_attack_attr", "list_attack_files", "get_file_content", "get_data_for_ips",]
-        #                 },
-        #             },
-        #             "required": ["function_name"]
-        #         }
-        #     }
-        # },
-
+            # Tool function schema for getting attrs of Attack object
             {
             "type": "function",
             "function": {
@@ -61,6 +42,7 @@ TOOLS = [
             }
         },
 
+            # Tool function schema for getting attrs of Session object
             {
             "type": "function",
             "function": {
@@ -90,6 +72,7 @@ TOOLS = [
             }
         },
 
+        # Tool function schema for getting attrs of Malware object
         {
             "type": "function",
             "function": {
@@ -132,9 +115,7 @@ TOOLS = [
         },
 
         
-
-
-
+            # Tool function schema for querying IP data from OSINT sources: CyberGordon, Shodan, and ISC
             {
             "type": "function",
             "function": {
@@ -163,7 +144,7 @@ TOOLS = [
         },
 
 
-
+            # Tool function schema for querying IOC data from OSINT sources: ThreatFox, MalwareBazaar, and URLhaus
             {
             "type": "function",
             "function": {
@@ -197,7 +178,7 @@ TOOLS = [
                 }
             }
         },
-
+            # Tool function schema for querying Malpedia for malware descriptions
             {
             "type": "function",
             "function": {
@@ -216,7 +197,28 @@ TOOLS = [
                 }
             }
         },
+      ]
 
+### UNUSED FOR NOW BUT ALL WORK AND MAY USE LATER FOR FLOW CONTROL ###
+
+        #     {
+        #     "type": "function",
+        #     "function": {
+        #         "name": "select_function",
+        #         "description": "Select a function to call next based on current context",
+        #         "parameters": {
+        #             "type": "object",
+        #             "properties": {
+        #                 "function_name": {
+        #                     "type": "string", 
+        #                     "description": "The name of the function to call next",
+        #                     "enum": ["get_attack_attr", "list_attack_files", "get_file_content", "get_data_for_ips",]
+        #                 },
+        #             },
+        #             "required": ["function_name"]
+        #         }
+        #     }
+        # },
 
         # {
         #     "type": "function",
@@ -294,4 +296,4 @@ TOOLS = [
 
 
 
-        ]
+  

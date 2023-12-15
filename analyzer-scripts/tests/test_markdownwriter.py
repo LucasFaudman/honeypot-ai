@@ -112,10 +112,12 @@ class TestMarkdownWriter(TestCase):
             
 
             key = key.replace('/', '_')
-            ipmdw = IPAnalyzerMarkdownWriter(f'/Users/lucasfaudman/Documents/SANS/internship/tests/attacks/' + key +'.md', 
+            fpath = f'/Users/lucasfaudman/Documents/SANS/internship/tests/attacks/' + key +'.md'
+            ipmdw = IPAnalyzerMarkdownWriter(filepath=fpath,
                                              mode="a+", 
                                              data_object=attack)
-            ipmdw.update_md()        
+            ipmdw.update_md()
+            
         
         print("done")
 

@@ -10,6 +10,7 @@ from .visualizer import CounterGrapher
 
 
 class CowrieAttackMarkdownWriter(MarkdownWriter):
+    """Markdown writer for Cowrie Attack objects"""
 
     def prepare(self):
         attack = self.data_object
@@ -291,7 +292,7 @@ class CowrieAttackMarkdownWriter(MarkdownWriter):
 
 
     def script_link(self, script):
-        return link(script.split("/")[-1], f"https://github.com/LucasFaudman/BACS-4498/blob/main/analyzer-scripts/{script}")
+        return link(script.split("/")[-1], f"https://github.com/LucasFaudman/honeypot-ai/blob/main/analyzer-scripts/{script}")
 
 
 

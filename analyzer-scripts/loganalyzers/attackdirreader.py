@@ -3,6 +3,8 @@ from .logparser import CowrieParser
 
 
 class AttackDirReader:
+    """Reads and counts logs from attack directory"""
+
     log_types = ("cowrie", "firewall", "zeek", "web")
 
     def __init__(self, parser: CowrieParser, attacks_path=test_attacks_path, attacks={}, overwrite=True):        

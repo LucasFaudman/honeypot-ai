@@ -22,6 +22,8 @@ class IPAnalyzer(OSINTAnalyzerBase):
 
 
     def check_isc(self, ip, arg_type="ip"):
+        """Gets ISC data for ip"""
+
         url = f"https://isc.sans.edu/api/ip/{ip}?json"
         response = requests.get(url)
 
@@ -40,6 +42,7 @@ class IPAnalyzer(OSINTAnalyzerBase):
 
     
     def check_whois(self, ip, arg_type="ip"):
+        """Gets whois data for ip"""
         url = f"https://www.whois.com/whois/{ip}"
         output = self.get_empty_ouput(url)
 
@@ -80,6 +83,8 @@ class IPAnalyzer(OSINTAnalyzerBase):
         
 
     def check_cybergordon(self, ip, arg_type="ip"):
+        """Gets CyberGordon data for ip"""
+
         url = 'https://cybergordon.com'
         output = {
             "sharing_link": url,
@@ -141,6 +146,8 @@ class IPAnalyzer(OSINTAnalyzerBase):
     
 
     def check_threatfox(self, ip, arg_type="ip"):
+        """Gets ThreatFox data for ip"""
+
         url = f"https://threatfox.abuse.ch/browse"
         self.scraper.goto(url)
         url = f"https://threatfox.abuse.ch/browse.php?search=ioc%3A{ip}"
@@ -205,6 +212,8 @@ class IPAnalyzer(OSINTAnalyzerBase):
     
     
     def check_shodan(self, ip, arg_type="ip"):
+        """Gets Shodan data for ip"""
+
         url = f"https://www.shodan.io/host/{ip}"
 
         output = {"sharing_link": url,
@@ -217,11 +226,8 @@ class IPAnalyzer(OSINTAnalyzerBase):
         soup = self.scraper.soup
         
         
-        
-        
         results_table = soup.find("table")
 
-        # if '404: Not Found' in [span.text for span in soup.find_all("span")] or not results_table:
         if '404: Not Found' in soup.text:
             output["error"] = 'ERROR: 404: Not Found'
             return output
@@ -308,8 +314,8 @@ class IPAnalyzer(OSINTAnalyzerBase):
 
 
     
-
     def count_isc(self, data, ip):
+        """Updates data["counts"] with counts from isc data for ip"""
 
         #ISC COUNTS
         isc_data = data[ip]["isc"]["results"]
@@ -330,10 +336,9 @@ class IPAnalyzer(OSINTAnalyzerBase):
         
         return data
 
-        ##WHOIS COUNTS
-        #whois_data = data[ip]["whois"]["results"]
 
     def count_cybergordon(self, data, ip):
+        """Updates data["counts"] with counts from cybergordon data for ip"""
 
         # CyberGordon COUNTS
         cybergordon_data = data[ip]["cybergordon"]["results"]
@@ -348,6 +353,7 @@ class IPAnalyzer(OSINTAnalyzerBase):
         return data
 
     def count_threatfox(self, data, ip):
+        """Updates data["counts"] with counts from threatfox data for ip"""
 
         # ThreatFox COUNTS
         threatfox_data = data[ip]["threatfox"]["results"]
@@ -362,6 +368,7 @@ class IPAnalyzer(OSINTAnalyzerBase):
         return data
 
     def count_shodan(self, data, ip):
+        """Updates data["counts"] with counts from shodan data for ip"""
 
         # Shodan COUNTS
         shodan_data = data[ip]["shodan"]["results"]
@@ -388,8 +395,8 @@ class IPAnalyzer(OSINTAnalyzerBase):
         return data
 
 
-
     def count_whois(self, data, ip):
+        """Not implemented yet but needed to maintain check/count/reduce_{source} interface"""       
         #TODO add whois counts
         return data
 
@@ -398,8 +405,10 @@ class IPAnalyzer(OSINTAnalyzerBase):
 
     def get_attack_data_for_ips(self, attack, ips, sources=SOURCES):
         """
+        TODO REFACTOR to base.get_reduced_data with self.reduce_<source> interface
+
         Attack Postprocessor method used by AI assistant in _do_tool_call. 
-        Gets ipdata using get_data but then cleans JSON structure to reduce tokens
+        Gets ipdata using get_data then reduces JSON structure to reduce tokens
         before passing to AI. 
         """
         
@@ -486,17 +495,5 @@ class IPAnalyzer(OSINTAnalyzerBase):
 
 
         
-
-
-
-
-
-        
-
-        
-
-    
-
-
 if __name__ == "__main__":
     pass
