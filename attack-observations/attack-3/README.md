@@ -1,5 +1,5 @@
 
-# SSH Brute Force and Multi-Stage Payload Execution: Analyzing a Sophisticated Attack on a Linux Honeypot System
+# SSH Brute Force and Multi-Stage Payload Execution: Senpai (Mirai)
 
 <details>
 <summary>
