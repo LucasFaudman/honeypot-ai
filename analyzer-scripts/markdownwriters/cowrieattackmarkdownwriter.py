@@ -54,6 +54,8 @@ class CowrieAttackMarkdownWriter(MarkdownWriter):
 
 
         td_md += self.session_table([first_session, last_session])
+        
+        td_md += "\n" + attack.answers.get("sessions_summary", "") + "\n"
 
         td_md += collapseable_section(
             self.session_table(attack.sessions), "All Sessions", 3)
@@ -241,7 +243,11 @@ class CowrieAttackMarkdownWriter(MarkdownWriter):
         return md
 
     def add_ssh_analysis(self, md, attack: Attack):
-        ssh_md = ""  # h2("SSH Analysis")
+        # TODO FIX THIS MAKE CLEANER
+        if not attack.ssh_sessions or not attack.telnet_sessions:
+            return md
+
+        #ssh_md = ""  # h2("SSH Analysis")
         n = 10
 
         pairs = {"Username": "usernames",
@@ -253,24 +259,36 @@ class CowrieAttackMarkdownWriter(MarkdownWriter):
                  "SSH Version": "ssh_versions",
                  "SSH Hassh": "ssh_hasshs", }
 
+        most_common_tables_md = ""
         graph_type = "pie"
         for title, counter_key in pairs.items():
             counter = attack.counts[counter_key]
-            ssh_md += most_common_table(title, counter, n)
-            graph_file = self.filepath.parent / \
-                f"graphs/{attack.attack_id}/{graph_type}-{counter_key}.png"
+            most_common_tables_md += most_common_table(title, counter, n)
+            graph_file = self.filepath.parent / f"graphs/{attack.attack_id}/{graph_type}-{counter_key}.png"
             if not graph_file.exists():
                 graph_file.parent.mkdir(parents=True, exist_ok=True)
 
             counter_grapher = CounterGrapher(outpath=graph_file,
                                              counter=counter,
                                              title=title)
-            
+            # Make graph
             # getattr(counter_grapher, graph_type)()
-            ssh_md += "\n" + image(title, str(graph_file))
+            most_common_tables_md += "\n" + image(title, str(graph_file))
 
-        ssh_md = attack.answers["ssh_analysis"] + "\n" + ssh_md
-        md += collapseable_section(ssh_md, "SSH Analysis", 1)
+
+        
+ 
+        ssh_md = attack.answers["ssh_analysis"] + "\n"
+        if attack.ssh_sessions:
+            ssh_md += collapseable_section(
+                self.session_table(attack.ssh_sessions), "SSH Sessions", 3)
+
+        if attack.telnet_sessions:
+            ssh_md += collapseable_section(
+                self.session_table(attack.telnet_sessions), "Telnet Sessions", 3)
+
+        ssh_md += most_common_tables_md
+        md += collapseable_section(ssh_md, "SSH/Telnet Sessions Analysis", 1)
         return md
     
 
@@ -453,14 +471,31 @@ class CowrieAttackMarkdownWriter(MarkdownWriter):
 
         return md
 
-    def add_command_and_malware_analysis(self, md, attack: Attack):
-        counts = attack.counts
-        malware = attack.malware
+    def http_analysis(self, attack: Attack):
+        md = h1("HTTP Sessions Analysis")
+        md += '\n' + attack.answers.get("http_sessions", "") + "\n"
+        
+        
+        #md = '\n' + attack.answers.get("http_sessions", "") + "\n"
+        md += collapseable_section(
+            self.session_table(attack.http_sessions), "HTTP Sessions", 3)
+        
+        #md += h2("HTTP Requests Explained")
+        md += '\n' + attack.answers.get("http_analysis", "") + "\n"
 
-        md += self.command_analysis(attack)
+        return md
+
+    def add_command_and_malware_analysis(self, md, attack: Attack):
+        if attack.http_requests:
+            md += self.http_analysis(attack)
+        
+        if attack.commands:
+            md += self.command_analysis(attack)
+        
         md += h1("Malware OSINT")
         md += '\n' + attack.answers["malware_osint_summary"] + '\n'
-        if malware:
+        
+        if attack.malware:
             md += self.malware_analysis(attack)
 
         return md

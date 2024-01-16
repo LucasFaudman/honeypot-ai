@@ -160,7 +160,8 @@ class OpenAICompletionsAnalyzer(OpenAIAnalyzerBase):
             valid_range_keys = re.compile(r"(\d+)\-?(\d*)")
             key_matches = { k : valid_range_keys.match(k) for k in keys }
             
-            if all(key_matches):
+            # if all keys are valid ranges
+            if key_matches and all(key_matches):
                 grouped_commands = []
                 for k in keys:
                     start, end = key_matches[k].groups()

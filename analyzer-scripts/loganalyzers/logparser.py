@@ -28,21 +28,19 @@ class LogParser:
         with file.open() as f:
             for n, line in enumerate(f):
                 try:
-                    event = json.loads(line)
-                    #event["line"] = line
-                    yield self.standardize(event)
+                    yield json.loads(line)
                 except json.decoder.JSONDecodeError:
                     print(f"Error decoding: {line}\n(line {n} of {file})")
     
 
-    def standardize(self, event):
-        # Implement this in a subclass
-        return event
+    # def standardize(self, event):
+    #     # Implement this in a subclass
+    #     return event
     
-    @property
-    def logs(self):
-        # Implement this in a subclass
-        return (NotImplementedError,)
+    
+    # def logs(self):
+    #     # Implement this in a subclass
+    #     return (NotImplementedError,)
 
     @property
     def all_logs(self):
@@ -54,35 +52,35 @@ class LogParser:
 
     def nlogs(self, limit=0):
 
-        for n, event in enumerate(self.logs):
+        for n, event in enumerate(self.logs()):
             if n >= limit:
                 break
             yield event
 
 
-    def get_matching_lines(self, filepath, pattern, flags=0):
+    # def get_matching_lines(self, filepath, pattern, flags=0):
 
-        read_mode = "rb" if not isinstance(pattern, str) else "r"
-        cmpld_pattern = re.compile(pattern, flags) if not isinstance(pattern, (re.Pattern, bytes)) else pattern
+    #     read_mode = "rb" if not isinstance(pattern, str) else "r"
+    #     cmpld_pattern = re.compile(pattern, flags) if not isinstance(pattern, (re.Pattern, bytes)) else pattern
         
-        if isinstance(cmpld_pattern, re.Pattern):
-            match_fn = lambda line: bool(cmpld_pattern.search(line))
+    #     if isinstance(cmpld_pattern, re.Pattern):
+    #         match_fn = lambda line: bool(cmpld_pattern.search(line))
 
-        else:
-            match_fn = lambda line: bool(pattern in line)
+    #     else:
+    #         match_fn = lambda line: bool(pattern in line)
         
-        with open(filepath, read_mode) as f:
-            yield from filter(match_fn, f)
+    #     with open(filepath, read_mode) as f:
+    #         yield from filter(match_fn, f)
 
 
 
-    def write_matching_lines(self, from_file, to_file, pattern, flags=0):
+    # def write_matching_lines(self, from_file, to_file, pattern, flags=0):
 
-        write_mode = "wb+" if isinstance(pattern, str) else "w+"
+    #     write_mode = "wb+" if isinstance(pattern, str) else "w+"
         
-        with open(to_file, write_mode) as f:
-            for line in self.get_matching_lines(from_file, pattern, flags):
-                f.write(line)
+    #     with open(to_file, write_mode) as f:
+    #         for line in self.get_matching_lines(from_file, pattern, flags):
+    #             f.write(line)
     
 
 
@@ -103,10 +101,10 @@ class CowrieParser(LogParser):
             return (9999, 99, 99)
 
 
-    @property
+    
     def logs(self):
         for file in self.find_log_filepaths("cowrie", "*.json*", sort_fn=self.sort_cowrie_log_names):
-            yield from self.load_json_logs(file)
+            yield from map(self.standardize, self.load_json_logs(file))
             
 
     @property
@@ -118,10 +116,6 @@ class CowrieParser(LogParser):
 
     def standardize(self, event):
         event["timestamp"] = datetime.strptime(event["timestamp"], "%Y-%m-%dT%H:%M:%S.%fZ")
-        #event["sip"] = event.pop("src_ip")
-        #event["dip"] = event.pop("dst_ip")
-        #event["sport"] = event.pop("src_port")
-        #event["dport"] = event.pop("dst_port")
         return event
 
 
@@ -143,11 +137,11 @@ class WebLogParser(LogParser):
             return (9999, 99, 99)
 
 
-    @property
+    
     def logs(self):
         for file in self.find_log_filepaths("web", "*.json", sort_fn=self.sort_weblog_names):
             #yield file
-            yield from self.load_json_logs(file)
+            yield from map(self.standardize, self.load_json_logs(file))
 
     def standardize(self, event):
         event["timestamp"] = datetime.strptime(event.pop("time"), "%Y-%m-%dT%H:%M:%S.%f")
@@ -163,7 +157,7 @@ class DshieldParser(LogParser):
     1699144322 BigDshield kernel:[39210.572534]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=162.216.150.90 DST=172.31.5.68 LEN=44 TOS=0x00 PREC=0x00 TTL=244 ID=54321 PROTO=TCP SPT=52388 DPT=50001 WINDOW=65535 RES=0x00 SYN URGP=0 
     """
 
-    @property
+    
     def logs(self):
         for file in self.find_log_filepaths("firewall", "dshield*.log*"):
             with file.open() as f:
@@ -200,12 +194,150 @@ class DshieldParser(LogParser):
         return event
     
 
-if __name__ == "__main__":
-    cr = CowrieParser()
-    for log in cr.logs:
-        print(log)
+class ZeekParser(LogParser):
+    """
+#separator \x09
+#set_separator	,
+#empty_field	(empty)
+#unset_field	-
+#path	http
+#open	2023-12-03-13-38-52
+#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	trans_depth	method	host	uri	referrer	version	user_agent	origin	request_body_len	response_body_len	status_code	status_msg	info_code	info_msg	tags	username	password	proxied	orig_fuids	orig_filenames	orig_mime_types	resp_fuids	resp_filenames	resp_mime_types	cookie_vars	uri_vars
+#types	time	string	addr	port	addr	port	count	string	string	string	string	string	string	string	count	count	count	string	count	string	set[enum]	string	string	set[string]	vector[string]	vector[string]	vector[string]	vector[string]	vector[string]	vector[string]	vector[string]	vector[string]
+1701610732.952279	C57bIgUaQUd7GBmI8	172.31.5.68	38580	169.254.169.254	80	1	PUT	169.254.169.254	/latest/api/token	-	1.0	aws-sdk-go/1.44.260 (go1.20.7; linux; amd64)	-	0	56	200	OK	-	-	(empty)	-	-	-	-	-	-	FKN4Ld2lnN48Scfdk	-	text/plain	-	/latest/api/token
+1701610732.953904	C7CrTo4tyLsay89Hg6	172.31.5.68	38590	169.254.169.254	80	1	GET	169.254.169.254	/latest/meta-data/instance-id	-	1.0	aws-sdk-go/1.44.260 (go1.20.7; linux; amd64)	-	0	19	200	OK	-	-	(empty)	-	-	-	-	-	-	FzCHPt49yKEXSgYV29	-	text/plain	-	/latest/meta-data/instance-id
+1701610732.955381	CERCKo14FaIWqP1vYa	172.31.5.68	38602	169.254.169.254	80	1	GET	169.254.169.254	/latest/dynamic/instance-identity/document	-	1.0	aws-sdk-go/1.44.260 (go1.20.7; linux; amd64)	-	0	475	200	OK	-	-	(empty)	-	-	-	-	-	-	FLPquZ35AVvP0uIQTd	-	text/json	-	/latest/dynamic/instance-identity/document
+1701610733.056330	CpbR0q4JbNuEfXLakb	172.31.5.68	38612	169.254.169.254	80	1	GET	169.254.169.254	/latest/meta-data/instance-id	-	1.0	aws-sdk-go/1.44.260 (go1.20.7; linux; amd64)	-	0	19	200	OK	-	-	(empty)	-	-	-	-	-	-	FTXhNdHSXScCMFei6	-	text/plain	-	/latest/meta-data/instance-id
+    """
+    TIMESTAMP_FORMAT = "2023-10-25T21:59:41.922314"
 
-    wr = WebLogParser()
-    for log in wr.logs:
-        print(log)
+    #  zeek_log_types=("http", "conn", "dns", "ssl", "dhcp", "weird", "files", "ftp", "smtp", "smb", "tunnel", "x509")
+    def __init__(self, log_path=test_logs_path, zeek_log_ext=".log", zeek_log_types=("http", "conn.log"), keep_empty_fields=True, keep_unset_fields=False):
+        super().__init__(log_path)
+        self.zeek_log_ext = zeek_log_ext
+        self.zeek_log_types = zeek_log_types
+        self.keep_empty_fields = keep_empty_fields
+        self.keep_unset_fields = keep_unset_fields
+
+    
+    def convert_zeek_to_json(self, file, write_json=False):
+        file_info = {}
+        headers = []
+        data_types = {}
+        
+        #To store log for writing if write_json is True
+        json_log = []
+
+        handle_as_str_types = ("string", "enum", "addr", "subnet", "interval", 
+                               "function", "event", "hook", "file", "opaque", "any")
+
+        with file.open() as f:
+            for line in f:
+                if line.startswith("#"):
+                    key, val = line[1:].split(None, 1)
+                    val = val.encode().decode('unicode_escape').rstrip("\n")
+
+                    file_info[key] = val
+                    
+                    if key == "fields":
+                        headers = val.split(file_info["separator"])
+                    elif key == "types":
+                        data_types = val.split(file_info["separator"])
+
+                    
+                else:
+                    try:
+                        event = {}
+                        values = line.rstrip("\n").split(file_info["separator"])
+
+                        for header, data_type, value in zip(headers, data_types, values):
+                            if value == file_info["empty_field"]:
+                                if not self.keep_empty_fields:
+                                    continue
+                                value = ""
+                            elif value == file_info["unset_field"]:
+                                if not self.keep_unset_fields:
+                                    continue
+                                value = None
+                            elif data_type == "bool":
+                                value = bool(value)
+                            elif data_type in ("int", "count", "port"):
+                                value = int(value)
+                            elif data_type in ("double", "time", "duration"):
+                                value = float(value)
+                            
+                            elif "[" in data_type:
+                                outer_type, inner_type = data_type.rstrip("]").split("[")
+                                if inner_type in handle_as_str_types:
+                                    value = value.split(file_info["set_separator"])
+                                # if outer_type == "set":
+                                #     value = set(value)
+
+                            elif data_type in handle_as_str_types:
+                                value = value
+                            else:
+                                print(f"Unknown data type: {data_type}")
+                                value = value
+
+
+
+                            event[header] = value
+
+                        event["protocol"] = event.get('service', file.stem)
+                        event["eventid"] = f"zeek.{file.stem}.log.event"
+                        yield event
+                    
+                        # Store event for writing if write_json is True
+                        if write_json:
+                            json_log.append(event) 
+                
+                    except Exception as e:
+                        print(f"Error parsing line: {line}\n{e}")
+                        continue
+
+        if write_json:
+            json_file = file.with_suffix(".json")
+            with json_file.open("w+") as f:
+                for event in json_log:
+                    f.write(json.dumps(event) + "\n")
+
+            print(f"Converted {file} to {json_file}")
+        
+
+            
+
+
+    
+    def logs(self, only_log_types=()):
+        only_log_types = only_log_types or self.zeek_log_types
+        for file in self.find_log_filepaths("zeek", "*" + self.zeek_log_ext):
+            if file.stem in only_log_types:
+                if self.zeek_log_ext == ".log":
+                    yield from map(self.standardize, self.convert_zeek_to_json(file))
+                elif self.zeek_log_ext == ".json":
+                    yield from map(self.standardize, self.load_json_logs(file))
+
+    
+    def standardize(self, event):
+        event["timestamp"] = datetime.fromtimestamp(event.pop("ts", 0))
+        event["session"] = event.pop("uid", None)
+        replace_keys = {
+            "src_ip" : "id.orig_h",
+            "src_port" : "id.orig_p",
+            "dst_ip" : "id.resp_h",
+            "dst_port" : "id.resp_p",
+        }
+
+        for k, v in replace_keys.items():
+            v = event.pop(v, None)
+            if v:
+                event[k] = v
+
+        return event
+    
+
+
+
+
+
 

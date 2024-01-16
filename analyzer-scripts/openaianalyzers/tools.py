@@ -24,7 +24,7 @@ TOOLS = [
                             "description": 
                             "Attributes of the Attack object to get. Available attrs include: "
                              "src_ips, src_ports, dst_ips, dst_ports, login_pairs, successful_login_pairs, ssh_hasshs, ssh_versions, "
-                             "commands, "
+                             "commands, http_requests, "
                              "sessions: Session object ids that can be queried with get_session_attrs,"
                              "malware: Malware object ids that can be queried with get_malware_attrs"
                              "All attrs return a list of items when called unmodified in chronological order with duplicates. "
@@ -60,10 +60,10 @@ TOOLS = [
                             "items": {"type": "string"},
                             "description": 
                             "Attributes of the Session object to get. Available attrs include: "
-                             "src_ip, src_port, dst_ip, dst_port, "
+                             "src_ip, src_port, dst_ip, dst_port, protocol, "
                              "username, password, start_time, end_time, duration, "
                              "ssh_hassh, ssh_version, client_vars, "
-                             "commands"    
+                             "commands, http_requests"    
                             },
                     },
                     "required": ["session_id", "attr"]
@@ -197,6 +197,49 @@ TOOLS = [
                 }
             }
         },
+
+        {
+            "type": "function",
+            "function": {
+                "name": "search_exploitdb",
+                "description": "Search ExploitDB for exploit code containing the specified text",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "search_text": {
+                            "type": "string", 
+                            "description": "The text to search for in the ExploitDB database. "
+                            "The text should be code or a string literal that would be found in an exploit "
+                            "and must be as specific as possible to avoid false positives. "
+                            "(eg minio/admin/v3/update?updateURL=, pearcmd.php, )"
+                        },
+                    },  
+                    "required": ["search_text"]
+                }
+            }
+        },
+
+
+            # Tool function schema for querying ExploitDB for exploit details
+        {
+            "type": "function",
+            "function": {
+                "name": "get_exploitdb_exploit",
+                "description": "Get details about an exploit from ExploitDB",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "exploit_id": {
+                            "type": "string", 
+                            "description": "The id of the exploit to get details for. "
+                            "exploit_ids can be found in the output of search_exploitdb function calls."
+                        },
+                    },  
+                    "required": ["exploit_id"]
+                }
+            }
+        },
+
       ]
 
 ### UNUSED FOR NOW BUT ALL WORK AND MAY USE LATER FOR FLOW CONTROL ###

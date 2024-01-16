@@ -11,26 +11,49 @@ class SourceIP:
         self.uploaded_malware = 0
         self.downloaded_malware = 0
         self.commands = 0
+        self.http_requests = 0
+        self.zeek_events = 0
+
 
     def add_session(self, event):
         self.sessions[event["session"]] = Session(event)
         
 
-    def process_session(self, session_id):
-        session = self.sessions[session_id]
-        if session.login_success:
-            self.successful_logins += 1
-            self.failed_logins += len(session.login_attempts) - 1
-        else:
-            self.failed_logins += len(session.login_attempts)
+    def process_sessions(self):
+        for session in self.sessions.values():
+            
+            if session.login_success:
+                self.successful_logins += 1
+                self.failed_logins += len(session.login_attempts) - 1
+            else:
+                self.failed_logins += len(session.login_attempts)
 
-        self.uploaded_malware += len(session.uploads)
-        self.downloaded_malware += len(session.downloads)
-        self.commands += len(session.commands)
+            self.uploaded_malware += len(session.uploads)
+            self.downloaded_malware += len(session.downloads)
+            self.commands += len(session.commands)
+
+            session.process_zeek_events()
+            session.process_http_requests()
+
+            self.http_requests += len(session.http_requests)
+            self.zeek_events += len(session.zeek_events)
+
+
+
 
     @property
     def is_attacker(self):
-        return self.successful_logins > 0 and self.commands > 0
+        return self.commands > 0 or self.http_requests > 1
+        #return self.successful_logins > 0 and self.commands > 0
+
+    @property
+    def all_src_ports(self):
+        return [session.src_port for session in self.sessions.values()]
+    
+    @property
+    def all_dst_ports(self):
+        return [session.dst_port for session in self.sessions.values()]
+
 
     @property
     def all_successful_login_pairs(self):
@@ -44,9 +67,9 @@ class SourceIP:
                 all_login_pairs.append(userpass)  #yield attempt
         return all_login_pairs
                
-    @property
-    def session_commands(self):
-        return [session.commands for session in self.sessions.values() if session.commands]
+    # @property
+    # def session_commands(self):
+    #     return [session.commands for session in self.sessions.values() if session.commands]
 
     @property
     def all_commands(self):
@@ -65,12 +88,41 @@ class SourceIP:
         return [malware for session in self.sessions.values() for malware in session.malware]
 
     @property
-    def all_src_ports(self):
-        return [session.src_port for session in self.sessions.values()]
+    def all_http_requests(self):
+        return [http_request for session in self.sessions.values() for http_request in session.http_requests]
+
+    @property
+    def all_http_request_events(self):
+        return [http_request_event for session in self.sessions.values() for http_request_event in session.http_request_events]
+
+    @property
+    def all_httplogs(self):
+        return [session.httplog for session in self.sessions.values()]
+
+    @property
+    def all_httplog_hashes(self):
+        return [session.httplog_hash for session in self.sessions.values()]
     
     @property
-    def all_dst_ports(self):
-        return [session.dst_port for session in self.sessions.values()]
+    def all_http_uris(self):
+        return [uri for session in self.sessions.values() for uri in session.http_uris]
+
+    @property
+    def all_zeek_events(self):
+        return [zeek_event for session in self.sessions.values() for zeek_event in session.zeek_events]
 
     def __repr__(self):
-        return f"SourceIP {self.ip} with {len(self.sessions)} sessions, {len(set(self.all_dst_ports))} dst_ports {self.successful_logins} successful logins, {self.commands} commands, {self.uploaded_malware} uploads, {self.downloaded_malware} downloads"
+        return ''.join([
+            f"SourceIP {self.ip} "
+            f"Sessions: {len(self.sessions)}, " if self.sessions else "",
+            #f"dst_ports: {len(set(self.all_dst_ports))}, ",
+            f"Successful Logins: {self.successful_logins}, " if self.successful_logins else "",
+            f"Commands: {self.commands}, " if self.commands else "",
+            f"Uploads: {self.uploaded_malware}, " if self.uploaded_malware else "",
+            f"Downloads {self.downloaded_malware}, " if self.downloaded_malware else "",
+            f"HTTP Requests: {self.http_requests}, " if self.http_requests else "",
+            f"Zeek Events: {self.zeek_events}, " if self.zeek_events else "",
+         ])
+        
+
+       

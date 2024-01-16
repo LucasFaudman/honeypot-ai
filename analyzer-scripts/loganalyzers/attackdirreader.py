@@ -133,7 +133,7 @@ class AttackDirReader:
                     if line_filter is None or line_filter in line.decode():
                         match_lines.append(line)
 
-            # Break loop to prefent reading more files than necessary            
+            # Break loop to prevent reading more files than necessary            
             if n_lines and n_lines > 0 and len(match_lines) >= n_lines:
                 break
                         

@@ -2,7 +2,7 @@ from time import time
 
 
 from analyzerbase import *
-from loganalyzers.logparser import LogParser, CowrieParser, WebLogParser, DshieldParser
+from loganalyzers.logparser import LogParser, CowrieParser, WebLogParser, DshieldParser, ZeekParser
 from loganalyzers.cowrieloganalyzer import CowrieLogAnalyzer
 from loganalyzers.webloganalyzer import WebLogAnalyzer
 from loganalyzers.attackdirorganizer import AttackDirOrganizer, ThreadPoolExecutor, ProcessPoolExecutor
@@ -42,7 +42,7 @@ class ParserTestCase(SetupOnceTestCase):
         
         
         cls.parser = cls._parser_cls(test_logs_path)
-        cls.logs_per_test = 50
+        cls.logs_per_test = 10
 
         
 
@@ -71,6 +71,16 @@ class TestWebLogParser(ParserTestCase):
 class TestDshieldParser(ParserTestCase):
     _parser_cls = DshieldParser
 
+class TestZeekParser(ParserTestCase):
+    _parser_cls = ZeekParser
+
+    # def test_print_uris(self):
+    #     for event in self.parser.logs("http"):
+    #         #print("SrcIP:", event["src_ip"], event["uri"])
+    #         if len(event.get("uri_vars", [])) > 1:
+    #             print(event["uri_vars"])
+    #             print(event["uri"])
+    #             print()
     
         
 class TestWebLogAnalyzer(SetupOnceTestCase):

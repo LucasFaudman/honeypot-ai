@@ -100,7 +100,7 @@ class AttackDirOrganizer:
                 combined_auth_random = {}
                     
                 for src_ip in attack.uniq_src_ips:
-                    src_ip_auth_random = self.parser.auth_random[src_ip]
+                    src_ip_auth_random = self.parser.auth_random.get(src_ip, {})
                     combined_auth_random.update(src_ip_auth_random)
 
                     out_file = attack_dir / src_ip / file.name              
@@ -120,28 +120,35 @@ class AttackDirOrganizer:
             attack_log_subdir = attack_dir / file.parent.name
             outfiles["all"] =  attack_log_subdir / file.name 
            
-            #capture any ip in attack only
+            #capture any ip in attack. Final re is in form: r'(1\.2\.3\.4|5\.6\.7\.8|9\.10\.11\.12)'
             attack_src_ips_regex = re.compile(b"(" + rb"|".join(ip.encode().replace(b".", rb"\.") for ip in attack.uniq_src_ips) + b")" )
 
             
+            headers = []
+            headers_written = {}
             with file.open("rb") as infile:
                 for line in infile:
-                    match = attack_src_ips_regex.search(line)
-                    if match:
+                    files_to_write = OrderedSet(())
+                    
+
+                    if file.parent.name == "zeek" and line.startswith(b"#"):
+                        if line.startswith(b"#separator"):
+                            headers = []
+                            headers_written = {}
+
+                        headers.append(line)
+
+
+                    if match := attack_src_ips_regex.search(line):
                         # Decode match bytes to str
                         src_ip = match.group(1).decode()
 
-                        with outfiles[src_ip].open("ab+") as f:
-                            f.write(line)
+                        files_to_write.append(outfiles[src_ip])
+                        files_to_write.append(outfiles["all"])
 
-                        if not attack_log_subdir.exists():
-                            attack_log_subdir.mkdir(exist_ok=True, parents=True)
 
-                        with outfiles["all"].open("ab+") as f:
-                            f.write(line)
-                            
+                    self._write_line_to_files(files_to_write, line, headers, headers_written)
 
-            #print(f"Done organizing {file} for {attack}")
         
         
         return f"Done organizing {attack}"
@@ -153,19 +160,25 @@ class AttackDirOrganizer:
         attack_dir.mkdir(exist_ok=True, parents=True)
 
         with (attack_dir / "ips.txt").open("w+") as f:
-            f.write("\n".join(attack.uniq_src_ips))
+             f.write("\n".join(attack.uniq_src_ips))
 
+
+        
+        commands_summary = ""
+        malware_summary = ""
+        http_summary = ""
+        
 
         if attack.commands:
             commands_file = attack_dir / "commands.txt"
             with commands_file.open("w+") as f:
-                f.write("Raw Commands:\n")
-                f.write("\n".join(attack.commands))
-                f.write("\n\nSplit Commands:\n")
-                f.write("\n".join(attack.split_commands))
-
-        
-
+                commands_summary += "\nRaw Commands:\n"
+                commands_summary += "\n".join(attack.commands)
+                commands_summary += "\n\nSplit Commands:\n"
+                commands_summary += "\n".join(attack.split_commands)
+                f.write(commands_summary)
+            
+    
         if attack.standardized_malware:
             attack_malware_dir = (attack_dir / "malware")
             attack_malware_dir.mkdir(exist_ok=True, parents=True)
@@ -181,12 +194,32 @@ class AttackDirOrganizer:
                 with standardized_malware_file.open("wb+") as f:
                     f.write(malware_list[0].standarized_bytes)
 
+                malware_summary += f"{standardized_hash}:\n"
                 for malware in malware_list:
+                    malware_summary += f"\t- {malware}\n"
                     malware_outpath = standardized_malware_dir / malware.shasum
                     
                     with malware_outpath.open("wb+") as f:
                         f.write(malware.file_bytes)
         
+
+        if attack.http_requests:
+            http_requests_file = attack_dir / "http_requests.txt"
+            with http_requests_file.open("w+") as f:
+                http_summary += "\nHTTP Requests:\n"
+                http_summary += "\n\n".join(attack.http_requests)
+                f.write(http_summary)
+
+        summary_file = attack_dir / "summary.txt"
+        with summary_file.open("w+") as f:
+            f.write(f"Attack Summary:\n{attack}\n")
+            f.write(commands_summary + "\n\n")
+            f.write(malware_summary + "\n\n")
+            f.write(http_summary + "\n\n")
+            f.write("SourceIPs:\n" + "\n".join(str(source_ip) for source_ip in attack.source_ips))
+            f.write("\n\nSessions:\n" + "\n".join(str(session) for session in attack.sessions))
+
+
         return attack_dir
         
     
@@ -214,7 +247,7 @@ class AttackDirOrganizer:
                 source_ip_dir.mkdir(exist_ok=True, parents=True)
                 yield f"Created {source_ip_dir}"
             
-            src_ip_auth_random = self.parser.auth_random[src_ip]
+            src_ip_auth_random = self.parser.auth_random.get(src_ip, {})
             combined_auth_random_by_attack_id[attack_id].update(src_ip_auth_random)            
             
             src_ip_auth_random_outfile = attack_dir / src_ip / "auth_random.json"
@@ -243,29 +276,59 @@ class AttackDirOrganizer:
         print(f"Organizing {file}")
         
         with file.open("rb") as infile:
+            src_ips_in_file = OrderedSet(())
+
+            headers = []
+            headers_written = {}
             for line in infile:
-                match = self.pattern.search(line)
-                if match:
+                files_to_write = OrderedSet(())
+
+                if file.parent.name == "zeek" and line.startswith(b"#"):
+                    if line.startswith(b"#separator"):
+                        headers = []
+                        headers_written = {}
+
+                    headers.append(line)
+                    #files_to_write.union(self._get_paths_from_src_ips(src_ips_in_file, file))
+
+                
+                if match := self.pattern.search(line):
                     # Decode match bytes to str
                     src_ip = match.group(1).decode()
+                    src_ips_in_file.add(src_ip)
+
                     attack_id = self.src_ip_attack_ids[src_ip]
                     attack_dir = self.attacks_path / attack_id
 
-                    attack_log_subdir = attack_dir / file.parent.name
-                    if not attack_log_subdir.exists():
-                        attack_log_subdir.mkdir(exist_ok=True, parents=True)
 
-                    with ( attack_dir / src_ip / file.name ).open("ab+") as f:
-                        f.write(line)
+                    files_to_write.add(attack_dir / src_ip / file.name)
+                    files_to_write.add(attack_dir / file.parent.name / file.name)
+                    
 
+                self._write_line_to_files(files_to_write, line, headers, headers_written)
 
-                    with ( attack_log_subdir / file.name ).open("ab+") as f:
-                        f.write(line)
-                            
+                
         
         return f"Done organizing {file}"
             
 
+    def _write_line_to_files(self, files_to_write, line, headers, headers_written):
+        for file_to_write in files_to_write:
+            if not file_to_write.parent.exists():
+                file_to_write.parent.mkdir(exist_ok=True, parents=True)
+            
+            with file_to_write.open("ab+") as f:
+
+                if headers and not headers_written.get(file_to_write):
+                    f.write(b"".join(headers))
+                    headers_written[file_to_write] = True
+
+                f.write(line)
+
+
+                
+            
+            
 
 
 

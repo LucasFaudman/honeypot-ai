@@ -10,7 +10,7 @@ class Session:
         self.src_port = connect_event["src_port"]
         self.dst_port = connect_event["dst_port"]
         self.start_time = connect_event["timestamp"]
-        self.protocol = connect_event["protocol"]
+        self.protocol = connect_event["protocol"].upper()
 
         self.end_time = None
         self.duration = 0
@@ -34,6 +34,12 @@ class Session:
         
         self.ttylog = None
         
+
+        self.zeek_events = []
+        self.http_request_events = []
+        self._http_requests = []
+        
+
 
     def add_client_info(self, event):
         if event["eventid"] == "cowrie.client.version":
@@ -73,10 +79,42 @@ class Session:
         self.ttylog_shasum = event["shasum"]
     
 
+
     def close_session(self, event):
         self.end_time = event["timestamp"]
         self.duration = event["duration"]
-        
+
+
+
+
+    def add_zeek_event(self, event):
+        self.zeek_events.append(event)
+
+        if event["eventid"] == "zeek.http.log.event":
+            self.add_http_request(event)
+
+    
+
+    def process_zeek_events(self):
+        if self.zeek_events:
+            self.zeek_events.sort(key=lambda event: event["timestamp"])
+            self.start_time = self.zeek_events[0]["timestamp"]
+            self.end_time = self.zeek_events[-1]["timestamp"]
+            self.duration = (self.end_time - self.start_time).microseconds / 1000000
+    
+
+    def add_http_request(self, event):
+
+        request_keys = ("timestamp", "method", "uri", "version", "user_agent", "host", "referrer", "cookies")
+        http_request = {key: event[key] for key in request_keys if key in event}
+        self._http_requests.append(http_request)
+        self.http_request_events.append(event)
+
+    
+    def process_http_requests(self):
+        if self._http_requests:
+            self._http_requests.sort(key=lambda event: event["timestamp"])
+
 
     @property
     def cmdlog(self):
@@ -109,6 +147,74 @@ class Session:
         return extract_hosts_from_parsed_urls(self.cmdlog_urls.values()) + self.cmdlog_ips
     
     
+    @property
+    def http_request_strs(self):
+        http_request_strs = []
+        skip_keys = ("timestamp", "method", "uri", "version")
+        prev_version = "" 
+        for event in self._http_requests:
+
+                        
+            event['version'] = event.get('version', prev_version)
+            event['method'] = event.get('method', "")
+            event['uri'] = event.get('uri', "")
+
+            http_request = f"{event['method']} {event['uri']} HTTP/{event['version']}\n" 
+            http_request += "\n".join([f"{key.title().replace('_','-')}: {event[key]}" for key in event if not key in skip_keys])
+            http_request_strs.append(http_request)
+
+
+
+        return http_request_strs
+
+    @property
+    def httplog(self):
+        return "\n\n".join(self.http_request_strs)
+
+
+    @property
+    def httplog_hash(self):
+        if self._http_requests:
+            return sha256hex(self.httplog)
+
+
+    @property
+    def httplog_ips(self):
+        return extract_ips(self.httplog)
+    
+    @property
+    def httplog_urls(self):
+        return extract_urls(self.httplog)
+    
+    @property
+    def httplog_hosts(self):
+        return extract_hosts_from_parsed_urls(self.httplog_urls.values()) + self.httplog_ips
+    
+
+    @property
+    def http_uris(self):
+        return [event["uri"] for event in self._http_requests if event.get("uri")]
+
+    @property
+    def http_urilog(self):
+        return "\n".join(self.http_uris)
+    
+    @property
+    def http_urilog_hash(self):
+        if self.http_uris:
+            return sha256hex(self.http_urilog)
+
+
+    @property
+    def http_requests(self):
+        """Verbose property name and OrderedSet wrapper for _http_requests to expose to AI model tools"""
+        return SetReprOrderedSet(self.http_request_strs)
+
+
+    @property
+    def hosts(self):
+        return self.cmdlog_hosts + self.httplog_hosts
+
 
     def __repr__(self) -> str:
         return ''.join([
@@ -117,6 +223,7 @@ class Session:
             f"Login: {self.username}:{self.password} " if self.login_success else "",
             f"Commands: {len(self.commands)}, " if self.commands else "",
             f"Malware: {len(self.malware)}, " if self.malware else "",
+            f"HTTP Requests: {len(self._http_requests)}, " if self._http_requests else "",
             f"Duration: {self.duration:.2f}s"
         ])
 

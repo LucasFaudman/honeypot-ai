@@ -21,7 +21,7 @@ class WebLogAnalyzer:
 
 
     def process(self, ip_list=[]):
-        for event in self.parser.logs:
+        for event in self.parser.logs():
             if event["src_ip"] in ip_list or not ip_list:
                 
 

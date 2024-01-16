@@ -11,7 +11,7 @@ from openaianalyzers.openaianalyzer import OpenAIAnalyzer
 
 import unittest
 #from tests.test_analyzerbase import *
-#from tests.test_loganalyzers import TestAttackLogReader
+#from tests.test_loganalyzers import TestZeekParser, TestAttackLogReader
 #from tests.test_ipanalyzer import TestIPAnalyzer
 #from tests.test_openaianalyzers import *
 #from tests.test_loganalyzers import TestAttackDirOrganizer

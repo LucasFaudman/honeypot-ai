@@ -19,11 +19,15 @@ class Attack:
         self.cmdlog_hashes = {
             session.cmdlog_hash: session.commands for session in source_ip.sessions.values() if session.commands}
 
-
+        self.httplog_hashes = {
+            session.httplog_hash: session.httplog for session in source_ip.sessions.values() if session.httplog
+            }
 
         #self.malware = {malware.id: malware for malware in source_ip.all_malware}
         self.malware = {malware.id: malware for malware in source_ip.all_malware 
                         if not malware.failed and not malware.is_duplicate}
+
+
 
         self.standardized_malware = defaultdict(list)
         for malware in self.malware.values():
@@ -48,14 +52,9 @@ class Attack:
         if source_ip not in self.source_ips:
             self.source_ips.append(source_ip)
 
-    # def update_log_paths(self, log_paths):
-    #     self.log_paths = log_paths
 
 
-
-
-
-    def __add__(self, other):
+    def merge(self, other):
         for source_ip in other.source_ips:
             self.add_source_ip(source_ip)
 
@@ -65,8 +64,12 @@ class Attack:
         for malware in other.malware.values():
             self.standardized_malware[malware.standardized_hash].append(
                 malware)
-
+        
         return self
+
+
+    def __add__(self, other):
+        return self.merge(other)
 
 
 
@@ -99,6 +102,20 @@ class Attack:
     @property
     def malware_sessions(self):
         return [session for session in self.sessions if session.malware]
+
+
+    @property
+    def ssh_sessions(self):
+        return [session for session in self.sessions if session.protocol == "SSH"]
+
+    @property
+    def telnet_sessions(self):
+        return [session for session in self.sessions if session.protocol == "TELNET"]
+
+    @property
+    def http_sessions(self):
+        return [session for session in self.sessions if session.protocol == "HTTP"]
+
 
     @property
     def start_time(self):
@@ -191,6 +208,18 @@ class Attack:
     def all_malware_shasums(self):
         return [malware.shasum for malware in self.malware.values() if malware.shasum]
 
+
+    @property
+    def all_http_requests(self):
+        return [http_request_str for session in self.sessions for http_request_str in session.http_request_strs]    
+
+    @property
+    def all_http_request_events(self):
+        return [http_request_event for session in self.sessions for http_request_event in session.http_request_events]
+    
+    @property
+    def all_http_request_uris(self):
+        return [http_request_event["uri"] for http_request_event in self.all_http_request_events]
 
 
 
@@ -286,7 +315,7 @@ class Attack:
             else:
                 n = 1
                 outfn = lambda x: Counter(x).most_common(n)[0][0]
-                attr = attr.replace("most_common_", "") + "s"
+                attr = attr.replace("most_common_", "") + ("s" if not attr.endswith("s") else "")
 
             
 
@@ -298,7 +327,7 @@ class Attack:
                 attr = attr.replace(f"first{end_slice}_", "")
             else:
                 outfn = lambda x: x[0] if x else None
-                attr = attr.replace("first_", "") + "s"
+                attr = attr.replace("first_", "") + ("s" if not attr.endswith("s") else "")
 
 
         elif attr.startswith("last"):
@@ -309,7 +338,8 @@ class Attack:
                 attr = attr.replace(f"last{start_slice}_", "")
             else:
                 outfn = lambda x: x[-1] if x else None
-                attr = attr.replace("last_", "") + "s"
+                attr = attr.replace("last_", "") + ("s" if not attr.endswith("s") else "")
+
 
        
         infn = lambda x: x
@@ -317,10 +347,14 @@ class Attack:
             infn = SetReprOrderedSet
             attr = attr.replace("uniq_", "")
         
+        # Hanndle common typos/abbreviations by AI
         if not attr.startswith("all_") and "all_" + attr in dir(self):
             attr = "all_" + attr
+        elif not attr.endswith("s") and attr + "s" in dir(self):
+            attr += "s"
+        elif attr.endswith("s") and attr[:-1] in dir(self):
+            attr = attr[:-1]
 
-        
         
         return outfn(infn(super().__getattribute__(attr)))
         
@@ -376,6 +410,19 @@ class Attack:
     
     
 
-    
     def __repr__(self):
-        return f"Attack ({self.attack_id_type[0]}hash: {self.attack_id[:10]}) with {len(self.source_ips)} source IPs and {len(self.sessions)} sessions, {len(self.successful_login_pairs)} successful logins, {len(self.commands)} commands, {len(self.cmdlog_hashes)} cmdlog hashes, {len(self.malware)} malware hashes"
+#        return f"Attack ({self.attack_id_type[0]}hash: {self.attack_id[:10]}) with {len(self.source_ips)} source IPs and {len(self.sessions)} sessions, {len(self.successful_login_pairs)} successful logins, {len(self.commands)} commands, {len(self.cmdlog_hashes)} cmdlog hashes, {len(self.malware)} malware hashes"
+        return ''.join([
+            f"Attack ({self.attack_id_type[0]}hash: {self.attack_id[:10]}), "
+            f"SourceIPs: {len(self.source_ips)}, " if self.source_ips else "",
+            f"Sessions: {len(self.sessions)}, " if self.sessions else "",
+            f"SSH: {len(self.ssh_sessions)}, " if self.ssh_sessions else "",
+            f"Telnet: {len(self.telnet_sessions)}, " if self.telnet_sessions else "",
+            f"HTTP: {len(self.http_sessions)}, " if self.http_sessions else "",
+            f"Commands: {len(self.commands)}, " if self.commands else "",
+            f"Cmdlogs: {len(self.cmdlog_hashes)}, " if self.cmdlog_hashes else "",
+            f"Malware: {len(self.malware)} " if self.malware else "",
+            f"Httplogs: {len(self.httplog_hashes)} " if self.httplog_hashes else "",
+
+        
+         ])

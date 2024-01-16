@@ -188,13 +188,14 @@ class IPAnalyzer(OSINTAnalyzerBase):
             soup = self.scraper.soup
 
             ioc_data = {tr.find("th").text.strip(": "): tr.find("td").text.strip() for tr in soup.find_all("tr")}
+            ioc_data["Malware alias"] = ioc_data.get("Malware alias", "")
 
             self.scraper.gotos(malware_url, 4)
             self.scraper.wait_for_visible_element(By.ID, "malware_table_wrapper")
             soup = self.scraper.soup
 
             malware_data = {tr.find("th").text.strip(":"): tr.find("td").text.strip() for tr in soup.find("table").find_all("tr")}
-
+            malware_data["Malware alias"] = malware_data.get("Malware alias", "")
 
             output["results"].append({
                 "date": date.text,
