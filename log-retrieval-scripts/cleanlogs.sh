@@ -15,8 +15,8 @@ do
         mv -v "$file" "$standard_extenstion_name"
         file="$standard_extenstion_name"
     fi
-    (jq . -rc "$file" > "$file-pretty.json" \
-    && mv "$file-pretty.json" "$file" \
+    (jq . -rc "$file" > "$file-pretty.json"; \
+    mv "$file-pretty.json" "$file" \
     && echo "Pretty printed $file") &
     
 
@@ -41,7 +41,7 @@ done
 wait
 
 dshield_files=$(find "$firewall_local_path" -type f -name "dshield*")
-cat $(printf "%s\n" "${dshield_files[@]}" | sort -t. -r -k4,4) > "$firewall_local_path/combined-dshield.log"
+cat $(printf "%s\n" "${dshield_files[@]}" | sort -t. -r -k4,4) >> "$firewall_local_path/combined-dshield.log"
 rm -v $(printf "%s" "${dshield_files[@]}")
 mv -v "$firewall_local_path/combined-dshield.log" "$firewall_local_path/dshield.log"
 
