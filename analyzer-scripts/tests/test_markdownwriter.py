@@ -7,7 +7,7 @@ from markdownwriters.cowrieattackmarkdownwriter import CowrieAttackMarkdownWrite
 
 from markdownwriters.visualizer import CounterGrapher
 from osintanalyzers.ipanalyzer import IPAnalyzer
-from loganalyzers.cowrieloganalyzer import CowrieLogAnalyzer 
+
 
 
 from openaianalyzers.openaianalyzer import OpenAIAnalyzer, OPENAI_API_KEY

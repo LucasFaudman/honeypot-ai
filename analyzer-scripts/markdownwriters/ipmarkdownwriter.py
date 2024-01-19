@@ -3,14 +3,13 @@ from markdownwriters.markdownwriterbase import *
 
 
 from osintanalyzers.ipanalyzer import IPAnalyzer
-from loganalyzers.cowrieloganalyzer import CowrieLogAnalyzer, Attack
 from openaianalyzers.openaianalyzer import OpenAIAnalyzer
 
 from .visualizer import CounterGrapher
 
 
-class IPAnalyzerMarkdownWriter(MarkdownWriter):
-    """Writes markdown for IPAnalyzer ipdata"""
+class IPMarkdownWriter(MarkdownWriterBase):
+    """Writes markdown for IP OSINT ipdata"""
 
     def prepare(self):
         

@@ -1,7 +1,6 @@
 from analyzerbase import *
 
 from osintanalyzers.ipanalyzer import IPAnalyzer
-from loganalyzers.cowrieloganalyzer import CowrieLogAnalyzer, Attack
 from openaianalyzers.openaianalyzer import OpenAIAnalyzer
 from main import AttackAnalyzer
 

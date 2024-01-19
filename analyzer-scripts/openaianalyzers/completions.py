@@ -26,7 +26,7 @@ class OpenAICompletionsAnalyzer(OpenAIAnalyzerBase):
 
     def get_json_result(self, messages=[], n=1, retries=0, is_retry=False, **kwargs):
         message_hash = sha256hex(str(messages))
-        db_file = self.aidb_path / f"{message_hash}.json"
+        db_file = self.db_path / f"{message_hash}.json"
         
         if not is_retry and db_file.exists():
             print(f"Reading {message_hash} from db")
@@ -177,6 +177,8 @@ class OpenAICompletionsAnalyzer(OpenAIAnalyzerBase):
 
             if all([isinstance(k, str) for k in keys]):
                 return dict(zip(commands, result.values()))
+        
+        return result
             
 
     def explain_malware(self, malware_source_code, commands=[], n=1, retries=0, **kwargs):

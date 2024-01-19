@@ -1,17 +1,21 @@
+from .baseobjects import *
 from .common import *
+
 from .util import extract_ips, extract_urls, standardize_cmdlog, sha256hex, extract_hosts_from_parsed_urls
 from .malware import Malware
 
 class Session:
-    def __init__(self, connect_event):
-        self.session_id = connect_event["session"]
-        self.src_ip = connect_event["src_ip"]
-        self.dst_ip = connect_event["dst_ip"]
-        self.src_port = connect_event["src_port"]
-        self.dst_port = connect_event["dst_port"]
-        self.start_time = connect_event["timestamp"]
-        self.protocol = connect_event["protocol"].upper()
+    def __init__(self, event):
+        self.session_id = event["session"]
+        self.session_type = event["eventid"].split(".")[0]
 
+        self.src_ip = event.get("src_ip", "")
+        self.dst_ip = event.get("dst_ip", "")
+        self.src_port = event.get("src_port", 0)
+        self.dst_port = event.get("dst_port", 0)
+        self.protocol = event.get("protocol", "").upper()
+
+        self.start_time = event["timestamp"]
         self.end_time = None
         self.duration = 0
 
@@ -35,12 +39,20 @@ class Session:
         self.ttylog = None
         
 
-        self.zeek_events = []
+        self.events = [event]
         self.http_request_events = []
         self._http_requests = []
-        
 
 
+    @staticmethod
+    def event_handler(func):
+        def wrapper(self, event):
+            self.events.append(event)
+            return func(self, event)
+        return wrapper
+
+
+    @event_handler
     def add_client_info(self, event):
         if event["eventid"] == "cowrie.client.version":
             self.ssh_version = event["version"]
@@ -49,7 +61,7 @@ class Session:
         elif event["eventid"] == "cowrie.client.var":
             self.client_vars[event["name"]] = event["value"]
         
-
+    @event_handler
     def add_login_attempt(self, event):
         login = event["username"], event["password"]
         self.login_attempts.append(login)
@@ -58,12 +70,12 @@ class Session:
             self.username, self.password = login
             self.login_success = True
         
-
+    @event_handler
     def add_command(self, event):
         self.commands.append(event["input"])
         self.contains_commands = True
 
-
+    @event_handler
     def add_malware(self, event):
         malware = Malware(event)
         self.malware.append(malware)
@@ -73,36 +85,41 @@ class Session:
         elif event["eventid"] == "cowrie.session.file_upload":
             self.uploads.append(malware)
 
-
+    @event_handler
     def add_ttylog(self, event):
         self.ttylog = event["ttylog"]
         self.ttylog_shasum = event["shasum"]
     
 
-
+    @event_handler
     def close_session(self, event):
         self.end_time = event["timestamp"]
         self.duration = event["duration"]
 
 
-
-
+    @event_handler
     def add_zeek_event(self, event):
-        self.zeek_events.append(event)
-
         if event["eventid"] == "zeek.http.log.event":
             self.add_http_request(event)
 
     
-
-    def process_zeek_events(self):
-        if self.zeek_events:
-            self.zeek_events.sort(key=lambda event: event["timestamp"])
-            self.start_time = self.zeek_events[0]["timestamp"]
-            self.end_time = self.zeek_events[-1]["timestamp"]
+    def process_events(self):
+        if self.events:
+            self.events.sort(key=lambda event: event["timestamp"])
+            
+            self.start_time = self.events[0]["timestamp"]
+            self.end_time = self.events[-1]["timestamp"]
             self.duration = (self.end_time - self.start_time).microseconds / 1000000
-    
+            
+            
+            self.src_ip = self.events[0].get("src_ip", self.src_ip)
+            self.dst_ip = self.events[0].get("dst_ip", self.dst_ip)
+            self.src_port = self.events[0].get("src_port", self.src_port)
+            self.dst_port = self.events[0].get("dst_port", self.dst_port)
+            self.protocol = self.events[0].get("protocol", self.protocol).upper()
 
+
+    
     def add_http_request(self, event):
 
         request_keys = ("timestamp", "method", "uri", "version", "user_agent", "host", "referrer", "cookies")
@@ -110,10 +127,10 @@ class Session:
         self._http_requests.append(http_request)
         self.http_request_events.append(event)
 
-    
     def process_http_requests(self):
         if self._http_requests:
             self._http_requests.sort(key=lambda event: event["timestamp"])
+
 
 
     @property

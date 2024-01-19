@@ -16,17 +16,18 @@ class RateLimitError(Exception):
 class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
     """OpenAIAnalyzer based on Assistant API using GPT functions/tool_calls to update thread context window"""
     
-    def __init__(self, training_data_dir=Path("openai-training-data"), 
-                 aidb_path=Path("tests/aidb"), 
+    def __init__(self, 
+                 db_path=Path("tests/aidb"), 
+                 training_data_path=Path("openai-training-data"), 
                  api_key=OPENAI_API_KEY, 
                  model="gpt-4-1106-preview",
-                 ipanalyzer= IPAnalyzer(),
-                 malwareanalyzer= MalwareAnalyzer(),
+                 ip_analyzer=IPAnalyzer(),
+                 malwareanalyzer=MalwareAnalyzer(),
                  
                  ) -> None:
-        super().__init__(training_data_dir, aidb_path, api_key, model)
+        super().__init__(db_path, training_data_path, api_key, model)
         # Make dir to store data for assistants    
-        self.ai_assistants_dir = self.training_data_dir / "assistants"
+        self.ai_assistants_dir = self.db_path / "assistants"
         if not self.ai_assistants_dir.exists():
             self.ai_assistants_dir.mkdir(exist_ok=True, parents=True)
         
@@ -39,7 +40,7 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
 
 
         # To handle tool calls (See _do_tool_call and tools.py)
-        self.ipanalyzer = ipanalyzer
+        self.ip_analyzer = ip_analyzer
         self.malwareanalyzer = malwareanalyzer
 
     
@@ -192,7 +193,7 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
                 "output":  self.format_content(tool_output)
             })
 
-        
+
         # Submit tool outputs to run and get updated run
         run = self.client.beta.threads.runs.submit_tool_outputs(
                 thread_id=run.thread_id,
@@ -233,7 +234,7 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         # Sets tool_output to reduced ipdata from sources in arguments["sources"] for each ip in arguments["ips"] 
         elif tool_name == "query_ip_data":
             # Uses IPAnalyzer to get data for ips from sources
-            tool_output = self.ipanalyzer.get_attack_data_for_ips(
+            tool_output = self.ip_analyzer.get_attack_data_for_ips(
                 attack,
                 arguments["ips"],
                 arguments["sources"]
@@ -328,7 +329,6 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         # Wait for messages and recursively handle tool_calls until run is complete or RunStatusError occurs
         try:
             messages = self.wait_for_response(thread.id, run.id, attack, sleep_interval, **kwargs)
-            #tool_call_log = self.tool_call_logs[self.current_tool_call_log_key]
             
             print(f"Done {ass.id}, {thread.id}, {run.id}")
             return ass, thread, run, messages 

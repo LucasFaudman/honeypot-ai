@@ -1,4 +1,7 @@
 from .common import *
+from io import StringIO
+
+
 
 
 def split_commands(commands):
@@ -175,6 +178,13 @@ def rpprint(*args, **kwargs):
     pprint(*args, **kwargs)
     return kwargs.get("sep", " ").join(str(arg) for arg in args) + kwargs.get("end", "\n")
 
+
+def pprint_str(*args, **kwargs):
+    """Pretty Print to StringIO and return the string"""
+    output_buffer = StringIO()
+    kwargs["stream"] = output_buffer
+    pprint(*args, **kwargs)
+    return output_buffer.getvalue()
 
 
 def recursive_pop(d={}, 

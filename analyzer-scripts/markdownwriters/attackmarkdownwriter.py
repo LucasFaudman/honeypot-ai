@@ -1,16 +1,12 @@
 from analyzerbase import *
 from markdownwriters.markdownwriterbase import *
 
-
-from osintanalyzers.ipanalyzer import IPAnalyzer
-from loganalyzers.cowrieloganalyzer import CowrieLogAnalyzer, Attack
-from openaianalyzers.openaianalyzer import OpenAIAnalyzer
-
+from .markdownwriterbase import *
 from .visualizer import CounterGrapher
 
 
-class CowrieAttackMarkdownWriter(MarkdownWriter):
-    """Markdown writer for Cowrie Attack objects"""
+class AttackMarkdownWriter(MarkdownWriterBase):
+    """Markdown writer for Attack objects"""
 
     def prepare(self):
         attack = self.data_object
@@ -96,7 +92,7 @@ class CowrieAttackMarkdownWriter(MarkdownWriter):
             f"{code(len(attack.malware))} unique malware samples were downloaded. {code(len(counts['malware_ips']))} IP(s) and {code(len(counts['malware_urls']))} URL(s) were found in the malware samples",
             f"This attacks was recorded in {code(len(log_types))} log types: " + md_join(
                 log_types, code, ', '),
-            f"A total of {code(log_counts['all']['lines'])} log events were logged in {code(len(log_names))} log files: " + md_join(
+            f"A total of {code(log_counts['all']['_lines'])} log events were logged in {code(len(log_names))} log files: " + md_join(
                 log_names, code, ', '),
         ]
 
@@ -141,7 +137,7 @@ class CowrieAttackMarkdownWriter(MarkdownWriter):
 
             f"This attacks was recorded in {code(attack.num_log_types)} log types: ",
             log_types,
-            f"A total of {code(log_counts['all']['lines'])} log events were logged in {code(log_counts['all']['files'])} log files: ",
+            f"A total of {code(log_counts['all']['_lines'])} log events were logged in {code(log_counts['all']['_files'])} log files: ",
             log_names,
         ]
 
@@ -163,7 +159,7 @@ class CowrieAttackMarkdownWriter(MarkdownWriter):
 
         log_table_headers = ["Log Name", "Lines"]
         ip = 'all'
-        log_table_data = [(log_type, log_counts[ip][log_type]["lines"])
+        log_table_data = [(log_type, log_counts[ip][log_type]["_lines"])
                           for log_type in log_types]
         logs_md += table(log_table_headers, log_table_data)
 
@@ -189,7 +185,7 @@ class CowrieAttackMarkdownWriter(MarkdownWriter):
     def add_dshield_logs(self, md, attack: Attack, ip="all", n_lines=None):
         md += h2("DShield Logs")
         # TODO ADD Log Descriptions
-        md += f"Total DShield logs: {code(attack.log_counts[ip]['dshield.log']['lines'])}\n"
+        md += f"Total DShield logs: {code(attack.log_counts[ip]['dshield.log']['_lines'])}\n"
         md += h4(f"The {code(len(attack.sessions))} sessions in this attack were logged as connection in the following DShield firewall logs:")
 
         md += f"Here is a sample of the {'first ' + code(n_lines) if n_lines else 'log'} lines:\n"
@@ -202,7 +198,7 @@ class CowrieAttackMarkdownWriter(MarkdownWriter):
     def add_web_logs(self, md, attack: Attack, ip="all", n_lines=None):
         md += h2("Web Logs")
         # TODO ADD Log Descriptions
-        md += f"Total Web logs: {code(attack.log_counts[ip]['web.json']['lines'])}\n"
+        md += f"Total Web logs: {code(attack.log_counts[ip]['web.json']['_lines'])}\n"
         md += h4(f"The {code(len(attack.sessions))} sessions in this attack were logged as connection in the following Web logs:")
         md += f"Here is a sample of the {'first ' + code(n_lines) if n_lines else 'log'} lines:\n"
         md += codeblock(attack.get_log_lines(ip, "web.json", n_lines), 'json')
@@ -216,7 +212,7 @@ class CowrieAttackMarkdownWriter(MarkdownWriter):
         for ext in ('.log', '.json'):
             md += h2(f"Cowrie {ext} Logs")
             # TODO ADD Log Descriptions
-            md += f"Total Cowrie logs: {code(attack.log_counts[ip][f'cowrie{ext}']['lines'])}\n"
+            md += f"Total Cowrie logs: {code(attack.log_counts[ip][f'cowrie{ext}']['_lines'])}\n"
 
             md += h4(
                 f"First Session With Commands {first_command_session.session_id} Cowrie {ext} Logs")
@@ -505,11 +501,7 @@ class CowrieAttackMarkdownWriter(MarkdownWriter):
         md += attack.answers["vuln_analysis"] + "\n\n"
         md += h1("MITRE ATT&CK")
         md += attack.answers['mitre_attack'] + "\n"
-        # md += h4(f'Exploit: {link("Exploit Name", "https://www.exploit-db.com/exploits/12345")}')
-        # md += h4(f'CVE: {link("CVE-1234-1234", "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-1234-1234")}')
-        # md += h4(f"Mitre ATT&CK: {link('T1234', 'https://attack.mitre.org/techniques/T1234')}")
-        # md += h4(f'Proof of Concept from {link("PoC Name", "https://www.exploit-db.com/exploits/12345")}')
-        # md += codeblock("PoC Code", "python")
+
 
         return md
 

@@ -1,14 +1,6 @@
 from analyzerbase import *
 
 
-from loganalyzers.logparser import LogParser, CowrieParser, WebLogParser, DshieldParser
-from loganalyzers.cowrieloganalyzer import CowrieLogAnalyzer
-from loganalyzers.webloganalyzer import WebLogAnalyzer
-
-from osintanalyzers.ipanalyzer import IPAnalyzer
-from openaianalyzers.openaianalyzer import OpenAIAnalyzer
-
-
 import unittest
 #from tests.test_analyzerbase import *
 #from tests.test_loganalyzers import TestZeekParser, TestAttackLogReader

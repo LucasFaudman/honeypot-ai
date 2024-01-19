@@ -18,8 +18,9 @@ class OSINTAnalyzerBase:
                  db_path=Path("tests/osintdb"), 
                  selenium_webdriver_type="chrome", 
                  webdriver_path="/Users/lucasfaudman/Documents/SANS/internship/chromedriver",
-                 max_errors={
-                 }):
+                 sources=[],
+                 max_errors: Union[int, dict]={}
+                 ):
         
         # Create db_path if it doesn't exist for saving data
         self.db_path = db_path
@@ -31,7 +32,12 @@ class OSINTAnalyzerBase:
         self.webdriver_path = webdriver_path
         self._scraper = None
 
+        # Store sources to get data from
+        self.SOURCES = sources or self.SOURCES
+
         # Store max_errors for each source
+        if isinstance(max_errors, int):
+            self.max_errors = {source: max_errors for source in self.SOURCES}
         self.max_errors = max_errors
 
         # So it can be added as Attack postprocessor if needed

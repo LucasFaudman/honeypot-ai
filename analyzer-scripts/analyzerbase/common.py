@@ -11,18 +11,19 @@ from unittest import TestCase
 from pprint import pprint
 from time import sleep
 from ordered_set import OrderedSet
+from functools import partial
 
-MYIPS = os.environ.get("MYIPS", "").split(",")
-test_logs_path = Path("/Users/lucasfaudman/Documents/SANS/internship/tests/logs")
-test_attacks_path = Path("/Users/lucasfaudman/Documents/SANS/internship/tests/attacks/")
+# MYIPS = os.environ.get("MYIPS", "").split(",")
+# test_logs_path = Path("/Users/lucasfaudman/Documents/SANS/internship/tests/logs")
+# test_attacks_path = Path("/Users/lucasfaudman/Documents/SANS/internship/tests/attacks/")
 
 
-class SetReprOrderedSet(OrderedSet):
-    """OrderedSet that prints as a normal python set {x, y} instead of a OrderedSet([x, y]) when using repr()"""
-    def __repr__(self):
-        return "{" + f"{list(self)}"[1:-1] + "}"
+# class SetReprOrderedSet(OrderedSet):
+#     """OrderedSet that prints as a normal python set {x, y} instead of a OrderedSet([x, y]) when using repr()"""
+#     def __repr__(self):
+#         return "{" + f"{list(self)}"[1:-1] + "}"
     
 
-    def __add__(self, other):
-        self = self.union(other)
-        return SetReprOrderedSet(self)
+#     def __add__(self, other):
+#         self = self.union(other)
+#         return SetReprOrderedSet(self)

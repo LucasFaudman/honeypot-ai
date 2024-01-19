@@ -13,19 +13,23 @@ OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 
 class OpenAIAnalyzerBase:
     
-    def __init__(self, training_data_dir=Path("openai-training-data"), aidb_path=Path("tests/aidb"), api_key=OPENAI_API_KEY, model="gpt-4-1106-preview") -> None:
+    def __init__(self,
+                 db_path=Path("tests/aidb"),  
+                 training_data_path=Path("openai-training-data"), 
+                 api_key=OPENAI_API_KEY, 
+                 model="gpt-4-1106-preview") -> None:
         
 
-        self.client = OpenAI(api_key=OPENAI_API_KEY)
+        self.client = OpenAI(api_key=api_key)
         self.model = model
         
-        self.training_data_dir = Path(training_data_dir)
-        if not self.training_data_dir.exists():
-            self.training_data_dir.mkdir(exist_ok=True, parents=True)
+        self.training_data_path = Path(training_data_path)
+        if not self.training_data_path.exists():
+            self.training_data_path.mkdir(exist_ok=True, parents=True)
         
-        self.aidb_path = Path(aidb_path)
-        if not self.aidb_path.exists():
-            self.aidb_path.mkdir(exist_ok=True, parents=True)
+        self.db_path = Path(db_path)
+        if not self.db_path.exists():
+            self.db_path.mkdir(exist_ok=True, parents=True)
 
 
 
@@ -129,7 +133,7 @@ class OpenAIAnalyzerBase:
     def write_training_data(self, filename, data):
         """Utility used to write hardcode training data to a file."""
 
-        file = (self.training_data_dir / filename)
+        file = (self.training_data_path / filename)
         if not file.parent.exists():
             file.parent.mkdir(exist_ok=True, parents=True)
         
@@ -154,7 +158,7 @@ class OpenAIAnalyzerBase:
         or just read as string if returnas is None or str.
         """
 
-        file = self.training_data_dir / filename
+        file = self.training_data_path / filename
 
         with file.open("r") as f:
             

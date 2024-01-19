@@ -2,26 +2,52 @@ from analyzerbase import *
 
 
 class LogParser:
-    def __init__(self, log_path=test_logs_path):
+    def __init__(self, logs_path=Path('./logs')):
         
-        self.log_path = Path(log_path)        
-        self._all_logs = []
+        self.logs_path = Path(logs_path)        
+        self._all_log_filepaths = []
+        self._logs = []
         
 
+    def set_logs_path(self, logs_path):
+        self.logs_path = Path(logs_path)
+        self._all_log_filepaths = []
+        self._logs = []
 
-    def find_log_filepaths(self, start_path="", pattern="*", sort_fn=None, depth=0, max_depth=None):
+
+    def find_log_filepaths(self, 
+                           start_path: Union[str, Path]="",
+                           pattern="*", 
+                           sort_fn=None, 
+                           max_depth=None,
+                           depth=0                           
+                           ):
+        """Yields all log filepaths matching pattern in start_path and its subdirectories.
+        If sort_fn is provided, sorts the filepaths by sort_fn and yields them in sorted order.
+        If max_depth is provided, only searches up to max_depth levels deep.
+        """
+
+
         if callable(sort_fn):
-            yield from sorted(list(self.find_log_filepaths(start_path, pattern)), key=sort_fn)
-
+            # Recursively calls itself with sort_fn=None and other params unchanged to get unsorted list of filepaths, 
+            # then it sorts list by sort_fn and yields each filepath from the sorted list
+            yield from sorted(list(self.find_log_filepaths(start_path, pattern, None, max_depth, depth)), 
+                              key=sort_fn)
         else:
-            start_path  = self.log_path / start_path
-            for file in start_path.rglob(pattern):
-            #for file in start_path.glob(pattern):
-                if file.is_file():
-                    yield file
-
-                #if file.is_dir() and (not self.maxdepth or depth < self.maxdepth):
-                #    yield from self.find_log_filepaths(file, pattern, None, depth+1)
+            # If sort_fn is not provided, recursively yields filepaths from start_path and its subdirectories
+            start_path  = self.logs_path / start_path if isinstance(start_path, str) else start_path
+            
+            if max_depth is None:
+                # rglob searches all subdirectories recursively when max_depth is None
+                for file in start_path.rglob(pattern):
+                    if file.is_file():
+                        yield file
+            else:
+                # glob only searches one level deep when max_depth is not None
+                for file in start_path.glob(pattern):
+                    if file.is_dir() and (not max_depth or depth < max_depth):
+                        # Recursively calls itself with start_path=file and depth=depth+1 to search subdirectory
+                        yield from self.find_log_filepaths(file, pattern, None, max_depth, depth+1)
 
 
     def load_json_logs(self, file):
@@ -38,16 +64,16 @@ class LogParser:
     #     return event
     
     
-    # def logs(self):
-    #     # Implement this in a subclass
-    #     return (NotImplementedError,)
+    def logs(self):
+        # Implement this in a subclass
+        return (NotImplementedError,)
 
-    @property
-    def all_logs(self):
-        if not self._all_logs:
-            self._all_logs = list(self.find_log_filepaths())
-        return self._all_logs
-        #yield from self._all_logs
+    
+    def all_log_filepaths(self):
+        if not self._all_log_filepaths:
+            self._all_log_filepaths = list(self.find_log_filepaths())
+        return self._all_log_filepaths
+        #yield from self._all_log_filepaths
 
 
     def nlogs(self, limit=0):
@@ -57,31 +83,6 @@ class LogParser:
                 break
             yield event
 
-
-    # def get_matching_lines(self, filepath, pattern, flags=0):
-
-    #     read_mode = "rb" if not isinstance(pattern, str) else "r"
-    #     cmpld_pattern = re.compile(pattern, flags) if not isinstance(pattern, (re.Pattern, bytes)) else pattern
-        
-    #     if isinstance(cmpld_pattern, re.Pattern):
-    #         match_fn = lambda line: bool(cmpld_pattern.search(line))
-
-    #     else:
-    #         match_fn = lambda line: bool(pattern in line)
-        
-    #     with open(filepath, read_mode) as f:
-    #         yield from filter(match_fn, f)
-
-
-
-    # def write_matching_lines(self, from_file, to_file, pattern, flags=0):
-
-    #     write_mode = "wb+" if isinstance(pattern, str) else "w+"
-        
-    #     with open(to_file, write_mode) as f:
-    #         for line in self.get_matching_lines(from_file, pattern, flags):
-    #             f.write(line)
-    
 
 
 class CowrieParser(LogParser):
@@ -110,7 +111,7 @@ class CowrieParser(LogParser):
     @property
     def auth_random(self):
         if not hasattr(self, "_auth_random"):
-            self._auth_random = json.loads((self.log_path / "auth_random.json").read_bytes())
+            self._auth_random = json.loads((self.logs_path / "auth_random.json").read_bytes())
         return self._auth_random
                 
 
@@ -212,8 +213,14 @@ class ZeekParser(LogParser):
     TIMESTAMP_FORMAT = "2023-10-25T21:59:41.922314"
 
     #  zeek_log_types=("http", "conn", "dns", "ssl", "dhcp", "weird", "files", "ftp", "smtp", "smb", "tunnel", "x509")
-    def __init__(self, log_path=test_logs_path, zeek_log_ext=".log", zeek_log_types=("http", "conn.log"), keep_empty_fields=True, keep_unset_fields=False):
-        super().__init__(log_path)
+    def __init__(self, 
+                 logs_path=Path("./logs"), 
+                 zeek_log_ext=".log", 
+                 zeek_log_types=("http", "conn"), 
+                 keep_empty_fields=True, 
+                 keep_unset_fields=False
+                 ):
+        super().__init__(logs_path)
         self.zeek_log_ext = zeek_log_ext
         self.zeek_log_types = zeek_log_types
         self.keep_empty_fields = keep_empty_fields
@@ -305,9 +312,6 @@ class ZeekParser(LogParser):
         
 
             
-
-
-    
     def logs(self, only_log_types=()):
         only_log_types = only_log_types or self.zeek_log_types
         for file in self.find_log_filepaths("zeek", "*" + self.zeek_log_ext):
@@ -318,6 +322,7 @@ class ZeekParser(LogParser):
                     yield from map(self.standardize, self.load_json_logs(file))
 
     
+
     def standardize(self, event):
         event["timestamp"] = datetime.fromtimestamp(event.pop("ts", 0))
         event["session"] = event.pop("uid", None)
@@ -336,7 +341,12 @@ class ZeekParser(LogParser):
         return event
     
 
-
+LOG_PARSERS = {
+    "cowrie" : CowrieParser,
+    "web" : WebLogParser,
+    "dshield" : DshieldParser,
+    "zeek" : ZeekParser,
+}
 
 
 

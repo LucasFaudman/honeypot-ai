@@ -1,3 +1,4 @@
+from .baseobjects import *
 from .common import *
 from .malware import Malware
 from .util import split_commands, extract_hosts_from_parsed_urls
@@ -6,11 +7,13 @@ from functools import partial
 
 
 class Attack:
-    attacks_path = test_attacks_path
+    ATTACKS_PATH = Path("./attacks")
 
     def __init__(self, attack_id, attack_id_type, source_ip) -> None:
         self.attack_id = attack_id
         self.attack_id_type = attack_id_type
+        self.attack_dir = self.ATTACKS_PATH / self.attack_id
+        
         self.source_ips = [source_ip,]
 
         self.commands = list(source_ip.all_commands)
@@ -23,25 +26,22 @@ class Attack:
             session.httplog_hash: session.httplog for session in source_ip.sessions.values() if session.httplog
             }
 
-        #self.malware = {malware.id: malware for malware in source_ip.all_malware}
-        self.malware = {malware.id: malware for malware in source_ip.all_malware 
-                        if not malware.failed and not malware.is_duplicate}
-
-
+        self.malware = {malware.id: malware for malware in source_ip.all_malware}
+        # self.malware = {malware.id: malware for malware in source_ip.all_malware 
+        #                 if not malware.failed and not malware.is_duplicate}
 
         self.standardized_malware = defaultdict(list)
         for malware in self.malware.values():
-            self.standardized_malware[malware.standardized_hash].append(
-                malware)
+            self.standardized_malware[malware.standardized_hash].append(malware)
 
 
         self.postprocessors = []
 
+        
         self.log_paths = {}
         self._log_counts = {}
         self.command_explanations = {}
         self.standardized_malware_explanations = {}
-        self.full_ipdata = {}
         self.ipdata = {}
         self.questions = {}
         self.answers = {}
@@ -219,8 +219,7 @@ class Attack:
     
     @property
     def all_http_request_uris(self):
-        return [http_request_event["uri"] for http_request_event in self.all_http_request_events]
-
+        return [http_request_event["uri"] for http_request_event in self.all_http_request_events if http_request_event.get("uri")]
 
 
     @property
@@ -280,7 +279,7 @@ class Attack:
 
     @property
     def log_types(self, ip="all"):
-        return [log_name for log_name in self.log_counts[ip] if log_name != "lines" and log_name != "files"]
+        return [log_name for log_name in self.log_counts[ip] if log_name != "_lines" and log_name != "_files"]
 
 
 
@@ -401,6 +400,9 @@ class Attack:
 
     def update_ipdata(self, ipdata):
         self.ipdata = ipdata
+
+    def update_mwdata(self, mwdata):
+        self.mwdata = mwdata
 
     def update_command_explanations(self, command_explanations):
         self.command_explanations = command_explanations

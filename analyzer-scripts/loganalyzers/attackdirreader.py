@@ -1,17 +1,23 @@
 from analyzerbase import *
-from .logparser import CowrieParser
+# from .logparser import CowrieParser
 
 
 class AttackDirReader:
     """Reads and counts logs from attack directory"""
 
-    log_types = ("cowrie", "firewall", "zeek", "web")
+    #log_types = ("cowrie", "firewall", "zeek", "web")
 
-    def __init__(self, parser: CowrieParser, attacks_path=test_attacks_path, attacks={}, overwrite=True):        
-        self.parser = parser
-        self.attacks_path = Path(attacks_path)
-        self.overwrite = overwrite
+    def __init__(self, 
+                 #parser: CowrieParser, 
+                 #attacks_path=test_attacks_path, 
+                 attacks={},
+                 log_types=("cowrie", "firewall", "zeek", "web")
+                 ):        
+        # self.parser = parser
+        #self.attacks_path = Path(attacks_path)
         self.attacks = attacks
+        self.log_types = log_types
+        self.log_paths = defaultdict(lambda: defaultdict(list))
 
 
     def set_attacks(self, attacks):
@@ -31,10 +37,18 @@ class AttackDirReader:
         for attack_id, attack in self.attacks.items():
             self.update_attack_log_counts(attack)
 
+    def update_attack_log_paths_and_counts(self, attack):
+        attack_log_paths = self.update_attack_log_paths(attack)
+        attack_log_counts = self.update_attack_log_counts(attack)
+        return attack_log_paths, attack_log_counts
+
+
 
     def update_attack_log_paths(self, attack):
         attack_id = attack.attack_id
-        attack_dir = self.attacks_path / attack_id
+        attack_dir = attack.attack_dir
+        #attack_dir = self.attacks_path / attack_id
+        
         for path in attack_dir.rglob("*"):
             if path.is_file() and "malware" not in path.parts:
                 self.log_paths[attack_id][path.parent.name].append(path)
@@ -48,7 +62,7 @@ class AttackDirReader:
         
         
         attack.log_paths = self.log_paths[attack_id]
-        return self.log_paths
+        return attack.log_paths
     
 
     def get_attack_log_paths(self, attack, ip="all", log_type="all", ext="all"):
@@ -86,28 +100,27 @@ class AttackDirReader:
                 ext = "." + ext
                 
                 log_counts[ip][log_filter] = {}
-                log_counts[ip][log_filter]["files"] = 0
-                log_counts[ip][log_filter]["lines"] = 0
+                log_counts[ip][log_filter]["_files"] = 0
+                log_counts[ip][log_filter]["_lines"] = 0
                 #for log_path in attack.get_log_paths(ip, log_type, ext): 
                 for log_path in self.get_attack_log_paths(attack, ip, log_type, ext): 
-                    log_counts[ip][log_filter]["files"] += 1
+                    log_counts[ip][log_filter]["_files"] += 1
 
                     with log_path.open("rb") as f:
-                        log_counts[ip][log_filter][log_path.name] = len(f.readlines())#sum(1 for line in f)
-                        log_counts[ip][log_filter]["lines"] += log_counts[ip][log_filter][log_path.name]
-                    
+                        log_counts[ip][log_filter][log_path.name] = len(f.readlines())
+                        log_counts[ip][log_filter]["_lines"] += log_counts[ip][log_filter][log_path.name]
+                        
 
-                if log_counts[ip][log_filter]["files"] == 0:
+                if log_counts[ip][log_filter]["_files"] == 0:
                     del log_counts[ip][log_filter]
 
             found_log_filters = list(log_counts[ip].keys())
-            log_counts[ip]["lines"] = sum(log_counts[ip][log_filter]["lines"] for log_filter in found_log_filters)
-            log_counts[ip]["files"] = sum(log_counts[ip][log_filter]["files"] for log_filter in found_log_filters)
+            log_counts[ip]["_lines"] = sum(log_counts[ip][log_filter]["_lines"] for log_filter in found_log_filters)
+            log_counts[ip]["_files"] = sum(log_counts[ip][log_filter]["_files"] for log_filter in found_log_filters)
         
         attack._log_counts = log_counts
         return log_counts
     
-
 
 
     def get_attack_log_lines(self, attack, ip, log_filter, line_filter=None, n_lines=None):

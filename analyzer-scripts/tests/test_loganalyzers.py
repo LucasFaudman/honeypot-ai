@@ -3,17 +3,13 @@ from time import time
 
 from analyzerbase import *
 from loganalyzers.logparser import LogParser, CowrieParser, WebLogParser, DshieldParser, ZeekParser
-from loganalyzers.cowrieloganalyzer import CowrieLogAnalyzer
-from loganalyzers.webloganalyzer import WebLogAnalyzer
+from loganalyzers.logprocessor import LogProcessor
 from loganalyzers.attackdirorganizer import AttackDirOrganizer, ThreadPoolExecutor, ProcessPoolExecutor
 from loganalyzers.attackdirreader import AttackDirReader
 
 
 test_logs_path = Path("tests/logs")
 test_attacks_path = Path("tests/a2")
-
-
-
 
 
 class SetupOnceTestCase(TestCase):
@@ -28,8 +24,6 @@ class SetupOnceTestCase(TestCase):
             return None
         else:
             cls._setup_done = True
-
-
 
 
 
@@ -74,35 +68,14 @@ class TestDshieldParser(ParserTestCase):
 class TestZeekParser(ParserTestCase):
     _parser_cls = ZeekParser
 
-    # def test_print_uris(self):
-    #     for event in self.parser.logs("http"):
-    #         #print("SrcIP:", event["src_ip"], event["uri"])
-    #         if len(event.get("uri_vars", [])) > 1:
-    #             print(event["uri_vars"])
-    #             print(event["uri"])
-    #             print()
-    
-        
-class TestWebLogAnalyzer(SetupOnceTestCase):
-        
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
 
-        cls.parser = WebLogParser(test_logs_path)
-        cls.analyzer = WebLogAnalyzer(cls.parser)
-
-    def test_process(self):
-        source_ips = self.analyzer.process()
-
-
-    def test_analyze(self):
-        attacks = self.analyzer.analyze()
+            
 
 
 
 
-class CowrieAnalyzerTestCase(SetupOnceTestCase):
+
+class LogProcessorTestCase(SetupOnceTestCase):
     _setup_done = False
 
     @classmethod
@@ -110,12 +83,12 @@ class CowrieAnalyzerTestCase(SetupOnceTestCase):
         super().setUpClass()
         
         cls.parser = CowrieParser(test_logs_path)
-        cls.analyzer = CowrieLogAnalyzer(cls.parser)
+        cls.logprocessor = LogProcessor(cls.parser)
 
-        cls.source_ips = cls.analyzer.process()
-        cls.attacks = cls.analyzer.analyze()
+        cls.source_ips = cls.logprocessor.process()
+        cls.attacks = cls.logprocessor.analyze()
 
-        cls.attacks = cls.analyzer.attacks
+        cls.attacks = cls.logprocessor.attacks
         cls.attack0 = list(cls.attacks.values())[0]
 
 
@@ -124,12 +97,7 @@ class CowrieAnalyzerTestCase(SetupOnceTestCase):
 
 
 
-
-
-
-
-
-class TestCowrieLogAnalyzer(CowrieAnalyzerTestCase):
+class TestLogProcessor(LogProcessorTestCase):
     
 
     # @classmethod
@@ -137,7 +105,7 @@ class TestCowrieLogAnalyzer(CowrieAnalyzerTestCase):
     #     super().setUpClass()
 
     def test_process(self):
-        source_ips = self.source_ips #self.analyzer.process()
+        source_ips = self.source_ips #self.logprocessor.process()
         self.assertGreater(len(source_ips), 0)
         self.assertIsInstance(source_ips, dict)
         self.assertIsInstance(list(source_ips.values())[0], SourceIP)
@@ -145,7 +113,7 @@ class TestCowrieLogAnalyzer(CowrieAnalyzerTestCase):
 
 
     def test_analyze(self):
-        attacks = self.attacks#self.analyzer.analyze()
+        attacks = self.attacks#self.logprocessor.analyze()
         self.assertGreater(len(attacks), 0)
         self.assertIsInstance(attacks, dict)
         self.assertIsInstance(list(attacks.values())[0], Attack)
@@ -156,8 +124,8 @@ class TestCowrieLogAnalyzer(CowrieAnalyzerTestCase):
 
     def test_no_shared_ips(self):
         shared_src_ips = set()
-        for attack_id, attack in self.analyzer.attacks.items():
-            for attack_id2, attack2 in self.analyzer.attacks.items():
+        for attack_id, attack in self.logprocessor.attacks.items():
+            for attack_id2, attack2 in self.logprocessor.attacks.items():
                 if attack_id == attack_id2:
                     continue
                 #shared_src_ips = set(attack.source_ips).intersection(set(attack2.source_ips))
@@ -170,8 +138,8 @@ class TestCowrieLogAnalyzer(CowrieAnalyzerTestCase):
 
     def test_no_shared_cmdlog_hashes(self):
         shared_cmdlog_hashes = set()
-        for attack_id, attack in self.analyzer.attacks.items():
-            for attack_id2, attack2 in self.analyzer.attacks.items():
+        for attack_id, attack in self.logprocessor.attacks.items():
+            for attack_id2, attack2 in self.logprocessor.attacks.items():
                 if attack_id == attack_id2:
                     continue
 
@@ -187,8 +155,8 @@ class TestCowrieLogAnalyzer(CowrieAnalyzerTestCase):
 
     def test_no_shared_malware_hashes(self):
         shared_malware_hashes = set()
-        for attack_id, attack in self.analyzer.attacks.items():
-            for attack_id2, attack2 in self.analyzer.attacks.items():
+        for attack_id, attack in self.logprocessor.attacks.items():
+            for attack_id2, attack2 in self.logprocessor.attacks.items():
                 if attack_id == attack_id2:
                     continue
                 
@@ -203,8 +171,8 @@ class TestCowrieLogAnalyzer(CowrieAnalyzerTestCase):
 
     def test_no_shared_sshhashs(self):
         shared_ssh_hashes = set()
-        for attack_id, attack in self.analyzer.attacks.items():
-            for attack_id2, attack2 in self.analyzer.attacks.items():
+        for attack_id, attack in self.logprocessor.attacks.items():
+            for attack_id2, attack2 in self.logprocessor.attacks.items():
                 if attack_id == attack_id2:
                     continue
                 
@@ -223,7 +191,7 @@ class TestCowrieLogAnalyzer(CowrieAnalyzerTestCase):
 
 
 
-class TestAttackDirReader(CowrieAnalyzerTestCase):
+class TestAttackDirReader(LogProcessorTestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -284,7 +252,7 @@ class TestAttackDirReader(CowrieAnalyzerTestCase):
 
 
 
-class TestAttackDirOrganizer(CowrieAnalyzerTestCase):
+class TestAttackDirOrganizer(LogProcessorTestCase):
 
     @classmethod
     def setUpClass(cls):

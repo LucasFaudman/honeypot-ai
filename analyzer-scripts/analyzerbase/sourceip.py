@@ -1,3 +1,4 @@
+from .baseobjects import *
 from .common import *
 from .session import Session
 
@@ -21,7 +22,8 @@ class SourceIP:
 
     def process_sessions(self):
         for session in self.sessions.values():
-            
+            session.process_events()
+
             if session.login_success:
                 self.successful_logins += 1
                 self.failed_logins += len(session.login_attempts) - 1
@@ -32,14 +34,19 @@ class SourceIP:
             self.downloaded_malware += len(session.downloads)
             self.commands += len(session.commands)
 
-            session.process_zeek_events()
-            session.process_http_requests()
+            #session.process_zeek_events()
+            if session.http_request_events:
+                session.process_http_requests()
+                self.http_requests += len(session.http_requests)
+            
+            if session.session_type == "zeek":
+                self.zeek_events += len(session.events)
 
-            self.http_requests += len(session.http_requests)
-            self.zeek_events += len(session.zeek_events)
-
-
-
+        self.sort_sessions()
+        
+    def sort_sessions(self):
+        self.sessions = dict(sorted(self.sessions.items(), key=lambda session: session[1].start_time))
+        return self.sessions
 
     @property
     def is_attacker(self):
@@ -77,11 +84,11 @@ class SourceIP:
 
     @property
     def all_cmdlog_hashes(self):
-        return [session.cmdlog_hash for session in self.sessions.values()]
+        return [session.cmdlog_hash for session in self.sessions.values() if session.commands]
 
     @property
     def all_malware_hashes(self):
-        return [malware.shasum for session in self.sessions.values() for malware in session.malware]
+        return [malware.shasum for session in self.sessions.values() for malware in session.malware if malware.shasum]
     
     @property
     def all_malware(self):
@@ -97,11 +104,11 @@ class SourceIP:
 
     @property
     def all_httplogs(self):
-        return [session.httplog for session in self.sessions.values()]
+        return [session.httplog for session in self.sessions.values() if session.httplog]
 
     @property
     def all_httplog_hashes(self):
-        return [session.httplog_hash for session in self.sessions.values()]
+        return [session.httplog_hash for session in self.sessions.values() if session.httplog_hash]
     
     @property
     def all_http_uris(self):
@@ -109,7 +116,13 @@ class SourceIP:
 
     @property
     def all_zeek_events(self):
-        return [zeek_event for session in self.sessions.values() for zeek_event in session.zeek_events]
+        return [zeek_event for session in self.sessions.values() 
+                for zeek_event in session.events if session.session_type == "zeek"]
+
+    @property
+    def all_events(self):
+        return [event for session in self.sessions.values() for event in session.events]
+
 
     def __repr__(self):
         return ''.join([

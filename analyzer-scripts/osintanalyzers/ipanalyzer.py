@@ -8,6 +8,7 @@ class IPAnalyzer(OSINTAnalyzerBase):
                  db_path=Path("tests/ipdb"), 
                  selenium_webdriver_type="chrome", 
                  webdriver_path="/Users/lucasfaudman/Documents/SANS/internship/chromedriver",
+                 sources=["isc", "whois", "cybergordon", "threatfox", "shodan"],
                  max_errors={
                         "isc": 5,
                         "whois": 2,
@@ -16,7 +17,7 @@ class IPAnalyzer(OSINTAnalyzerBase):
                         "shodan": 1
                  }):
         
-        super().__init__(db_path, selenium_webdriver_type, webdriver_path, max_errors)
+        super().__init__(db_path, selenium_webdriver_type, webdriver_path, sources, max_errors)
 
 
 

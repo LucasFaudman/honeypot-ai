@@ -1,5 +1,39 @@
-from analyzerbase import *
+# from analyzerbase import *
+from pathlib import Path
 
+class MarkdownWriterBase:
+    """Base class for writing markdown files."""
+
+    def __init__(self, filepath="test.md", mode="a+", md="", data_object=object):
+        
+        self.filepath = Path(filepath)
+        self.mode = mode
+        self.md = md
+        self.data_object = data_object
+        
+        self.md_editors = []
+        
+
+    def edit_md(self, md, data_object=object):
+        for editor in self.md_editors:
+            md = editor(md, data_object)
+        return md
+
+    def write_md(self, md):
+        with self.filepath.open(self.mode) as f:
+            f.write(md)
+
+    
+    def update_md(self):
+        self.prepare()
+        self.md = self.edit_md(self.md, self.data_object)
+        self.write_md(self.md)
+
+
+    def prepare(self):
+        #Implement in subclasses
+        return NotImplementedError
+    
 
 
 nomd = lambda text: f'{text}' #Gets fstring of object for sytle_fn default 
@@ -135,35 +169,6 @@ All relevant logs and scripts can also be found in this repository.
 
 
 
-class MarkdownWriter:
-    """Base class for writing markdown files."""
 
-    def __init__(self, filepath="test.md", mode="a+", md="", data_object: Union[dict, Attack]={}):
-        
-        self.filepath = Path(filepath)
-        self.mode = mode
-        self.md = md
-        self.data_object = data_object
-        
-        self.md_editors = []
-        
-
-    def edit_md(self, md, data_object={}):
-        for editor in self.md_editors:
-            md = editor(md, data_object)
-        return md
-
-    def update_md(self):
-        self.prepare()
-        self.md = self.edit_md(self.md, self.data_object)
-        self.write_md(self.md)
-
-    def write_md(self, md):
-        with self.filepath.open(self.mode) as f:
-            f.write(md)
-    
-    def prepare(self):
-        #Implement in subclasses
-        return NotImplementedError
     
 
