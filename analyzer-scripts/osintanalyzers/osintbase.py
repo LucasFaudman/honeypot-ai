@@ -38,10 +38,11 @@ class OSINTAnalyzerBase:
         # Store max_errors for each source
         if isinstance(max_errors, int):
             self.max_errors = {source: max_errors for source in self.SOURCES}
-        self.max_errors = max_errors
+        else:
+            self.max_errors = max_errors
 
-        # So it can be added as Attack postprocessor if needed
-        self.attacks = {}
+        # # So it can be added as Attack postprocessor if needed
+        # self.attacks = {}
         
 
     @property

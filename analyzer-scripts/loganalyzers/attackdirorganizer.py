@@ -64,13 +64,14 @@ class AttackDirOrganizer:
             executor_cls = ProcessPoolExecutor
         elif "thread" in concurrency_type.lower():
             executor_cls = ThreadPoolExecutor
-            
+
+        CachedPropertyObject.start_caching_all(*self.attacks.values())
+        CachedPropertyObject.freeze_all(*self.attacks.values())
+
         if executor_cls:
             # Init executor_cls in context manager to execute organizer_fn on iterable and yield results in yield_order
             with executor_cls(max_workers=max_workers) as executor:
                 if yield_order == "as_completed":
-                    #futures = {executor.submit(organizer_fn, item): item for item in iterable}
-                    #for future in as_completed(futures):
                     for future in as_completed(executor.submit(organizer_fn, item) for item in iterable):
                         yield future.result()
                 
@@ -80,10 +81,17 @@ class AttackDirOrganizer:
         else:
             # Single-threaded execution if executor_cls is not an Executor
             yield from map(organizer_fn, iterable)
-                
+
+
+        CachedPropertyObject.stop_caching_all(*self.attacks.values())
+        CachedPropertyObject.unfreeze_all(*self.attacks.values())
+        CachedPropertyObject.empty_all(*self.attacks.values())
+
+        
+
     
     def _organize_attack(self, attack):
-        print(f"Start organizing {attack}")
+        print(f"Started organizing {attack}")
         attack_dir = self.attacks_path / attack.attack_id
 
 
@@ -193,10 +201,12 @@ class AttackDirOrganizer:
                 malware_summary += f"{standardized_hash}:\n"
                 for malware in malware_list:
                     malware_summary += f"\t- {malware}\n"
-                    malware_outpath = standardized_malware_dir / malware.shasum
+
+                    malware_outpath = standardized_malware_dir / malware.id
                     
                     with malware_outpath.open("wb+") as f:
                         f.write(malware.file_bytes)
+                        
         
         http_summary = ""
         if attack.http_requests:
@@ -267,11 +277,9 @@ class AttackDirOrganizer:
 
 
     def _organize_log(self, file):
-        print(f"Organizing {file}")
+        print(f"Started organizing {file}")
         
         with file.open("rb") as infile:
-            src_ips_in_file = OrderedSet(())
-
             headers = []
             headers_written = {}
             for line in infile:
@@ -289,11 +297,9 @@ class AttackDirOrganizer:
                 if match := self.pattern.search(line):
                     # Decode match bytes to str
                     src_ip = match.group(1).decode()
-                    src_ips_in_file.add(src_ip)
-
+                    
                     attack_id = self.src_ip_attack_ids[src_ip]
                     attack_dir = self.attacks_path / attack_id
-
 
                     files_to_write.add(attack_dir / src_ip / file.name)
                     files_to_write.add(attack_dir / file.parent.name / file.name)

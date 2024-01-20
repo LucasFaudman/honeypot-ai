@@ -1,5 +1,4 @@
 from analyzerbase import *
-
 from .logparser import CowrieParser
 from concurrent.futures import ThreadPoolExecutor
 
@@ -70,7 +69,8 @@ class LogProcessor:
 
         self.source_ips = {}
         self.attacks = {}
-        self.attacks_by_src_ip = {}
+        self.src_ip_attack_ids = {}
+
 
         self.exceptions = []
 
@@ -103,6 +103,7 @@ class LogProcessor:
             for parser in self.parsers:
                 parser.set_logs_path(attack_dir)
 
+            print(f"Loading Attack: {attack_dir.name}")
             # Then process logs for the Attack into SourceIP and Session objects
             self.process_logs_into_source_ips()
 
@@ -122,6 +123,7 @@ class LogProcessor:
         zeek_events = 0
         source_ips_found = 0
 
+        
         for parser_num, parser in enumerate(self.parsers):
             print(f"Processing Events from Parser {parser_num + 1} of {len(self.parsers)}: {parser}")
 
@@ -170,7 +172,7 @@ class LogProcessor:
         # Process all Sessions for all SourceIPs
         for source_ip in self.source_ips.values():
             source_ip.process_sessions()
-
+        
         return self.source_ips
     
 
@@ -180,29 +182,26 @@ class LogProcessor:
         self.ips_with_successful_logins = []
         self.ips_with_commands = []
         self.ips_with_malware = []
-        self.ips_with_commands_only = []
         self.ips_with_http_requests = []
         self.ips_with_flagged_http_requests = []
-
-
-        for ip, source_ip in self.source_ips.items():
-
+        self.benign_ips = []
+        
+        self.source_ips_already_in_attacks = set()
+        
+        for source_ip in sorted(self.source_ips.values(), key=lambda source_ip: source_ip.first_seen):
+            ip = source_ip.ip
             attack_ids_by_type = defaultdict(OrderedSet)
-            
+
             if source_ip.successful_logins >= self.min_successful_logins:
                 self.ips_with_successful_logins.append(ip)
 
+            if source_ip.total_malware >= self.min_malware:
+                self.ips_with_malware.append(ip)
+                attack_ids_by_type['malware_hash'].update(source_ip.all_malware_hashes)
+
             if source_ip.commands >= self.min_commands:
                 self.ips_with_commands.append(ip)
-
-                if source_ip.downloaded_malware + source_ip.uploaded_malware >= self.min_malware:
-                    self.ips_with_malware.append(ip)
-                    attack_ids_by_type['malware_hash'].update(source_ip.all_malware_hashes)
-                else:
-
-                    self.ips_with_commands_only.append(ip)
-                    attack_ids_by_type['cmdlog_hash'].update(source_ip.all_cmdlog_hashes)
-
+                attack_ids_by_type['cmdlog_hash'].update(source_ip.all_cmdlog_hashes)
 
             if source_ip.http_requests >= self.min_http_requests:
                 self.ips_with_http_requests.append(ip)
@@ -228,20 +227,28 @@ class LogProcessor:
                 if flagged:
                     self.ips_with_flagged_http_requests.append(ip)
                     attack_ids_by_type['httplog_hash'].update(source_ip.all_httplog_hashes)            
-                
 
-            
+
+            # If no attacks found, add to benign_ips delete the SourceIP obj and continue
+            if not any(attack_ids_by_type.values()):
+                self.benign_ips.append(ip)
+                del self.source_ips[ip]
+                print(f"Deleted benign ip {ip}", end='\r')
+                continue
+
+
             for attack_id_type, attack_ids in attack_ids_by_type.items():
                 for attack_id in attack_ids:
-
+                    # Add source_ip to existing attack if attack_id already exists
                     if attack_id in self.attacks:
                         self.attacks[attack_id].add_source_ip(source_ip)
-                    elif ip not in self.attacks_by_src_ip:
+                    # Create new attack if attack_id doesn't exist yet and the source_ip isn't already in an attack
+                    elif ip not in self.src_ip_attack_ids:
                         self.attacks[attack_id] = Attack(attack_id, attack_id_type, source_ip)
-                    
-                    # A
-                    if ip not in self.attacks_by_src_ip:
-                        self.attacks_by_src_ip[ip] = self.attacks[attack_id]
+                    # Add ip and attack_id to check if the ip is already in an attack
+                    if ip not in self.src_ip_attack_ids:
+                        self.src_ip_attack_ids[ip] = self.attacks[attack_id]
+            
 
         return self.attacks
 
@@ -259,7 +266,6 @@ class LogProcessor:
         self.merge_attacks_by_sig_regexes()
         print(f"({attacks_before}->{len(self.attacks)}) - Merged {attacks_before - len(self.attacks)} attacks with manual merge")
 
-        #self.sort_attacks()
         return self.attacks
 
 
@@ -267,14 +273,10 @@ class LogProcessor:
         """Removes attacks that have any of the ips_to_remove"""
 
         for attack_id, attack in list(self.attacks.items()):
-
-            for src_ip in attack.all_src_ips:
-                if src_ip in ips_to_remove:
-                    self.attacks.pop(attack_id)
-                    print(f"Removed {attack_id} with src_ip {src_ip}")
-                    break
-    
-    
+            if attack.uniq_src_ips & set(ips_to_remove):
+                del self.attacks[attack_id]
+                print(f"Removed {attack_id} with ips {attack.src_ips}")
+                    
 
     def merge_attacks_by_shared_attrs(self):
         """Merges attacks that have shared ips, command hashes or malware hashes"""
@@ -284,13 +286,23 @@ class LogProcessor:
         merge_successes = 0
 
         merged_attack_ids = set()
+        
+        # Begin caching @cachedproperty for all attacks to speed up merging
+        CachedPropertyObject.start_caching_all(*self.attacks.values())
 
+        # Loop through all uniq combinations of attacks
         attack_combos = combinations(self.attacks.items(), 2)
         for (attack_id, attack), (attack_id2, attack2) in attack_combos:            
             
             # Skip if already merged
             if {attack_id, attack_id2} & merged_attack_ids:
                 continue
+            
+            
+            # Freeze all @cachedproperty properties for both attacks to speed up merging
+            # now each shared_attr comparison will only require calculating the @cachedproperty once
+            # and subsequent comparisons will use the cached value
+            CachedPropertyObject.freeze_all(attack, attack2)
 
             for attr in self.merge_shared_attrs:
                 merge_attempts += 1
@@ -306,6 +318,12 @@ class LogProcessor:
                     
                     print(f"Merged {attack_id} <- {attack_id2} by {attr}: {shared_attr}")                        
                     break
+            
+            # Unfreeze all @cachedproperty properties for both attacks
+            CachedPropertyObject.unfreeze_all(attack, attack2)
+            # attack.unfreeze()
+            # attack2.unfreeze()
+            
         
         if merge_attempts:
             print(f"\nMerged {merge_successes} attacks by out of {merge_attempts} attempts ({merge_successes/merge_attempts*100:.4f}%) ")
@@ -325,7 +343,10 @@ class LogProcessor:
         #                 print(f"Attack1: {attack1.attack_id}")
         #                 print(f"Attack2: {attack2.attack_id}")
         #                 raise Exception("Shared attr after merge")
-
+        
+        # Stop caching @cachedproperty attrs for all attacks and empty the caches
+        CachedPropertyObject.stop_caching_all(*self.attacks.values())
+        CachedPropertyObject.empty_all(*self.attacks.values())
 
         return self.attacks
     
@@ -333,63 +354,34 @@ class LogProcessor:
         """Merges attacks that have the same signature regexes in their commands, malware or httplogs"""
 
         attack_sigs = {
-            attack_attr: {compiled_regex: None for compiled_regex in compiled_regexes}
-                for attack_attr, compiled_regexes in self.merge_sig_regexes.items()
+            attr: {compiled_regex: None for compiled_regex in compiled_regexes}
+                for attr, compiled_regexes in self.merge_sig_regexes.items()
         }
 
         value_to_regexes = {}
 
         for attack_id, attack in list(self.attacks.items()):
-            for attack_attr, compiled_regexes in attack_sigs.items():
-                for value in getattr(attack, attack_attr):
+            for attr, compiled_regexes in attack_sigs.items():
+                merged = False
+                for value in getattr(attack, attr):
                     if value not in value_to_regexes:
                         value_to_regexes[value] = [compiled_regex for compiled_regex in compiled_regexes if compiled_regex.match(value)]
 
                     for compiled_regex in value_to_regexes[value]:
-                        if not attack_sigs[attack_attr][compiled_regex]:
-                            attack_sigs[attack_attr][compiled_regex] = attack
+                        if not attack_sigs[attr][compiled_regex]:
+                            attack_sigs[attr][compiled_regex] = attack
                         else:
-                            attack_sigs[attack_attr][compiled_regex] += attack
+                            attack_sigs[attr][compiled_regex] += attack
                             if attack_id in self.attacks:
                                 del self.attacks[attack_id]
 
-                            print(f"Regex merged {attack.attack_id} into {attack_sigs[attack_attr][compiled_regex].attack_id} on {attack_attr}: {str(compiled_regex)}")
+                            print(f"Regex merged {attack.attack_id} into {attack_sigs[attr][compiled_regex].attack_id} on {attr}: {str(compiled_regex)}")
+                            break
+                    if merged:
                         break
 
         return self.attacks
     
-    # def merge_attacks_by_sig_regexes(self):
-    #     """Merges attacks that have the same signature regexes in their commands, malware or httplogs"""
-
-        
-    #     attack_sigs = {
-    #         attack_attr: {compiled_regex: None for compiled_regex in compiled_regexes}
-    #             for attack_attr, compiled_regexes in self.merge_sig_regexes.items()
-    #     }
-
-    #     for attack_id, attack in list(self.attacks.items()):
-    #         for attack_attr, compiled_regexes in attack_sigs.items():
-    #             for compiled_regex in compiled_regexes:
-    #                 for value in getattr(attack, attack_attr):
-    #                     if compiled_regex.match(value):
-    #                         if not attack_sigs[attack_attr][compiled_regex]:
-    #                             attack_sigs[attack_attr][compiled_regex] = attack
-    #                         else:
-    #                             attack_sigs[attack_attr][compiled_regex] += attack                                
-    #                             self.attacks.pop(attack_id)
-
-    #                             print(f"Regex merged {attack.attack_id} into {attack_sigs[attack_attr][compiled_regex].attack_id} on {attack_attr}: {str(compiled_regex)}")
-                            
-    #                         break
-        
-        
-    #     return self.attacks
-
-
-
-    # def set_sort_attrs(self, attr_order):
-    #     self.sort_attrs = attr_order
-
 
     def sort_by_attrs(self, attack, attr_order=None):
         attr_order = attr_order or self.sort_attrs
@@ -411,12 +403,13 @@ class LogProcessor:
 
     def print_stats(self):
         print("\nStats:")
-        print(f" {len(self.ips_with_successful_logins)} IPs with >{self.min_successful_logins} successful logins")
-        print(f" {len(self.ips_with_commands)} IPs with >{self.min_commands} commands")
-        print(f" {len(self.ips_with_commands_only)} IPs with >{self.min_commands} commands and no malware")
-        print(f" {len(self.ips_with_malware)} IPs with >{self.min_commands} commands and >{self.min_malware} malware")
-        print(f" {len(self.ips_with_http_requests)} IPs with >{self.min_http_requests} http requests")
+        print(f" {len(self.ips_with_successful_logins)} IPs with >={self.min_successful_logins} successful logins")
+        print(f" {len(self.ips_with_commands)} IPs with >={self.min_commands} commands")
+        # print(f" {len(self.ips_with_commands_only)} IPs with >={self.min_commands} commands and no malware")
+        print(f" {len(self.ips_with_malware)} IPs with >={self.min_commands} commands and >={self.min_malware} malware")
+        print(f" {len(self.ips_with_http_requests)} IPs with >={self.min_http_requests} http requests")
         print(f" {len(self.ips_with_flagged_http_requests)} IPs with flagged http requests")
+        print(f" {len(self.benign_ips)} Benign IPs. (Generated log events but not in any attacks)")
         print(f"Total attacks: {len(self.attacks)}")
 
     

@@ -38,22 +38,21 @@ class SmartAttrObject(object):
 
     def __init__(self) -> None:
         super().__init__()
-        self.__enable_smart_attr_access = True
+        self._smart_attr_access_enabled = True
 
     def enable_smart_attr_access(self):
         """Enable smart attribute access"""
-        self.__enable_smart_attr_access = True
+        self._smart_attr_access_enabled = True
 
     def disable_smart_attr_access(self):
         """Disable smart attribute access and return to normal attribute access for slighly better performance"""
-        self.__enable_smart_attr_access = False
+        self._smart_attr_access_enabled = False
 
 
     def __getattr__(self, attr):
-        """Modifys value of attr before returning based <modifier>_addr while __enable_smart_attr_access = True. See class docstring for more info"""
-
+        """Modifys value of attr before returning based <modifier>_addr while _smart_attr_access_enabled = True. See class docstring for more info"""
         # Return the attribute normally if smart attribute access is disabled
-        if not self.__enable_smart_attr_access:
+        if not super().__getattribute__('_smart_attr_access_enabled'):
             return super().__getattribute__(attr)
 
         outfn = lambda x: x # Default outfn is identity function
@@ -127,7 +126,8 @@ def cachedproperty(func):
     return CachedProperty(func)
 
 
-class CachedProperty:
+
+class CachedProperty(property):
     """
     Descriptor for caching properties of CachedPropertyObjects
     """
@@ -136,7 +136,7 @@ class CachedProperty:
         self.name = func.__name__
 
     
-    def __get__(self, instance, owner):
+    def __get__(self, instance, owner) -> Any:
         """Return the cached value of the property if it exists, otherwise calculate it and cache it"""
         # Return self if accessed from class
         if instance is None:
@@ -154,6 +154,8 @@ class CachedProperty:
             instance._cached_properties[self.name] = value
 
         return value
+        
+    
 
 
 class CachedPropertyObject:
@@ -164,7 +166,7 @@ class CachedPropertyObject:
     def __init__(self) -> None:
         self._cached_properties = {}
         self._frozen = False
-        self._caching = True
+        self._caching = False
 
 
     def start_caching(self):
@@ -175,9 +177,9 @@ class CachedPropertyObject:
         """Stop caching properties"""
         self._caching = False
 
-    def reset_cache(self):
+    def empty_cache(self):
         """Reset cached properties so subsequent calls to cached properties will recalculate them"""
-        self._cached_properties = {}
+        self._cached_properties.clear()
 
     def freeze(self):
         """
@@ -197,7 +199,74 @@ class CachedPropertyObject:
     def is_caching(self):
         """Return True if caching is enabled. Objects with caching disabled will not cache properties"""
         return self._caching
+
+
+    @staticmethod
+    def freeze_all(*args):
+        """Freeze all CachedPropertyObjects in args"""
+        for arg in args:
+            if isinstance(arg, CachedPropertyObject):
+                arg.freeze()
     
+    @staticmethod
+    def unfreeze_all(*args):
+        """Unfreeze all CachedPropertyObjects in args"""
+        for arg in args:
+            if isinstance(arg, CachedPropertyObject):
+                arg.unfreeze()
+
+    @staticmethod
+    def start_caching_all(*args):
+        """Start caching all CachedPropertyObjects in args"""
+        for arg in args:
+            if isinstance(arg, CachedPropertyObject):
+                arg.start_caching()
+    
+    @staticmethod
+    def stop_caching_all(*args):
+        """Stop caching all CachedPropertyObjects in args"""
+        for arg in args:
+            if isinstance(arg, CachedPropertyObject):
+                arg.stop_caching()
+
+    @staticmethod
+    def empty_all(*args):
+        """Empty all caches of CachedPropertyObjects in args"""
+        for arg in args:
+            if isinstance(arg, CachedPropertyObject):
+                arg.empty_cache()    
+
+# def freeze_all(*args):
+#     """Freeze all CachedPropertyObjects in args"""
+#     for arg in args:
+#         if isinstance(arg, CachedPropertyObject):
+#             arg.freeze()
+        
+# def unfreeze_all(*args):
+#     """Unfreeze all CachedPropertyObjects in args"""
+#     for arg in args:
+#         if isinstance(arg, CachedPropertyObject):
+#             arg.unfreeze()
+
+
+# def start_caching_all(*args):
+#     """Start caching all CachedPropertyObjects in args"""
+#     for arg in args:
+#         if isinstance(arg, CachedPropertyObject):
+#             arg.start_caching()
+
+# def stop_caching_all(*args):
+#     """Stop caching all CachedPropertyObjects in args"""
+#     for arg in args:
+#         if isinstance(arg, CachedPropertyObject):
+#             arg.stop_caching()
+
+# def empty_all_caches(*args):
+#     """Empty all caches of CachedPropertyObjects in args"""
+#     for arg in args:
+#         if isinstance(arg, CachedPropertyObject):
+#             arg.empty_cache()
+
 
 
 class PostprocessableObject(object):

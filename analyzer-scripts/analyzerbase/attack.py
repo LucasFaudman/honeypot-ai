@@ -6,10 +6,13 @@ from functools import partial
 
 
 
-class Attack:
+class Attack(SmartAttrObject, CachedPropertyObject):
     ATTACKS_PATH = Path("./attacks")
 
     def __init__(self, attack_id, attack_id_type, source_ip) -> None:
+        SmartAttrObject.__init__(self)
+        CachedPropertyObject.__init__(self)
+
         self.attack_id = attack_id
         self.attack_id_type = attack_id_type
         self.attack_dir = self.ATTACKS_PATH / self.attack_id
@@ -26,12 +29,12 @@ class Attack:
             session.httplog_hash: session.httplog for session in source_ip.sessions.values() if session.httplog
             }
 
-        self.malware = {malware.id: malware for malware in source_ip.all_malware}
-        # self.malware = {malware.id: malware for malware in source_ip.all_malware 
+        self._malware = {malware.id: malware for malware in source_ip.all_malware}
+        # self._malware = {malware.id: malware for malware in source_ip.all_malware 
         #                 if not malware.failed and not malware.is_duplicate}
 
         self.standardized_malware = defaultdict(list)
-        for malware in self.malware.values():
+        for malware in self._malware.values():
             self.standardized_malware[malware.standardized_hash].append(malware)
 
 
@@ -43,15 +46,16 @@ class Attack:
         self.command_explanations = {}
         self.standardized_malware_explanations = {}
         self.ipdata = {}
+        self.mwdata = {}
         self.questions = {}
+        self.question_run_logs = {}
         self.answers = {}
         
-
+        
 
     def add_source_ip(self, source_ip):
         if source_ip not in self.source_ips:
             self.source_ips.append(source_ip)
-
 
 
     def merge(self, other):
@@ -59,9 +63,9 @@ class Attack:
             self.add_source_ip(source_ip)
 
         self.cmdlog_hashes.update(other.cmdlog_hashes)
-        self.malware.update(other.malware)
+        self._malware.update(other._malware)
 
-        for malware in other.malware.values():
+        for malware in other._malware.values():
             self.standardized_malware[malware.standardized_hash].append(
                 malware)
         
@@ -80,174 +84,175 @@ class Attack:
         return None
     
     def get_malware_by_id(self, malware_id):
-        return self.malware.get(malware_id)
+        return self._malware.get(malware_id)
+
+    
+    @cachedproperty
+    def malware(self):
+        return list(self._malware.values())
 
 
-    @property
+    @cachedproperty
     def sessions(self):
         sessions = [
             session for source_ip in self.source_ips for session in source_ip.sessions.values()]
         sessions.sort(key=lambda session: session.start_time)
         return sessions
 
-
-    @property
+    @cachedproperty
     def login_sessions(self):
         return [session for session in self.sessions if session.login_success]
 
-    @property
+    @cachedproperty
     def command_sessions(self):
         return [session for session in self.sessions if session.commands]
     
-    @property
+    @cachedproperty
     def malware_sessions(self):
         return [session for session in self.sessions if session.malware]
 
 
-    @property
+    @cachedproperty
     def ssh_sessions(self):
         return [session for session in self.sessions if session.protocol == "SSH"]
 
-    @property
+    @cachedproperty
     def telnet_sessions(self):
         return [session for session in self.sessions if session.protocol == "TELNET"]
 
-    @property
+    @cachedproperty
     def http_sessions(self):
         return [session for session in self.sessions if session.protocol == "HTTP"]
 
 
-    @property
+    @cachedproperty
     def start_time(self):
         return min([session.start_time for session in self.sessions])
 
-    @property
+    @cachedproperty
     def end_time(self):
         return max([session.end_time for session in self.sessions if session.end_time])
 
-    @property
+    @cachedproperty
     def all_successful_login_pairs(self):
         return [login_pair for source_ip in self.source_ips for login_pair in source_ip.all_successful_login_pairs]
 
-    @property
+    @cachedproperty
     def all_login_pairs(self):
         return [login_pair for source_ip in self.source_ips for login_pair in source_ip.all_login_pairs]
 
-    @property
+    @cachedproperty
     def all_usernames(self):
         return [login_pair[0] for login_pair in self.all_login_pairs]
 
-    @property
+    @cachedproperty
     def all_passwords(self):
         return [login_pair[1] for login_pair in self.all_login_pairs]
 
-    @property
+    @cachedproperty
     def all_successful_usernames(self):
         return [login_pair[0] for login_pair in self.all_successful_login_pairs]
 
-    @property
+    @cachedproperty
     def all_successful_passwords(self):
         return [login_pair[1] for login_pair in self.all_successful_login_pairs]
 
-    @property
+    @cachedproperty
     def all_ssh_hasshs(self):
         return [session.ssh_hassh for session in self.sessions if session.ssh_hassh]
 
-    @property
+    @cachedproperty
     def all_ssh_versions(self):
         return [session.ssh_version for session in self.sessions if session.ssh_version]
 
-    @property
+    @cachedproperty
     def all_src_ips(self):
         return [session.src_ip for session in self.sessions]
 
-    @property
+    @cachedproperty
     def all_dst_ips(self):
         return [session.dst_ip for session in self.sessions]
 
-    @property
+    @cachedproperty
     def all_src_ports(self):
         return [session.src_port for session in self.sessions]
 
-    @property
+    @cachedproperty
     def all_dst_ports(self):
         return [session.dst_port for session in self.sessions]
 
-    @property
+    @cachedproperty
     def all_cmdlog_urls(self):
         return [url for session in self.sessions for url in session.cmdlog_urls]
 
-    @property
+    @cachedproperty
     def all_cmdlog_ips(self):
         return [ip for session in self.sessions for ip in session.cmdlog_ips]
 
 
-    @property
+    @cachedproperty
     def all_cmdlog_hosts(self):
         return [host for session in self.sessions for host in session.cmdlog_hosts]
     
 
-    @property
+    @cachedproperty
     def all_malware_urls(self):
-        return [url for malware in self.malware.values() for url in malware.urls]
+        return [url for malware in self._malware.values() for url in malware.urls]
 
-    @property
+    @cachedproperty
     def all_malware_ips(self):
-        return [ip for malware in self.malware.values() for ip in malware.ips]
+        return [ip for malware in self._malware.values() for ip in malware.ips]
     
-    @property
+    @cachedproperty
     def all_malware_source_addresses(self):
-        return [malware.source_address for malware in self.malware.values() if malware.source_address]
+        return [malware.source_address for malware in self._malware.values() if malware.source_address]
 
-    @property
+    @cachedproperty
     def all_malware_hosts(self):
-        return [host for malware in self.malware.values() for host in malware.hosts]
+        return [host for malware in self._malware.values() for host in malware.hosts]
 
 
-    @property
+    @cachedproperty
     def all_malware_shasums(self):
-        return [malware.shasum for malware in self.malware.values() if malware.shasum]
+        return [malware.shasum for malware in self._malware.values() if malware.shasum]
 
 
-    @property
+    @cachedproperty
     def all_http_requests(self):
         return [http_request_str for session in self.sessions for http_request_str in session.http_request_strs]    
 
-    @property
+    @cachedproperty
     def all_http_request_events(self):
         return [http_request_event for session in self.sessions for http_request_event in session.http_request_events]
     
-    @property
+    @cachedproperty
     def all_http_request_uris(self):
         return [http_request_event["uri"] for http_request_event in self.all_http_request_events if http_request_event.get("uri")]
 
 
-    @property
+    @cachedproperty
     def all_urls(self):
         return self.all_cmdlog_urls + self.all_malware_urls + self.all_malware_source_addresses
 
-    @property
+    @cachedproperty
     def all_ips(self):
         return self.all_src_ips + self.all_cmdlog_ips + self.all_malware_ips
 
-    @property
+    @cachedproperty
     def all_ips_and_urls(self):
         return self.all_ips + self.all_cmdlog_urls + self.all_malware_urls + self.all_malware_source_addresses
 
-    @property
+    @cachedproperty
     def all_non_src_ip_hosts(self):
         return self.all_cmdlog_hosts + self.all_malware_hosts
 
-    @property
+    @cachedproperty
     def all_hosts(self):
         return self.all_non_src_ip_hosts + self.all_src_ips
 
 
-    @property
+    @cachedproperty
     def counts(self):
-        if hasattr(self, "_counts"):
-            return self._counts
-
         self._counts = defaultdict(Counter)
         props = ["successful_login_pairs", "successful_usernames", "successful_passwords",
                  "login_pairs", "usernames", "passwords",
@@ -263,13 +268,8 @@ class Attack:
 
         return self._counts
 
-    def refresh_counts(self):
-        del self._counts
-        return self.counts
 
-
-
-    @property
+    @cachedproperty
     def log_counts(self):
         if self._log_counts:
             return self._log_counts
@@ -277,86 +277,11 @@ class Attack:
             return {'all': {}}
         
 
-    @property
+    @cachedproperty
     def log_types(self, ip="all"):
         return [log_name for log_name in self.log_counts[ip] if log_name != "_lines" and log_name != "_files"]
 
 
-
-    def __getattr__(self, attr):
-        
-        outfn = lambda x: x
-        if attr.startswith("num_"):
-            outfn = len
-            attr = attr.replace("num_", "")
-
-        elif attr.startswith("min_"):
-            outfn = min
-            attr = attr.replace("min_", "")
-
-        elif attr.startswith("max_"):
-            outfn = max
-            attr = attr.replace("max_", "")
-
-        elif attr.endswith("counter"):
-            outfn = Counter
-            attr = attr.replace("_counter", "")
-
-        
-        elif attr.startswith("most_common"):
-            n_str = attr.split("_")[1].replace("common", "")
-
-            
-            if n_str:
-                n = int(n_str)
-                outfn = lambda x: Counter(x).most_common(n)
-                attr = attr.replace(f"most_common{n_str}_", "")
-            else:
-                n = 1
-                outfn = lambda x: Counter(x).most_common(n)[0][0]
-                attr = attr.replace("most_common_", "") + ("s" if not attr.endswith("s") else "")
-
-            
-
-        elif attr.startswith("first"):
-            # Allow for first_<attr> and first<n>_<attr> to get the first n items
-            end_slice = attr.split("_")[0].replace("first", "")
-            if end_slice:
-                outfn = lambda x: x[:int(end_slice)]
-                attr = attr.replace(f"first{end_slice}_", "")
-            else:
-                outfn = lambda x: x[0] if x else None
-                attr = attr.replace("first_", "") + ("s" if not attr.endswith("s") else "")
-
-
-        elif attr.startswith("last"):
-            # Allow for last_<attr> and last<n>_<attr> to get the last n items
-            start_slice = attr.split("_")[0].replace("last", "")
-            if start_slice:
-                outfn = lambda x: x[-int(start_slice):]
-                attr = attr.replace(f"last{start_slice}_", "")
-            else:
-                outfn = lambda x: x[-1] if x else None
-                attr = attr.replace("last_", "") + ("s" if not attr.endswith("s") else "")
-
-
-       
-        infn = lambda x: x
-        if attr.startswith("uniq_"):
-            infn = SetReprOrderedSet
-            attr = attr.replace("uniq_", "")
-        
-        # Hanndle common typos/abbreviations by AI
-        if not attr.startswith("all_") and "all_" + attr in dir(self):
-            attr = "all_" + attr
-        elif not attr.endswith("s") and attr + "s" in dir(self):
-            attr += "s"
-        elif attr.endswith("s") and attr[:-1] in dir(self):
-            attr = attr[:-1]
-
-        
-        return outfn(infn(super().__getattribute__(attr)))
-        
 
     def add_postprocessor(self, postprocessor_obj):
 
@@ -413,9 +338,8 @@ class Attack:
     
 
     def __repr__(self):
-#        return f"Attack ({self.attack_id_type[0]}hash: {self.attack_id[:10]}) with {len(self.source_ips)} source IPs and {len(self.sessions)} sessions, {len(self.successful_login_pairs)} successful logins, {len(self.commands)} commands, {len(self.cmdlog_hashes)} cmdlog hashes, {len(self.malware)} malware hashes"
         return ''.join([
-            f"Attack ({self.attack_id_type[0]}hash: {self.attack_id[:10]}), "
+            f"Attack ({self.attack_id_type[0]}hash: {self.attack_id}), "
             f"SourceIPs: {len(self.source_ips)}, " if self.source_ips else "",
             f"Sessions: {len(self.sessions)}, " if self.sessions else "",
             f"SSH: {len(self.ssh_sessions)}, " if self.ssh_sessions else "",
@@ -423,8 +347,6 @@ class Attack:
             f"HTTP: {len(self.http_sessions)}, " if self.http_sessions else "",
             f"Commands: {len(self.commands)}, " if self.commands else "",
             f"Cmdlogs: {len(self.cmdlog_hashes)}, " if self.cmdlog_hashes else "",
-            f"Malware: {len(self.malware)} " if self.malware else "",
+            f"Malware: {len(self._malware)} " if self._malware else "",
             f"Httplogs: {len(self.httplog_hashes)} " if self.httplog_hashes else "",
-
-        
          ])

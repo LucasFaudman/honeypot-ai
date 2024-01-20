@@ -21,9 +21,13 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
                  training_data_path=Path("openai-training-data"), 
                  api_key=OPENAI_API_KEY, 
                  model="gpt-4-1106-preview",
-                 ip_analyzer=IPAnalyzer(),
-                 malwareanalyzer=MalwareAnalyzer(),
-                 
+                 ip_analyzer: Union[IPAnalyzer, None]=None,
+                 malwareanalyzer: Union[MalwareAnalyzer, None]=None,
+                 honeypot_details={
+                    "internal_ips": [],
+                    "external_ips": [],
+                    "ports": {},
+                 },
                  ) -> None:
         super().__init__(db_path, training_data_path, api_key, model)
         # Make dir to store data for assistants    
@@ -42,7 +46,7 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         # To handle tool calls (See _do_tool_call and tools.py)
         self.ip_analyzer = ip_analyzer
         self.malwareanalyzer = malwareanalyzer
-
+        self.honeypot_details = honeypot_details
     
     
     def create_assistant(self, **kwargs):
@@ -221,7 +225,9 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         elif tool_name == "get_session_attrs":
             session = attack.get_session_by_id(arguments['session_id'])
             tool_output = {
-                attr: getattr(session, attr) for attr in arguments["attrs"]
+                attr: getattr(session, attr) if not attr.endswith("_time") 
+                    else getattr(session, attr).strftime("%Y-%m-%d %H:%M:%S") 
+                        for attr in arguments["attrs"]
             }
 
         # Gets Malware object by id and sets tool_output to dict of {attr: malware.<attr>} for each attr in arguments["attrs"]
@@ -354,18 +360,23 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         
         system_prompt = ''.join([
         "Your role is to answer questions about an attack on a Linux honeypot. "
-        "You will analyze the commands executed, uploaded/downloaded files, and logs from the honeypot that contain any of the attacking IP(s), " 
-        "and OSINT data gathered about the attacking IP(s) including: geolocation, open ports, running services, "
-        "threatfeed reports and previous reports of known malware associated with the IP(s). "
+        "You will analyze the commands executed, uploaded/downloaded files, HTTP requests, sessions"
+        "and other data logged during the attack to understand the methods and goals of the attacker." 
+        "You will also analyze OSINT data gathered about the attacking IP(s) including: geolocation, open ports, running services, "
+        "threatfeed reports and reports of known malware associated with the IP(s) to get additional context on the attack and enhance your analysis. "
         "Your answers will be used in a GitHub .md file so you should use markdown syntax to format your output. "
         "Use the available functions to request relevant information to thoroughly answer each question. "
-        "You should use multiple tool calls to analyze the data returned by previous tool calls "
-        "and to get any additional data you need to answer accurately. "
-        "For example if you see that the attacker downloaded malware in the commands, "
-        "you should use the get_attack_attrs function with the arguement 'uniq_malware' to get a list of malware_ids associated with the attack, "
-        "then use get_malware_attrs and the query_ functions analyze the malware."
-        "When getting attrs, always use the uniq_ modifier first when available to get unique values "
+        "You should use multiple function calls to analyze the data returned by previous function calls "
+        "and to get any additional data you need to answer each question as accurately as possible. "
+        "For example if you see that the attacker downloaded malware in one of the commands executed, "
+        "you should use the get_attack_attrs function with the arguement 'uniq_malware' to get a list of unique malware_ids associated with the attack, "
+        "then use get_malware_attrs to analyze the malware, and the query_ functions to get additional OSINT data about the malware and its source. "
+        "IMPORTANT: When using get_attack_attrs use the uniq_<attr> modifier first "
         "and only get all values if necessary after analyzing the unique values. "
+        "For context that the honeypot system has the following open ports: ",
+        ''.join(f'Port {port}: {software} ' for port, software in self.honeypot_details["ports"].items() if port in attack.uniq_dst_ips),
+        f" Its internal IP address is: {','.join(self.honeypot_details['internal_ips'])} "
+        f"and its external IP address is: {self.honeypot_details['external_ips']}. "
         ])
 
 
@@ -377,8 +388,9 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
             tools.append({"type": "code_interpreter"})
             system_prompt += ''.join([
             "Use the code_interpreter tool to enhance your analysis. ",
-            "For example if you find an encoded string in the http requests, commands, or malware, "
-            "you should use the code_interpreter tool to decode it then analyze the decoded result in context. "
+            "For example if you find an encoded string in the http_requests, commands, or malware, "
+            "you should use the code_interpreter tool to decode it, then analyze the decoded result in context "
+            "when answering questions."
             ])
 
 
@@ -390,21 +402,21 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         attack_questions_dir = self.ai_assistants_dir / attack.attack_id
         attack_questions_dir.mkdir(exist_ok=True)
 
-        # To store {question: answer...}
-        question_answers = {}
-        
+
+        question_run_logs = {}        
         # Iter through questions and get answer for each question
-        for question in questions:
+        for question_key, question in questions.items():
 
             # Filename for saving answer is hash of question concat with attack_id
-            question_answer_file = attack_questions_dir / (sha256hex(question + attack.attack_id) + '.json')
+            #question_answer_file = attack_questions_dir / (sha256hex(question + attack.attack_id) + '.json')
+            question_answer_file = attack_questions_dir / question_key + '.json'
             
 
             # Use stored answer if answer file exists
             if question_answer_file.exists():
                 with question_answer_file.open("r") as f:
-                    question_answer = json.load(f)
-                    question_answers.update(question_answer)
+                    question_run_log = json.load(f)
+                    question_run_logs[question_key] = question_run_log
                 
                 continue # Prevent wasting tokens by asking question again
 
@@ -429,9 +441,6 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
             # Answer is latest message in Thread
             answer = messages.data[0].content[0].text.value
 
-            # Add answers to dict of {question: answer}
-            question_answers[question] = answer
-            
             # Retreive run steps in ascending order            
             run_steps = self.client.beta.threads.runs.steps.list(
                 run_id=run_id,
@@ -440,30 +449,25 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
                 order="asc"
                 )
             
-            # 
-            run_log = {
+            question_run_log = {
+                "question_key": question_key,
                 "content": question,
+                "answer": answer,
                 "system_prompt": system_prompt,
                 "ass_id": ass_id,
                 "thread_id": thread_id,
                 "run_id": run_id,
                 "run_steps": run_steps.model_dump(),
-                "answer": answer
             }
             
-            # Dump question:answer pair and ToolCallLog as JSON to read later
+            question_run_logs[question_key] = question_run_log
+
             with question_answer_file.open("w+") as f:
-                json.dump({question: answer}, f)
+                json.dump(question_run_log, f, indent=4)
             
-            # Dump run steps to file
-            run_log_file = question_answer_file.with_name(question_answer_file.name + "-run-steps")
-            with run_log_file.open("w+") as f:
-                json.dump(run_log, f)
-
-
             print(f"\n Done with: {question}\nAnswer: {answer}")
 
-        return question_answers
+        return question_run_logs
         
 
 

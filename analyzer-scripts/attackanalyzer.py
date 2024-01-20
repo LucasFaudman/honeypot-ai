@@ -245,7 +245,7 @@ class AttackAnalyzer:
         if not self.openai_analyzer:
             raise MissingAnalyzerError("OpenAIAnalyzer not initialized can't get assistant answers.")
         
-        
+        assistant_answers = defaultdict(dict)
         for attack in attacks.values():
             questions = DEFAULT_QUESTIONS.copy()
 
@@ -264,14 +264,17 @@ class AttackAnalyzer:
             
 
 
-            answers = self.openai_analyzer.ass_answer_questions(questions.values(), attack)
-            answers_by_question_key = {}
-            for key, question in questions.items():
-               answers_by_question_key[key] = answers[question]
-
+            question_run_logs = self.openai_analyzer.ass_answer_questions(questions, attack)
             attack.questions = questions
-            attack.answers = answers_by_question_key
-            attack.question_answers = answers
+            for question_key, question_run_log in question_run_logs.items():
+                attack.question_run_logs[question_key] = question_run_log
+                attack.answers[question_key] = question_run_log["answer"]
+                assistant_answers[attack.attack_id][question_key] = question_run_log["answer"]
+    
+        
+        return assistant_answers
+            
+            
 
 
     

@@ -25,15 +25,24 @@ TOOLS = [
                             "Attributes of the Attack object to get. Available attrs include: "
                              "src_ips, src_ports, dst_ips, dst_ports, login_pairs, successful_login_pairs, ssh_hasshs, ssh_versions, "
                              "commands, http_requests, "
-                             "sessions: Session object ids that can be queried with get_session_attrs,"
-                             "malware: Malware object ids that can be queried with get_malware_attrs"
-                             "All attrs return a list of items when called unmodified in chronological order with duplicates. "
-                             "All attrs can be called with the following modifiers and modifiers may be combined: "
-                             "uniq_<attr>: unique items, num_attr: number of items, min_<attr>: minimum value, max_<attr>: maximum value, "
-                             "most_common_<attr>: most common value, most_commonN_<attr>: N most common values, "
-                             "first<attr>: first item (chronologically), last_<attr>: last item, "
-                             "firstN_<attr>: first N items, lastN_<attr>: last N items. ",
-                                 
+                             "sessions: Session object ids that can be queried with get_session_attrs, "
+                             "malware: Malware object ids that can be queried with get_malware_attrs. "
+                             "All attrs return items in chronological order and with duplicates when called without a modifier. "
+                             "All attrs can be called with the following modifiers: "
+                             "uniq_<attr>: unique items, "
+                             "num_<attr>: number of items, "
+                             "min_<attr>: minimum value, "
+                             "max_<attr>: maximum value, "
+                             "most_common_<attr>: most common value, "
+                             "most_common<N>_<attr>: N most common values, "
+                             "first<attr>: first item (chronologically), "
+                             "last_<attr>: last item, "
+                             "first<N>_<attr>: first N items, "
+                             "last<N>_<attr>: last N items. "
+                             "uniq_<attr> can be combined with any other modifier. "
+                             "For example, 'first5_uniq_src_ips' returns the first 5 unique source IPs "
+                             "and 'num_uniq_http_requests' returns the number of unique HTTP requests. "
+                             
                             },
                     },
                     "required": ["attrs"]
@@ -63,7 +72,7 @@ TOOLS = [
                              "src_ip, src_port, dst_ip, dst_port, protocol, "
                              "username, password, start_time, end_time, duration, "
                              "ssh_hassh, ssh_version, client_vars, "
-                             "commands, http_requests"    
+                             "commands, http_requests "    
                             },
                     },
                     "required": ["session_id", "attr"]
@@ -178,8 +187,8 @@ TOOLS = [
                 }
             }
         },
-            # Tool function schema for querying Malpedia for malware descriptions
-            {
+        # Tool function schema for querying Malpedia for malware descriptions
+        {
             "type": "function",
             "function": {
                 "name": "query_malpedia",
@@ -197,7 +206,7 @@ TOOLS = [
                 }
             }
         },
-
+        # Tool function schema for querying ExploitDB for exploit search results
         {
             "type": "function",
             "function": {
@@ -219,8 +228,7 @@ TOOLS = [
             }
         },
 
-
-            # Tool function schema for querying ExploitDB for exploit details
+        # Tool function schema for querying ExploitDB for exploit details
         {
             "type": "function",
             "function": {

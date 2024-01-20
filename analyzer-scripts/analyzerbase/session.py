@@ -4,8 +4,11 @@ from .common import *
 from .util import extract_ips, extract_urls, standardize_cmdlog, sha256hex, extract_hosts_from_parsed_urls
 from .malware import Malware
 
-class Session:
+class Session(SmartAttrObject, CachedPropertyObject):
     def __init__(self, event):
+        SmartAttrObject.__init__(self)
+        CachedPropertyObject.__init__(self)
+        
         self.session_id = event["session"]
         self.session_type = event["eventid"].split(".")[0]
 
@@ -121,26 +124,25 @@ class Session:
 
     
     def add_http_request(self, event):
-
         request_keys = ("timestamp", "method", "uri", "version", "user_agent", "host", "referrer", "cookies")
         http_request = {key: event[key] for key in request_keys if key in event}
         self._http_requests.append(http_request)
         self.http_request_events.append(event)
+
 
     def process_http_requests(self):
         if self._http_requests:
             self._http_requests.sort(key=lambda event: event["timestamp"])
 
 
-
-    @property
+    
+    @cachedproperty
     def cmdlog(self):
         cmdlog = "\n".join(self.commands)
-        
         return cmdlog
     
             
-    @property
+    @cachedproperty
     def cmdlog_hash(self):
         if self.commands:
             # See .util.standardize_cmdlog for why this is necessary before hashing
@@ -149,22 +151,22 @@ class Session:
         
 
 
-    @property
+    @cachedproperty
     def cmdlog_ips(self):
         return extract_ips(self.cmdlog)
 
 
-    @property
+    @cachedproperty
     def cmdlog_urls(self):
         return extract_urls(self.cmdlog)
     
 
-    @property
+    @cachedproperty
     def cmdlog_hosts(self):
         return extract_hosts_from_parsed_urls(self.cmdlog_urls.values()) + self.cmdlog_ips
     
     
-    @property
+    @cachedproperty
     def http_request_strs(self):
         http_request_strs = []
         skip_keys = ("timestamp", "method", "uri", "version")
@@ -179,56 +181,54 @@ class Session:
             http_request = f"{event['method']} {event['uri']} HTTP/{event['version']}\n" 
             http_request += "\n".join([f"{key.title().replace('_','-')}: {event[key]}" for key in event if not key in skip_keys])
             http_request_strs.append(http_request)
-
-
-
+    
         return http_request_strs
 
-    @property
+    @cachedproperty
     def httplog(self):
         return "\n\n".join(self.http_request_strs)
 
 
-    @property
+    @cachedproperty
     def httplog_hash(self):
         if self._http_requests:
             return sha256hex(self.httplog)
 
 
-    @property
+    @cachedproperty
     def httplog_ips(self):
         return extract_ips(self.httplog)
     
-    @property
+    @cachedproperty
     def httplog_urls(self):
         return extract_urls(self.httplog)
     
-    @property
+    @cachedproperty
     def httplog_hosts(self):
         return extract_hosts_from_parsed_urls(self.httplog_urls.values()) + self.httplog_ips
     
 
-    @property
+    @cachedproperty
     def http_uris(self):
         return [event["uri"] for event in self._http_requests if event.get("uri")]
 
-    @property
+    @cachedproperty
     def http_urilog(self):
         return "\n".join(self.http_uris)
     
-    @property
+    @cachedproperty
     def http_urilog_hash(self):
         if self.http_uris:
             return sha256hex(self.http_urilog)
 
 
-    @property
+    @cachedproperty
     def http_requests(self):
         """Verbose property name and OrderedSet wrapper for _http_requests to expose to AI model tools"""
         return SetReprOrderedSet(self.http_request_strs)
 
 
-    @property
+    @cachedproperty
     def hosts(self):
         return self.cmdlog_hosts + self.httplog_hosts
 

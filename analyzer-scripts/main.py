@@ -12,7 +12,7 @@ from openaianalyzers.openaianalyzer import OpenAIAnalyzer
 from markdownwriters.markdownwriter import MarkdownWriter
 
 import argparse
-
+import code
 
 DEFAULT_CONFIG = {
     # Sort settings
@@ -81,7 +81,13 @@ DEFAULT_CONFIG = {
     "USER_IPS": [], #IPs that belong to the user to be excluded from analysis
     "HONEYPOT_INTERNAL_IPS": [], # Interal IPs of the honeypot system(s) to inform AI for more accurate analysis
     "HONEYPOT_EXTERNAL_IPS": [], # External IPs of the honeypot system(s) to inform AI for more accurate analysis
-
+    "HONEYPOT_PORTS": [22, 23, 80, 2222, 2223, 2323, 5555, 7547, 8000, 8080, 9000], # Open ports of on honeypot system(s) to inform AI for more accurate analysis
+    "HONEYPOT_SOFTWARE": [  # Version strings of the software running on each open port of the honeypot system(s) to inform AI for more accurate analysis.
+        "Cowrie SSH server running OpenSSH 6.0p1 Debian 4+deb7u2 (protocol 2.0)",
+        "Cowrie Telnet server",
+        "Web server running Apache httpd 3.2.3 and WordPress 5.6.7",
+        "Cowrie SSH server running OpenSSH 6.0p1 Debian 4+deb7u2 (protocol 2.0)",
+    ] + ["Cowrie Telnet server"] * 2 + ["Web server running Apache httpd 3.2.3 and WordPress 5.6.7"] * 5,
 
     # Input Paths    
     "LOGS_PATH": "./logs", # Path to the logs directory
@@ -89,7 +95,7 @@ DEFAULT_CONFIG = {
     "FIREWALL_LOGS_PATH": "./logs/firewall", # Path to the firewall logs directory (Should be a subdirectory of LOGS_PATH)
     "WEB_LOGS_PATH": "./logs/web", # Path to the web logs directory (Should be a subdirectory of LOGS_PATH)
     "ZEEK_LOGS_PATH": "./logs/zeek", # Path to the zeek logs directory (Should be a subdirectory of LOGS_PATH)
-    "MALWARE_DOWNLOADS_PATH": "./logs/malware", # Path to the malware downloads directory (Should be a subdirectory of LOGS_PATH)
+    "MALWARE_DOWNLOADS_PATH": "./logs/malware/downloads", # Path to the malware downloads directory (Should be a subdirectory of LOGS_PATH)
     "AUTH_RANDOM_PATH": "./logs/auth_random.json", # Path to the auth_random.json file (Should be a subdirectory of LOGS_PATH)
     
     # Output Paths
@@ -159,6 +165,8 @@ ARG_DESCRIPTIONS = {
     "USER_IPS": "IPs that belong to the user to be excluded from analysis",
     "HONEYPOT_INTERNAL_IPS": "Interal IPs of the honeypot system(s) to inform AI for more accurate analysis",
     "HONEYPOT_EXTERNAL_IPS": "External IPs of the honeypot system(s) to inform AI for more accurate analysis",
+    "HONEYPOT_PORTS": "Open ports of on honeypot system(s) to inform AI for more accurate analysis",
+    "HONEYPOT_SOFTWARE": "Version strings of the software running on each open port of the honeypot system(s) to inform AI for more accurate analysis.",
 
     # Input Paths    
     "LOGS_PATH": "Path to the logs directory",
@@ -210,17 +218,18 @@ def main(test_args=None):
 
     # Add arguments to each group
     
-    groups['Actions'].add_argument('--list-attacks', '--list', '-l', action='store_true', help='List loaded attacks')
-    groups['Actions'].add_argument('--print-attrs', '--print', '-p', metavar='ATTACK_ATTRS', type=str, nargs='+', action='extend', help='Print specified attributes of loaded attacks')
-    groups['Actions'].add_argument('--organize-attacks', '--organize', '-o', action='store_true', help='Organize attacks into attack directories')
-    groups['Actions'].add_argument('--analyze-attacks', '--analyze', '-a', action='store_true', help='Analyze loaded attacks with OpenAI and OSINT Analyzers')
-    groups['Actions'].add_argument('--write-markdown', '--write', '-w', action='store_true', help='Write markdown reports for analyzed attacks')
+    groups['Actions'].add_argument('--list-attacks', '--list', '-L', action='store_true', help='List loaded attacks')
+    groups['Actions'].add_argument('--print-attrs', '--print', '-P', metavar='ATTACK_ATTRS', type=str, nargs='+', action='extend', help='Print specified attributes of loaded attacks')
+    groups['Actions'].add_argument('--organize-attacks', '--organize', '-O', action='store_true', help='Organize attacks into attack directories')
+    groups['Actions'].add_argument('--analyze-attacks', '--analyze', '-A', action='store_true', help='Analyze loaded attacks with OpenAI and OSINT Analyzers')
+    groups['Actions'].add_argument('--write-markdown', '--write', '-W', action='store_true', help='Write markdown reports for analyzed attacks')
+    groups["Actions"].add_argument('--interactive', '--interact', '-I', action='store_true', help='Enter interactive mode after loading attacks (python shell with loaded attacks in the "ATTACKS" variable)')
 
     groups['Config File'].add_argument('--config', '-c', metavar="FILE", type=str, default='config.json', help='Path to config file')
     groups['Config File'].add_argument('--update-config', '-u', action='store_true', help='Update config file with new values')
     
-    groups["Loading Attacks"].add_argument('--load-from-logs', '-f', action='store_true', help='Load attacks from logs')
-    groups["Loading Attacks"].add_argument('--load-from-attacks-dir', '-d', action='store_true', help='Load attacks from attacks directory')
+    groups["Loading Attacks"].add_argument('--load-from-logs', '-l', action='store_true', help='Load attacks from logs')
+    groups["Loading Attacks"].add_argument('--load-from-attacks-dir', '-a', action='store_true', help='Load attacks from attacks directory')
     groups["Loading Attacks"].add_argument('--only-attacks', metavar='ATTACK_IDS', type=str, nargs='+', default=None, help='Only load attacks with these keys')
     groups["Loading Attacks"].add_argument('--skip-attacks', metavar='ATTACK_IDS', type=str, nargs='+', default=None, help='Skip loading attacks with these keys')
     groups["Loading Attacks"].add_argument('--max-ips-per-attack', type=int, default=None, help='Maximum number of IPs in each loaded attack')
@@ -283,12 +292,11 @@ def main(test_args=None):
         groups.get(group_name, parser).add_argument(*arg_names, **add_argument_kwargs)
 
     # Parse args
-    #args = parser.parse_args(args=test_args)
-    args = parser.parse_args()
+    args = parser.parse_args(args=test_args)
+    #args = parser.parse_args()
 
     # Set initial config to copy of default config
     config = DEFAULT_CONFIG.copy()
-    #config = {k.upper(): v for k,v in vars(args).items() if k.upper() in DEFAULT_CONFIG and v != None}
 
     # Update config with values from config file if --config flag is set
     if args.config:
@@ -303,7 +311,7 @@ def main(test_args=None):
             else:
                 print(f"Error loading config file at {args.config}\n{e}")
                 exit(1)
-    
+
     # Update config with values from args (args take precedence over config file)
     # checks arg is set, the key a valid key and that value is not the current config value (needs to be updated)
     config.update({k.upper(): v for k,v in vars(args).items() 
@@ -401,7 +409,7 @@ def main(test_args=None):
             skip_attacks=args.skip_attacks,
         )
     else:
-        print("No attack loading method specified. Use (-f --load-from-logs) OR (-d --load-from-attacks-dir)")
+        print("No attack loading method specified. Use (-l --load-from-logs) OR (-a --load-from-attacks-dir)")
         exit(1)
 
 
@@ -485,9 +493,13 @@ def main(test_args=None):
             training_data_path=config["OPENAI_TRAINING_DATA_PATH"],
             api_key=config["OPENAI_API_KEY"],
             model=config["OPENAI_MODEL"],
-            ip_analyzer=IP_ANALYZER, # type: ignore
-            malwareanalyzer=MALWARE_ANALYZER, # type: ignore
-
+            ip_analyzer=IP_ANALYZER,
+            malwareanalyzer=MALWARE_ANALYZER,
+            honeypot_details={
+                "internal_ips": config["HONEYPOT_INTERNAL_IPS"],
+                "external_ips": config["HONEYPOT_EXTERNAL_IPS"],
+                "ports": dict(zip(config["HONEYPOT_PORTS"], config["HONEYPOT_SOFTWARE"])),
+            },
         )
 
 
@@ -526,10 +538,12 @@ def main(test_args=None):
     if args.print_attrs:
         for attack in ATTACKS.values():
             print(f"\n{attack}\n"
-                  + '\n'.join(f"\t{attr}:\n{pprint_str(getattr(attack, attr))}" for attr in args.print_attrs)
+                  + '\n'.join(f"{attr}:\n{pprint_str(getattr(attack, attr))}" for attr in args.print_attrs)
             )
 
-
+    if args.interactive:
+        print("Entering interactive mode (python shell with loaded attacks in the 'ATTACKS' variable)")
+        code.interact(local=locals())
 
     print(f'Honeypot AI Finished Successfully!')
     exit(0)
@@ -537,123 +551,29 @@ def main(test_args=None):
 
 
 
-def oldmain():
-    # if test := True:
-    #     num_attacks = {}
-    #     num_logs = {}
-    #     num_all_log_filepaths = {}
-    #     for i in range(3):
-    #         num_logs[i] = 0
-    #         num_all_log_filepaths[i] = 0
-    #         for parser in LOG_PARSERS:
-    #             num_logs[i] += len(list(parser.logs()))
-    #             num_all_log_filepaths[i] += len(list(parser.all_log_filepaths()))
-
-
-    #         LOG_PROCESSOR = LogProcessor(
-    #     parsers=LOG_PARSERS,
-    #     remove_ips=config["USER_IPS"],
-    #     min_commands=config["ATTACK_MIN_COMMANDS"],
-    #     min_malware=config["ATTACK_MIN_MALWARE"],
-    #     min_successful_logins=config["ATTACK_MIN_SUCCESSFUL_LOGINS"],
-    #     min_http_requests=config["ATTACK_MIN_HTTP_REQUESTS"],
-    #     http_attack_regexes={
-    #         "uri": config["ATTACK_HTTP_URI_REGEXES"],
-    #         "httplog": config["ATTACK_HTTP_ANYWHERE_REGEXES"],
-    #     },
-    #     merge_shared_attrs=config["MERGE_SHARED_ATTRS"],
-    #     merge_sig_regexes={
-    #         "commands": config["MERGE_SIGS_COMMANDS"],
-    #         "malware": config["MERGE_SIGS_MALWARE"],
-    #         "http_requests": config["MERGE_SIGS_HTTP_REQUESTS"],
-    #     },
-    #     attack_attr_sort_order=config["SORT_ATTRS"],
-    #             )
-
-
-    #         print(f"Loading attacks from logs directory at {config['LOGS_PATH']}")
-    #         ATTACKS = LOG_PROCESSOR.load_attacks_from_logs()
-    #         num_attacks[i] = len(ATTACKS)
-    
-    #     print(num_attacks)
-    #     print(num_logs)
-    #     print(num_all_log_filepaths)
-    # Example usage of the AttackAnalyzer class
-    analyzer = AttackAnalyzer()
-
-    only_attacks = [
-        '30d72557f4e8b64fba88e86ce784ac08339fca517863f30d194830c90ff72a01',
-        # 'c41b0875c506cc9421ae26ee43bd9821ccd505e9e24a732c8a9c0180eb34a5a8',
-        # #'346442d765fd49fd142ef69309ac870ac9076ece44dcb07a2769e9b2942de8e3',
-        # #'0229d56a715f09337b329f1f6ced86e68b6d0125747faafdbdb3af2f211f56ac',
-        # '713ca6a961a02c78b95decc18a01c69606d112c77ffc9f8629eb03ac39e7a22b',
-        #  #'6f09f57fbae18a7e11096ca715d0a91fb05f497c4c7ff7e65dc439a3ee8be953',
-        # # '38628b4bc67736d9c84770b16d65c687f260b7e6055f573c0adc3ac0340a8a53',
-        # # 'a7274757e5163c3e79d3ac0725e9cb74563360c235e90ce18cb5dd12875e6a94',
-        # 'ea40ecec0b30982fbb1662e67f97f0e9d6f43d2d587f2f588525fae683abea73',
-        # # '8a57f997513e762dec5cd58a2de822cdf3d2c7ef6372da6c5be01311e96e8358',
-
-
-        # #"fe9291a4727da7f6f40763c058b88a5b0031ee5e1f6c8d71cc4b55387594c054",
-        # #"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        # "440e8a6e0ddc0081c39663b5fcc342a6aa45185eb53c826d5cf6cddd9b87ea64",
-        # #"0229d56a715f09337b329f1f6ced86e68b6d0125747faafdbdb3af2f211f56ac",
-        # "04a9aabb18e701dbe12c2606538202dc02156f480f3d58d926d20bd9bc613451",
-        # #"275776445b4225c06861b2f6f4e2ccf98e3f919583bddb9965d8cf3d4f6aa18f",
-        # #"c41b0875c506cc9421ae26ee43bd9821ccd505e9e24a732c8a9c0180eb34a5a8",
-        
-        ]
-    
-    # start_time = time()
-    # attacks = analyzer.load_attacks_from_attack_dir(only_attacks=only_attacks)
-    # print(f"load_attacks_from_attack_dir\tTime elapsed: {time() - start_time}")
-    
-    # # for attack in attacks.values():
-    # #     pprint(attack)
-    # #     pprint(list(attack.uniq_commands))
-    # #     pprint(list(attack.uniq_split_commands))
-
-
-    # ipdata = analyzer.get_attack_ipdata(attacks.values())
-    # # print(ipdata)
-
-    # mwdata = analyzer.get_attack_mwdata(attacks.values())
-    # print(mwdata)
-    # start_time = time()
-
-    #analyzer.postprocess_attacks()
-
-    start_time = time()
-    attacks = analyzer.organize_attacks_from_cowrie_logs(20)
-    print(f"organize_attacks_from_cowrie_logs\tTime elapsed: {time() - start_time}")
-
-    # start_time = time()
-    # attacks = analyzer.load_attacks_from_cowrie_logs()
-    # print(f"load_attacks_from_cowrie_logs\tTime elapsed: {time() - start_time}")
-
-
-    print(attacks)
-
-
-
-
-
 if __name__ == "__main__":
-    test_args = """
--lo 
---attacks-path tests/a2 
---logs-path tests/tl2 
---log-types cowrie zeek 
---no-use-ipanalyzer
-
-"""
-    more_args = [
-        "-h"
-    ]
-
-    main(test_args=test_args.strip().split() + more_args)
     #main()
-    #oldmain()
+#     test_args = """
+# -lo 
+# --attacks-path tests/a2 
+# --logs-path tests/tl2 
+# --log-types cowrie zeek 
+# --no-use-ipanalyzer
+
+# """
+#     more_args = [
+#         "-h"
+#     ]     --only-attacks 8a57f997513e762dec5cd58a2de822cdf3d2c7ef6372da6c5be01311e96e8358 7b7dc9dd5e34bfc3aa1b8f8b07b0bb2a3405203656ae072f61a98894cc5a0794 
+
+#   
+    test_args = """
+    --attacks-path attacks/
+    
+    -lLP first_uniq_split_commands
+    -O
+    """
+    main(test_args=test_args.strip().split())
+    
 
 
 

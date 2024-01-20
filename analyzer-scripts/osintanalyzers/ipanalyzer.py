@@ -388,10 +388,8 @@ class IPAnalyzer(OSINTAnalyzerBase):
             for subkey, subval in port_data["service_data"].items():
                 if isinstance(subval, (list, dict)):
                     subval = list(subval)
-                    #data["counts"]["shodan"][subkey].update(subval)
                     data["counts"][f"port{port}"][subkey].update(subval)
                 else:
-                    #data["counts"]["shodan"][subkey][subval] += 1
                     data["counts"][f"port{port}"][subkey][subval] += 1
 
         return data
