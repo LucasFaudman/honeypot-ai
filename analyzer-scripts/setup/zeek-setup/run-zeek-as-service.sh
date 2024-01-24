@@ -81,35 +81,6 @@ fi
 review_file ${PREFIX}/share/zeek/site/local.zeek
 
 
-# read -p "Enter local subnets as comma separated CIDRs (ie: 192.168.0.0/16, 10.0.0.0/8, 172.31.0.0/16) :" LOCAL_SUBNETS 
-# echo "
-# # Define local network subnets
-# Site::local_nets += { $LOCAL_SUBNETS };
-# " >> ${PREFIX}/share/zeek/site/local.zeek
-
-# #TODO - Add option to add additional scripts
-# read -p "Enter IPs/CIDRs to exclude from Zeek logs as comma separated CIDRs (ie: 192.168.0.0/16, 10.0.0.0/8, 172.31.0.0/16) :" EXCLUDE_IPS
-# #Create exclude_traffic.zeek file
-# echo "@load base/protocols/conn
-
-# # Define the IP address or CIDR block you want to exclude
-# redef exclude_ips += { $EXCLUDE_IPS };
-
-# event zeek_init()
-# {
-#     for (ip in exclude_ips)
-#     {
-#         Conn::block_net(ip);
-#     }
-# }
-# " > ${PREFIX}/share/zeek/site/exclude_traffic.zeek
-
-# #Add exclude_traffic.zeek to local.zeek
-# echo "
-# @load ./exclude_traffic.zeek
-# " >> ${PREFIX}/share/zeek/site/local.zeek
-
-
 read -p "How Long Should Zeek Run Before Aggregating Logs (in seconds) (default: 21600 (6hrs)): " ZEEK_RUN_TIME
 [ -z "$ZEEK_RUN_TIME" ] && ZEEK_RUN_TIME=21600
 
@@ -167,8 +138,6 @@ WantedBy=multi-user.target
 " > /etc/systemd/system/zeek.service
 
 review_file /etc/systemd/system/zeek.service
-
-
 
 
 #Reload systemd daemon

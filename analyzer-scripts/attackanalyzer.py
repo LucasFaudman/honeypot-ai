@@ -78,35 +78,35 @@ class AttackAnalyzer:
         if self.attack_dir_reader:
             print("Getting log paths and counts.")
             log_paths, log_counts = self.get_all_log_paths_and_counts()
-            print(f"Done getting log paths and counts. \nLog paths: {log_paths} \nLog counts: {log_counts}")
+            print(f"Done getting log paths and counts. \nLog paths: {pprint_str(log_paths)} \nLog counts: {pprint_str(log_counts)}")
 
         if self.ip_analyzer:
             print("Getting ipdata.")
             ipdata = self.get_all_ipdata()
-            print(f"Done getting ipdata. \nIP data: {ipdata}")
+            print(f"Done getting ipdata. \nIP data: {pprint_str(ipdata)}")
 
         if self.malware_analyzer:
             print("Getting mwdata.")
             mwdata = self.get_all_mwdata()
-            print(f"Done getting mwdata. \nMW data: {mwdata}")
+            print(f"Done getting mwdata. \nMW data: {pprint_str(mwdata)}")
             if self.allow_fetch_failed_malware:
                 print("Fetching failed malware.")
                 failed_malware = self.fetch_all_failed_malware()
-                print(f"Done fetching failed malware. \nFailed malware: {failed_malware}")
+                print(f"Done fetching failed malware. \nFailed malware: {pprint_str(failed_malware)}")
 
 
         if self.openai_analyzer:        
             print("Getting command explanations.")
             command_explanations = self.get_all_command_explanations()
-            print(f"Done getting command explanations. \nCommand explanations: {command_explanations}")
+            print(f"Done getting command explanations. \nCommand explanations: {pprint_str(command_explanations)}")
             
             print("Getting malware explanations.")
             malware_explanations = self.get_all_malware_explanations()
-            print(f"Done getting malware explanations. \nMalware explanations: {malware_explanations}")
+            print(f"Done getting malware explanations. \nMalware explanations: {pprint_str(malware_explanations)}")
 
             print("Getting assistant answers.")
             assistant_answers = self.get_all_assistant_answers()
-            print(f"Done getting assistant answers. \nAssistant answers: {assistant_answers}")
+            print(f"Done getting assistant answers. \nAssistant answers: {pprint_str(assistant_answers)}")
 
         
         print(f"Done analyzing/postprocessing {len(self.attacks)} attacks.")
@@ -276,11 +276,13 @@ class AttackAnalyzer:
                 attack.question_run_logs[question_key] = question_run_log
                 attack.answers[question_key] = question_run_log["answer"]
                 assistant_answers[attack.attack_id][question_key] = question_run_log["answer"]
-    
-        
+
+            attack.answers["title"] = attack.answers["title"].strip('"').strip("'")
+            
         return assistant_answers
-            
-            
+    
+
+        
     def fetch_all_failed_malware(self, attacks=None):
         attacks = attacks or self.attacks
 

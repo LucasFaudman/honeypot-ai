@@ -230,6 +230,7 @@ def config_arg_parser():
     groups['Actions'].add_argument('--analyze-attacks', '--analyze', '-A', action='store_true', help='Analyze loaded attacks with OpenAI and OSINT Analyzers')
     groups['Actions'].add_argument('--write-reports', '--write', '-W', action='store_true', help='Write markdown reports for analyzed attacks')
     groups["Actions"].add_argument('--export-reports', '--export', '-E', action='store_true', help='Export attack report and files to REPORTS_PATH')
+    groups["Actions"].add_argument("--chat", "-C", action="store_true", help="Chat with the OpenAI Assistant about the loaded attacks")
     groups["Actions"].add_argument('--interactive', '--interact', '-I', action='store_true', help='Enter interactive mode after loading attacks (python shell with loaded attacks in the "ATTACKS" variable)')
 
     groups['Config File'].add_argument('--config', '-c', metavar="FILE", type=str, default='config.json', help='Path to config file')
@@ -343,7 +344,6 @@ def main(test_args=None):
         print(f"Updated config file at {args.config}")
 
 
-
     # Setup Path Objects
     for key, value in config.items():
         if key.endswith("_PATH"):
@@ -391,7 +391,7 @@ def main(test_args=None):
     # Setup LogProcessor
     LOG_PROCESSOR = LogProcessor(
         parsers=LOG_PARSERS,
-        remove_ips=config["USER_IPS"],
+        remove_ips=config["USER_IPS"] + config["HONEYPOT_INTERNAL_IPS"] + config["HONEYPOT_EXTERNAL_IPS"],
         min_commands=config["ATTACK_MIN_COMMANDS"],
         min_malware=config["ATTACK_MIN_MALWARE"],
         min_successful_logins=config["ATTACK_MIN_SUCCESSFUL_LOGINS"],
@@ -484,7 +484,7 @@ def main(test_args=None):
     MALWARE_ANALYZER = None
     OPENAI_ANALYZER = None
     # Setup IPAnalyzer if --use-ipanalyzer flag is True
-    if args.use_ipanalyzer:
+    if config["USE_IPANALYZER"]:
         IP_ANALYZER = IPAnalyzer(
             db_path=config["IPDB_PATH"],
             selenium_webdriver_type=config["WEBDRIVER_TYPE"],
@@ -493,7 +493,7 @@ def main(test_args=None):
             max_errors=config["IPANALYZER_MAX_ERRORS"],
         )
     # Setup MalwareAnalyzer if --use-malwareanalyzer flag is True
-    if args.use_malwareanalyzer:
+    if config["USE_MALWAREANALYZER"]:
         MALWARE_ANALYZER = MalwareAnalyzer(
             db_path=config["MWDB_PATH"],
             selenium_webdriver_type=config["WEBDRIVER_TYPE"],
@@ -502,7 +502,7 @@ def main(test_args=None):
             max_errors=config["MALWAREANALYZER_MAX_ERRORS"],
         )
     # Setup OpenAIAnalyzer if --use-openai flag is True
-    if args.use_openai:
+    if config["USE_OPENAI"]:
         OPENAI_ANALYZER = OpenAIAnalyzer(
             db_path=config["AIDB_PATH"],
             training_data_path=config["OPENAI_TRAINING_DATA_PATH"],
@@ -517,6 +517,35 @@ def main(test_args=None):
             },
             use_code_interpreter=config["USE_OPENAI_CODE_INTERPRETER"],
         )
+
+    # Chat with OpenAI Assistant about attacks if --chat flag is True
+    if args.chat:
+        if not OPENAI_ANALYZER:
+            print("--chat/-C action specified but OpenAIAnalyzer is not enabled. Use --use-openai flag or edit config.json to enable OpenAIAnalyzer")
+            exit(1)
+
+        for attack in ATTACKS.values():
+            print(f"Chatting about attack {attack.attack_id} with OpenAI Assistant")
+            question_run_logs = OPENAI_ANALYZER.interactive_chat_about_attack(attack)
+            attack.question_run_logs.update(question_run_logs)
+            print(f"Finished chatting about attack {attack.attack_id} with OpenAI Assistant")
+
+            if not question_run_logs:
+                print("No questions asked. Skipping writing chat run steps markdown")
+                continue
+            
+            question_keys = list(attack.question_run_logs.keys())
+            file_prefix = f"{question_keys[0]}-{question_keys[-1]}" if len(question_keys) > 1 else question_keys[0]
+            chat_run_steps_filepath = attack.attack_dir / "ai-chat" / f"{file_prefix}run-steps.md"
+            
+            print(f"Writing chat markdown run steps for attack {attack.attack_id} to {chat_run_steps_filepath}")
+            RUN_STEPS_MARKDOWN_WRITER = RunStepsMarkdownWriter(
+                filepath=chat_run_steps_filepath,
+                mode="w+",
+                data_object=attack,
+            )
+            RUN_STEPS_MARKDOWN_WRITER.update_md()
+            print(f"Finished writing chat markdown run steps for attack {attack.attack_id} to {chat_run_steps_filepath}")
 
 
     # Setup AttackAnalyzer if --analyze-attacks or --write-reports flags are True
@@ -538,36 +567,52 @@ def main(test_args=None):
         # Analyze Attacks if --analyze-attacks flag is set using AttackAnalyzer
         if args.analyze_attacks:
             ATTACKS = ATTACK_ANALYZER.analyze_attacks()
-    
-        # Write markdown reports for analyzed attacks if --write-markdown flag is set
-        if args.write_reports:
-            for attack in ATTACKS.values():
-                report_filepath = attack.attack_dir / "README.md"
-                print(f"Writing markdown report for attack {attack.attack_id} to {report_filepath}")
-                REPORT_MARKDOWN_WRITER = ReportMarkdownWriter(
-                    filepath=report_filepath,
-                    mode="w+",
-                    data_object=attack,
-                )
-                REPORT_MARKDOWN_WRITER.update_md()
 
-                run_steps_filepath = attack.attack_dir / "run_steps.md"
-                print(f"Writing markdown run steps for attack {attack.attack_id} to {run_steps_filepath}")
-                RUN_STEPS_MARKDOWN_WRITER = RunStepsMarkdownWriter(
-                    filepath=run_steps_filepath,
-                    mode="w+",
-                    data_object=attack,
-                )
-                RUN_STEPS_MARKDOWN_WRITER.update_md()
 
-                print(f"Finished writing markdown report for attack {attack.attack_id} to {report_filepath}")
+    # Enter interactive mode if --interactive flag is set after loading attacks. Useful for editing attacks in the python shell before writing reports
+    if args.interactive:
+        ATTACKS_LIST = list(ATTACKS.values())
+        code.interact(
+            local=locals(),
+            banner="Entering interactive mode (python shell)...\n\n"
+                    + f"{len(ATTACKS)} attacks are loaded into the 'ATTACKS' dict and 'ATTACKS_LIST' variables)"
+                    + "\nAttack attributes can be accessed via 'ATTACKS[ATTACK_ID].ATTR_NAME' or 'ATTACKS_LIST[ATTACK_INDEX].ATTR_NAME'"
+                    + "Use dir(ATTACKS_LIST[0]) to see available Attack attr names and functions."
+                    + "\nUse 'exit()' or type CTRL-D to exit interactive mode",
+            exitmsg="Exiting interactive mode and continuing honeypot-ai...",
+            )
 
-                # Export attack report and files to REPORTS_PATH if --export-reports flag is set
-                if args.export_reports:
-                    print(f"Exporting attack report and files for attack {attack.attack_id} to {config['REPORTS_PATH']}")
-                    export_dir = config["REPORTS_PATH"] / attack.answers['title']
-                    copytree(attack.attack_dir, export_dir,  dirs_exist_ok=True)
-                    print(f"Finished exporting attack report and files for attack {attack.attack_id} to {config['REPORTS_PATH']}")
+
+    # Write markdown reports for analyzed attacks if --write-markdown flag is set
+    if args.write_reports or args.export_reports:
+        for attack in ATTACKS.values():
+            report_filepath = attack.attack_dir / "README.md"
+            print(f"Writing markdown report for attack {attack.attack_id} to {report_filepath}")
+            REPORT_MARKDOWN_WRITER = ReportMarkdownWriter(
+                filepath=report_filepath,
+                mode="w+",
+                data_object=attack,
+            )
+            REPORT_MARKDOWN_WRITER.update_md()
+            print(f"Finished writing markdown report and for attack {attack.attack_id} to {report_filepath}")
+
+            run_steps_filepath = attack.attack_dir / "run-steps.md"
+            print(f"Writing markdown run steps for attack {attack.attack_id} to {run_steps_filepath}")
+            RUN_STEPS_MARKDOWN_WRITER = RunStepsMarkdownWriter(
+                filepath=run_steps_filepath,
+                mode="w+",
+                data_object=attack,
+            )
+            RUN_STEPS_MARKDOWN_WRITER.update_md()
+            print(f"Finished writing markdown run steps for attack {attack.attack_id} to {run_steps_filepath}")
+            
+
+            # Export attack report and files to REPORTS_PATH if --export-reports flag is set
+            if args.export_reports:
+                print(f"Exporting attack report and files for attack {attack.attack_id} to {config['REPORTS_PATH']}")
+                export_dir = config["REPORTS_PATH"] / attack.answers['title']
+                copytree(attack.attack_dir, export_dir,  dirs_exist_ok=True)
+                print(f"Finished exporting attack report and files for attack {attack.attack_id} to {config['REPORTS_PATH']}")
 
 
 
@@ -579,9 +624,7 @@ def main(test_args=None):
                   + '\n'.join(f"{attr}:\n{pprint_str(getattr(attack, attr))}" for attr in args.print_attrs)
             )
 
-    if args.interactive:
-        print("Entering interactive mode (python shell with loaded attacks in the 'ATTACKS' variable)")
-        code.interact(local=locals())
+
 
     print(f'Honeypot AI Finished Successfully!')
     exit(0)
@@ -607,11 +650,11 @@ if __name__ == "__main__":
     test_args = """
     --attacks-path attacks/ 
     --only-attacks  3b2fd2547b16ad137ecff842cf9880ce744a99d9b9059c66caaa28c5846c57a6
-    -auLP commands malware
+    -aLP commands malware -ACE --no-openai-code-interpreter --openai-model gpt-4
     """
 
     #test_args = ""
-    #main(test_args=test_args.strip().split())
+    main(test_args=test_args.strip().split())
     writer = DocsMarkdownWriter(
         filepath="README.md", 
         mode="w+", 

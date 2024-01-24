@@ -18,9 +18,9 @@ class DocsMarkdownWriter(MarkdownWriterBase):
             "main.py": {
                 "description":"Main script for running all analyzers through AttackAnalyzer inteface. (IN PROGRESS)",
             },
-            "runtests.py": {
-                "description": "Script for running tests from the tests directory",
-            },
+            # "runtests.py": {
+            #     "description": "Script for running tests from the tests directory",
+            # },
             "analyzerbase":{
                 "description" : "Base classes, utility functions, libraries, and constants for all analyzer modules",
                 "attack.py" : "Attack object for storing all data related to a single attack. Constructed by the loganalyzer scripts then processed by openaianlyzers and ipanalyzers before being passed to markdownwriters",
@@ -60,14 +60,14 @@ class DocsMarkdownWriter(MarkdownWriterBase):
                 "ipmarkdownwriter.py": "Markdown writer for ipdata added to Attack objects by IPAnalyzer",
                 "visualizer.py": "Graphing functions for visualizing data from Counter objects from Attack().counts and osint_data['counts']",
             },
-            "tests":{
-                "description" : "Tests for all analyzer modules",
-                "test_analyzerbase.py": "Tests for analyzerbase",
-                "test_loganalyzers.py": "Tests for loganalyzers",
-                "test_openaianalyzers.py": "Tests for openaianalyzers",
-                "test_osintanalyzers.py": "Tests for osintanalyzers",
-                "test_markdownwriter.py": "Tests for markdownwriter",
-            },
+            # "tests":{
+            #     "description" : "Tests for all analyzer modules",
+            #     "test_analyzerbase.py": "Tests for analyzerbase",
+            #     "test_loganalyzers.py": "Tests for loganalyzers",
+            #     "test_openaianalyzers.py": "Tests for openaianalyzers",
+            #     "test_osintanalyzers.py": "Tests for osintanalyzers",
+            #     "test_markdownwriter.py": "Tests for markdownwriter",
+            # },
         }
 
         script_md = ""

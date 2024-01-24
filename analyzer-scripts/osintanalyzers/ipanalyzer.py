@@ -5,9 +5,9 @@ class IPAnalyzer(OSINTAnalyzerBase):
     SOURCES = ["isc", "whois", "cybergordon", "threatfox", "shodan"]
 
     def __init__(self, 
-                 db_path=Path("tests/ipdb"), 
+                 db_path=Path("./db/ipdb"), 
                  selenium_webdriver_type="chrome", 
-                 webdriver_path="/Users/lucasfaudman/Documents/SANS/internship/chromedriver",
+                 webdriver_path="./resources/chromedriver",
                  sources=["isc", "whois", "cybergordon", "threatfox", "shodan"],
                  max_errors={
                         "isc": 5,
@@ -68,14 +68,7 @@ class IPAnalyzer(OSINTAnalyzerBase):
         
         if whois_data_elm and hasattr(whois_data_elm, "text"):
             whois_text = whois_data_elm.text 
-        
             output["results"]["whois_text"] = whois_text
-            #output["results"]["whois_list"] = list(line.split(":", 1) for line in whois_text.split("\n") \
-            #                                    if not line.startswith("%") 
-            #                                    and ":" in line
-            #                                )
-                # TODO improve whois parsing
-
         else:
             output["error"] = "ERROR: No whois data found. Uncaught error."
         

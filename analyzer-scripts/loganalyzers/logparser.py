@@ -59,10 +59,7 @@ class LogParser:
                     print(f"Error decoding: {line}\n(line {n} of {file})")
     
 
-    # def standardize(self, event):
-    #     # Implement this in a subclass
-    #     return event
-    
+
     
     def logs(self):
         # Implement this in a subclass
@@ -73,11 +70,9 @@ class LogParser:
         if not self._all_log_filepaths:
             self._all_log_filepaths = list(self.find_log_filepaths())
         return self._all_log_filepaths
-        #yield from self._all_log_filepaths
-
+        
 
     def nlogs(self, limit=0):
-
         for n, event in enumerate(self.logs()):
             if n >= limit:
                 break

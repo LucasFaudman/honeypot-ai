@@ -1,0 +1,8 @@
+ordered-set
+shlex
+requests
+selenium
+bs4
+openai
+tiktoken
+matplotlib

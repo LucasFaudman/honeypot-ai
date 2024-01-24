@@ -87,6 +87,8 @@ class AttackDirOrganizer:
         CachedPropertyObject.unfreeze_all(*self.attacks.values())
         CachedPropertyObject.empty_all(*self.attacks.values())
 
+        yield f"Done organizing attack directories"
+
         
 
     
@@ -291,7 +293,6 @@ class AttackDirOrganizer:
                         headers_written = {}
 
                     headers.append(line)
-                    #files_to_write.union(self._get_paths_from_src_ips(src_ips_in_file, file))
 
                 
                 if match := self.pattern.search(line):

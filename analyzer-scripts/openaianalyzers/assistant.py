@@ -312,21 +312,21 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
 
         # To determine if Assitant needs to be updated when system_prompt or tools have changed
         update_kwargs = {}
-
+        # Check if model has changed
+        if self.model != ass.model:
+            update_kwargs.update({"model": self.model})
         # Check if system_prompt/instructions have changed
         if system_prompt != ass.instructions:
             update_kwargs.update({"instructions": system_prompt})
-            
         # Check for different tool names in tools argument and Assitants current tools
         if tools != [tool.model_dump() for tool in ass.tools]:
             update_kwargs.update({"tools": tools})
-       
+
         # Update Assitant if any update kwargs are present
         if update_kwargs:
             ass = self.update_assistant(ass.id, **update_kwargs)
-            print(f"Updated {ass.id}")
-        # content = kwargs.pop("content", content) # So content can be passed as positional or keyword arg
-        
+            print(f"Updated {ass.id}: {', '.join(update_kwargs.keys())}")
+
         # Add content to thread as message(s)
         for message in content:
             self.add_message_to_thread(message, thread.id)
@@ -367,8 +367,8 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         
         return ass_id
 
-    def read_or_init_attack_thread(self, attack_questions_dir):
-        attack_thread_id_file = attack_questions_dir / "thread_id.txt"
+    def read_or_init_attack_thread(self, attack):
+        attack_thread_id_file = attack.attack_dir / "thread_id.txt"
         if attack_thread_id_file.exists():
             with attack_thread_id_file.open("r") as f:
                 thread_id = f.readline().strip()
@@ -379,7 +379,7 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         
         return thread_id
 
-    def answer_attack_questions(self, questions, attack: Attack):
+    def answer_attack_questions(self, questions, attack: Attack, interactive_chat=False):
         
         system_prompt = ''.join([
         "Your role is to answer questions about an attack on a Linux honeypot. "
@@ -418,12 +418,17 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
 
 
         # Make a dir to store answers to questions for Attack
-        attack_questions_dir = self.ai_assistants_dir / attack.attack_id
-        attack_questions_dir.mkdir(exist_ok=True)
+        # Use assistants_dir in aidb when runnning in standard mode and attack_dir/chat when running in interactive_chat mode
+        if not interactive_chat:
+            attack_questions_dir = self.ai_assistants_dir / attack.attack_id
+            attack_questions_dir.mkdir(exist_ok=True)
+        else:
+            attack_questions_dir = attack.attack_dir / "ai-chat"
+            attack_questions_dir.mkdir(exist_ok=True)
 
         
         ass_id = self.read_or_init_attack_assistant()
-        thread_id = self.read_or_init_attack_thread(attack_questions_dir)
+        thread_id = self.read_or_init_attack_thread(attack)
 
         question_run_logs = {}
         # Iter through questions and get answer for each question
@@ -492,9 +497,40 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         return question_run_logs
         
 
+    def interactive_chat_about_attack(self, attack):
+        print(f"\nEntering Chat Mode.\nAsk the AI assistant custom questions about:\n{attack}")
 
+        question_run_logs = {}
+        question_to_ask = {}
+        choice = "1"
+        while choice not in ("q", "quit", "exit", "exit()"):
+            msg = "\nCurrent questions:\n" 
+            msg += pprint_str(question_to_ask)
+            msg += "\nChoices:\n 1) Enter a question (adds to current questions)"
+            msg += "\n 2) Ask questions (asks all questions in current questions)"
+            msg += "\n 3) Clear questions (clears current questions)"
+            msg += "\n\nEnter choice (1, 2, 3 OR q to exit): "
+            choice = input(msg)
 
-
+            if choice == "1":
+                question = input("Enter question: ")
+                question_key = f"question_{len(question_run_logs) + 1}"
+                question_key = input(f"Enter question key or leave black to use '{question_key}' : ").replace(' ', '_') or question_key
+                question_to_ask[question_key] = question
+            
+            elif choice == "2":
+                question_run_logs.update(self.answer_attack_questions(question_to_ask, attack, interactive_chat=True))
+                question_to_ask = {}
+            
+            elif choice == "3":
+                question_to_ask = {}
+            
+            else:
+                print("\nInvalid choice. Try again.")
+                sleep(1)
+        
+        
+        return question_run_logs
 
 
 

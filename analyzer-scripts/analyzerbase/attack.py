@@ -2,7 +2,7 @@ from .baseobjects import *
 from .common import *
 from .malware import Malware
 from .util import split_commands, extract_hosts_from_parsed_urls
-from functools import partial
+
 
 
 
@@ -294,7 +294,7 @@ class Attack(SmartAttrObject, CachedPropertyObject, PostprocessableObject):
         self.standardized_malware_explanations.update(standardized_malware_explanations)
     
     
-    def __repr__(self):
+    def __str__(self):
         return ''.join([
             f"Attack ({self.attack_id_type[0]}hash: {self.attack_id}), "
             f"SourceIPs: {len(self.source_ips)}, " if self.source_ips else "",
@@ -307,3 +307,6 @@ class Attack(SmartAttrObject, CachedPropertyObject, PostprocessableObject):
             f"Malware: {len(self._malware)} " if self._malware else "",
             f"Httplogs: {len(self.httplog_hashes)} " if self.httplog_hashes else "",
          ])
+    
+    def __repr__(self) -> str:
+        return self.__str__()

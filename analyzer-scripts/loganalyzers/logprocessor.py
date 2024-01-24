@@ -330,20 +330,7 @@ class LogProcessor:
         
         print(f"Merge Attacks Time: {time() - start_time:.4f}s")
 
-        # #TEST   
-        # for attack1 in self.attacks.values():
-        #     for attack2 in self.attacks.values():
-        #         if attack1.attack_id == attack2.attack_id:
-        #             continue
-                
-        #         for attr in self.merge_shared_attrs:
-        #             shared_attr = getattr(attack1, "uniq_" + attr).intersection(getattr(attack2, "uniq_" + attr))
-        #             if shared_attr:
-        #                 print(f"Shared {attr}: {shared_attr}")
-        #                 print(f"Attack1: {attack1.attack_id}")
-        #                 print(f"Attack2: {attack2.attack_id}")
-        #                 raise Exception("Shared attr after merge")
-        
+
         # Stop caching @cachedproperty attrs for all attacks and empty the caches
         CachedPropertyObject.stop_caching_all(*self.attacks.values())
         CachedPropertyObject.empty_all(*self.attacks.values())
@@ -386,7 +373,7 @@ class LogProcessor:
     def sort_by_attrs(self, attack, attr_order=None):
         attr_order = attr_order or self.sort_attrs
         return tuple(getattr(attack, attr) for attr in attr_order)
-        #return tuple(getattr(attack, 'num_' + attr) for attr in attr_order)
+        
 
     
     def sort_attacks(self, key=None, reverse=None):

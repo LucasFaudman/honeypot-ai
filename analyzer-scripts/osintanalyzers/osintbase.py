@@ -1,9 +1,8 @@
 from analyzerbase import *
 from .soupscraper import *
-from copy import deepcopy
 
 import requests
-# from time import sleep
+
 
 class RateLimitError(Exception):
     pass
@@ -173,9 +172,7 @@ class OSINTAnalyzerBase:
         
         data = self.get_data(args, arg_type, sources, update_counts)
         reduced = data
-        #reduced = deepcopy(data)
-
-
+        
         for arg in args:
             for source in sources:
 

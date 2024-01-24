@@ -133,7 +133,7 @@ class SourceIP(SmartAttrObject, CachedPropertyObject):
         return [event for session in self.sessions.values() for event in session.events]
 
 
-    def __repr__(self):
+    def __str__(self):
         return ''.join([
             f"SourceIP {self.ip} "
             f"Sessions: {len(self.sessions)}, " if self.sessions else "",
@@ -147,4 +147,5 @@ class SourceIP(SmartAttrObject, CachedPropertyObject):
          ])
         
 
-       
+    def __repr__(self) -> str:
+        return self.__str__()

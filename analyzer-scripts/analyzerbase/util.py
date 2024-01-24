@@ -1,7 +1,23 @@
 from .common import *
-from io import StringIO
 from .baseobjects import SetReprOrderedSet
 
+from hashlib import sha256
+from pprint import pprint
+from io import StringIO
+from urllib.parse import urlparse
+
+import subprocess
+import shlex
+
+
+def run_command_with_shlex(command, args, subprocess_kwargs={"shell": True}):
+    if isinstance(args, (list, tuple, set)):
+        args = [command] + [shlex.quote(str(arg)) for arg in args]
+    else: 
+        args = [command, shlex.quote(args)]
+        
+    result = subprocess.run(args, capture_output=True, text=True, **subprocess_kwargs)
+    return result.stdout
 
 
 def split_commands(commands):
@@ -58,8 +74,6 @@ def standardize_cmdlog(command):
     return standardize_by_regexes(command, regexes)
 
 
-
-
 def standardize_malware(malware_source_code: bytes):
     malware_source_code = remove_null_bytes(malware_source_code)
 
@@ -85,57 +99,12 @@ def extract_ips(string):
 
 
 
-def parse_tlds(public_suffix_list_file="public_suffix_list.dat.txt"):
-    #TODO WRITE W REWQUESTS https://publicsuffix.org/list/public_suffix_list.dat
-    tlds = set()
-    with open(public_suffix_list_file) as f:
-        for line in f:
-            line = line.strip()
-            if "." in line:
-                end = line.split(".")[-1]
-                if end.isalpha() and end !="sh":
-                    tlds.update((end.lower(),))
-                
-    with open("tlds.txt", "w+") as f:
-        for tld in sorted(tlds):
-            f.write(tld + "\n")
-
-    return tlds
-
-
-
-def read_tlds(tlds_file="tlds.txt"):
-    with open(tlds_file) as f:
-        tlds = set(line.strip() for line in f)
-    return tlds
-
-
-
-def find_urls_and_ips(text):
-    url_pattern = re.compile(r'https?://\S+|www\.\S+')
-    ipv4_pattern = re.compile(r'\b(?:\d{1,3}\.){3}\d{1,3}\b')
-    ipv6_pattern = re.compile(r'\b(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\b')
-
-    urls = url_pattern.findall(text)
-    ipv4_addresses = ipv4_pattern.findall(text)
-    ipv6_addresses = ipv6_pattern.findall(text)
-
-    return urls, ipv4_addresses, ipv6_addresses
-
-
-
-def extract_urls(string, tlds=set(read_tlds())):
-    #regex = re.compile(r"(([\w\d\-]+\.)+([\w\d\-]+)|https?://(?:[0-9]{1,3}\.){3}[0-9]{1,3}/\S+)") # Updated regex pattern
+def extract_urls(string):
     regex = re.compile(r"((?:https?://)([\w\d][\w\d\-/]+\.)+([\w\-]{2,}))")
     urls = {}
     for match in regex.finditer(string):
         url = match.group(1)
         parsed_url = urlparse(url)
-
-        # found_tld = set((parsed_url.netloc.split(".")[-1], parsed_url.path.split(".")[-1]))
-
-        # if found_tld.intersection(tlds) or not found_tld or not tlds: 
-        #    urls[url] = parsed_url
         urls[url] = parsed_url
 
     return urls
@@ -163,20 +132,7 @@ def sha256hex(string):
     if not isinstance(string, (bytes, bytearray)):
         string = string.encode()
     
-    return hashlib.sha256(string).hexdigest()
-
-
-def rprint(*args, **kwargs):
-    """Print and return the string"""
-    print(*args, **kwargs)
-    return kwargs.get("sep", " ").join(str(arg) for arg in args) + kwargs.get("end", "\n")
-
-
-
-def rpprint(*args, **kwargs):
-    """Pretty Print and return the string"""
-    pprint(*args, **kwargs)
-    return kwargs.get("sep", " ").join(str(arg) for arg in args) + kwargs.get("end", "\n")
+    return sha256(string).hexdigest()
 
 
 def pprint_str(*args, **kwargs):

@@ -50,6 +50,7 @@ class Session(SmartAttrObject, CachedPropertyObject):
     @staticmethod
     def event_handler(func):
         def wrapper(self, event):
+            # TODO add event validation and merging w/ events from other log sources of same session
             self.events.append(event)
             return func(self, event)
         return wrapper
@@ -233,7 +234,7 @@ class Session(SmartAttrObject, CachedPropertyObject):
         return self.cmdlog_hosts + self.httplog_hosts
 
 
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         return ''.join([
             f"Session {self.session_id} "
             f"{self.protocol.upper()} {self.src_ip}:{self.src_port} -> {self.dst_ip}:{self.dst_port} ",
@@ -244,5 +245,6 @@ class Session(SmartAttrObject, CachedPropertyObject):
             f"Duration: {self.duration:.2f}s"
         ])
 
-
-        
+    
+    def __repr__(self) -> str:
+        return self.__str__()

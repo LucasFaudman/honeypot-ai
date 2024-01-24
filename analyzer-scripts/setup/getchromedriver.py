@@ -10,6 +10,9 @@ latest_milestone = list(milestones)[-1]
 
 available_versions = '\n    - '.join(ms for ms in milestones if milestones[ms]['downloads'].get('chromedriver'))
 version_q = f"""Which chrome version number do you have installed? 
+See how to find out here: 
+https://www.digitalcitizen.life/version-google-chrome/
+
 Available versions: 
     - {available_versions}
 Select a version number (default: {latest_milestone}): """
@@ -33,7 +36,7 @@ Select a platform: """
 platform = input(platform_q)
 filename = f"{executable}{selected_version}-{platform}.zip"
 
-destfile = input(f"Where do you want to save {filename}? (default: current directory): ") or '.'
+destfile = input(f"Where do you want to save {filename}? (default: ./resources): ") or './resources'
 
 for download in milestones[selected_version]['downloads'][executable]:
     if download['platform'] == platform:
