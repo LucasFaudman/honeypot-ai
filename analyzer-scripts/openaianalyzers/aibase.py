@@ -8,7 +8,7 @@ from openai import OpenAI, OpenAIError
 import tiktoken
 
 from .tools import TOOLS
-OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+
 
 
 class OpenAIAnalyzerBase:
@@ -16,7 +16,7 @@ class OpenAIAnalyzerBase:
     def __init__(self,
                  db_path=Path("tests/aidb"),  
                  training_data_path=Path("openai-training-data"), 
-                 api_key=OPENAI_API_KEY, 
+                 api_key="OPENAI_API_KEY", 
                  model="gpt-4-1106-preview") -> None:
         
 

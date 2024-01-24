@@ -4,7 +4,7 @@ from pathlib import Path
 class MarkdownWriterBase:
     """Base class for writing markdown files."""
 
-    def __init__(self, filepath="test.md", mode="a+", md="", data_object=object):
+    def __init__(self, filepath="test.md", mode="a+", md="", data_object={}):
         
         self.filepath = Path(filepath)
         self.mode = mode
@@ -14,7 +14,7 @@ class MarkdownWriterBase:
         self.md_editors = []
         
 
-    def edit_md(self, md, data_object=object):
+    def edit_md(self, md, data_object):
         for editor in self.md_editors:
             md = editor(md, data_object)
         return md

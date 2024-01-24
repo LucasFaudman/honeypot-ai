@@ -6,12 +6,13 @@ from functools import partial
 
 
 
-class Attack(SmartAttrObject, CachedPropertyObject):
+class Attack(SmartAttrObject, CachedPropertyObject, PostprocessableObject):
     ATTACKS_PATH = Path("./attacks")
 
     def __init__(self, attack_id, attack_id_type, source_ip) -> None:
         SmartAttrObject.__init__(self)
         CachedPropertyObject.__init__(self)
+        PostprocessableObject.__init__(self)
 
         self.attack_id = attack_id
         self.attack_id_type = attack_id_type
@@ -29,18 +30,8 @@ class Attack(SmartAttrObject, CachedPropertyObject):
             session.httplog_hash: session.httplog for session in source_ip.sessions.values() if session.httplog
             }
 
-        self._malware = {malware.id: malware for malware in source_ip.all_malware}
-        # self._malware = {malware.id: malware for malware in source_ip.all_malware 
-        #                 if not malware.failed and not malware.is_duplicate}
-
-        self.standardized_malware = defaultdict(list)
-        for malware in self._malware.values():
-            self.standardized_malware[malware.standardized_hash].append(malware)
-
-
-        self.postprocessors = []
-
         
+        self._malware = {malware.id: malware for malware in source_ip.all_malware}        
         self.log_paths = {}
         self._log_counts = {}
         self.command_explanations = {}
@@ -90,6 +81,13 @@ class Attack(SmartAttrObject, CachedPropertyObject):
     @cachedproperty
     def malware(self):
         return list(self._malware.values())
+    
+    @cachedproperty
+    def standardized_malware(self):
+        self._standardized_malware = defaultdict(list)
+        for malware in self._malware.values():
+            self._standardized_malware[malware.standardized_hash].append(malware)
+        return self._standardized_malware
 
 
     @cachedproperty
@@ -283,46 +281,6 @@ class Attack(SmartAttrObject, CachedPropertyObject):
 
 
 
-    def add_postprocessor(self, postprocessor_obj):
-
-        # Add the attack to the postprocessor.attacks list so _all_ methods can access it
-        postprocessor_obj.attacks[self.attack_id] = self
-
-        # Add the postprocessor to the attack.postprocessors dict so it can be accessed by name
-        self.postprocessors.append(postprocessor_obj)
-        self._update_postprocessor_attrs()
-        return True
-
-
-    def _update_postprocessor_attrs(self):
-        # self.postprocessor_fns = {}
-        for postprocessor_obj in self.postprocessors:
-
-            for attr in set(dir(postprocessor_obj)) - set(dir(self)):
-
-                # Dont add private attributes
-                if attr.startswith("_"):
-                    continue
-
-                # If the postprocessor has a function with the same name as the attack, add it to the attack
-                # but rename it remove _attack_ for clarity and replace the function with a lambda that
-                # puts self as the first argument. For example:
-                # AttackLogReader.update_attack_log_paths(attack, *args, **kwargs) -> Attack.update_log_paths(self, *args, **kwargs)))
-
-                postprocesor_function = getattr(postprocessor_obj, attr)
-                if callable(postprocesor_function):
-                    if "_attack_" in attr:
-
-                        fn_name = attr.replace("_attack_", "_", )
-                        fn = partial(getattr(postprocessor_obj, attr), self)
-
-                        setattr(self, fn_name, fn)
-                        print(f"Added {fn} {fn_name} to {self.attack_id} from {postprocessor_obj}")
-        
-        return True
-    
-
-
     def update_ipdata(self, ipdata):
         self.ipdata = ipdata
 
@@ -336,7 +294,6 @@ class Attack(SmartAttrObject, CachedPropertyObject):
         self.standardized_malware_explanations.update(standardized_malware_explanations)
     
     
-
     def __repr__(self):
         return ''.join([
             f"Attack ({self.attack_id_type[0]}hash: {self.attack_id}), "

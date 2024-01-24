@@ -401,99 +401,158 @@ class IPAnalyzer(OSINTAnalyzerBase):
         return data
 
 
+    def reduce_isc(self, results):
+        """
+        Reduce isc results to only relevant fields to reduce tokens before passing to AI model.
+        Also renames fields to be more verbose to improve AI comprehension.
+        """
+        reduced_results = {}
+        reduced_results['total_reports'] = results.pop("count", None)
+        reduced_results['honeypots_targeted'] = results.pop("attacks", None)
+        reduced_results['firstseen'] = results.pop("mindate", None)
+        reduced_results['lastseen'] = results.pop("maxdate", None)
+        reduced_results['network'] = results.pop("network", None)
+        reduced_results['asname'] = results.pop("asname", None)
+        reduced_results['as_country_code'] = results.pop("ascountry")   , None 
+
+        weblogs = results.pop("weblogs", None)
+        if weblogs:
+            reduced_results['weblogs'] = weblogs
+
+        reduced_results['threatfeeds'] = results.pop("threatfeeds", None)
+        return reduced_results
     
 
-    def get_attack_data_for_ips(self, attack, ips, sources=SOURCES):
+    def reduce_cybergordon(self, results):
         """
-        TODO REFACTOR to base.get_reduced_data with self.reduce_<source> interface
+        Reduce cybergordon results to only relevant fields to reduce tokens before passing to AI model.
+        Also renames fields to be more verbose to improve AI comprehension.
+        """
+        reduced_results = {}
+        for priority in ["high", "medium"]:
+            for result in results[priority]:
+                reduced_results[result["engine"]] = result["result"]
+        return reduced_results
+    
 
-        Attack Postprocessor method used by AI assistant in _do_tool_call. 
-        Gets ipdata using get_data then reduces JSON structure to reduce tokens
-        before passing to AI. 
+    def reduce_shodan(self, results):
+        """
+        Reduce shodan results to only relevant fields to reduce tokens before passing to AI model.
+        Also renames fields to be more verbose to improve AI comprehension.
+        """
+        reduced_results = {}
+        for port, port_data in results.get("ports", {}).items():
+            if port_data["service_name"] != "unknown":
+                del port_data["service_data_raw"]
+
+            del port_data["service_data"]
+            del port_data["timestamp"]
+            del port_data['unix_epoch']
+            
+            reduced_results[f"port{port}"] = port_data
+        
+        return reduced_results
+    
+
+    def reduce_threatfox(self, results):
+        """
+        Reduce threatfox results to only relevant fields to reduce tokens before passing to AI model.
+        Also renames fields to be more verbose to improve AI comprehension.
         """
         
-        # Get ipdata for all ips and sources to be reduced and returned to AI
-        ipdata = self.get_data(args=ips, arg_type="ip", sources=sources, update_counts=False)
-        # Copy full ipdata before reducing to attach to attack object 
-        # full_ipdata = deepcopy(ipdata)
+        remove_keys = ["IOC ID", "UUID", "Reporter", "Reward", "Tags", "Reference"]
+        reduced_results = recursive_pop(results, remove_keys=remove_keys)
+        return reduced_results
 
-        for ip in ips:
-            for source in sources:
-
-                if ipdata[ip][source]['results']:
-                    #Only leave results and reduce nesting by one level
-                    ipdata[ip][source] = ipdata[ip][source]['results']
-
-                else:
-                    #Only leave error message
-                    ipdata[ip][source] = ipdata[ip][source].get('error')
-                    continue
-
-                if source == "isc":
-                    reduced_isc_data = {}
-                    reduced_isc_data['total_reports'] = ipdata[ip][source].pop("count", None)
-                    reduced_isc_data['honeypots_targeted'] = ipdata[ip][source].pop("attacks", None)
-                    reduced_isc_data['firstseen'] = ipdata[ip][source].pop("mindate", None)
-                    reduced_isc_data['lastseen'] = ipdata[ip][source].pop("maxdate", None)
-                    reduced_isc_data['network'] = ipdata[ip][source].pop("network", None)
-                    reduced_isc_data['asname'] = ipdata[ip][source].pop("asname", None)
-                    reduced_isc_data['as_country_code'] = ipdata[ip][source].pop("ascountry")   , None 
-
-                    weblogs = ipdata[ip][source].pop("weblogs", None)
-                    if weblogs:
-                        reduced_isc_data['weblogs'] = weblogs
-
-                    reduced_isc_data['threatfeeds'] = ipdata[ip][source].pop("threatfeeds", None)
-
-                    ipdata[ip][source] = reduced_isc_data
-
-
-
-                if source == 'cybergordon':
-                    reduced_cybergordon_data = {}
-                    for priority in ["high", "medium"]:
-                        for result in ipdata[ip][source][priority]:
-                            reduced_cybergordon_data[result["engine"]] = result["result"]
-                    
-                    ipdata[ip][source] = reduced_cybergordon_data
-
-                if source == "shodan":
-                    reduced_shodan_data = {}
-                    for port, port_data in ipdata[ip][source].get("ports", {}).items():
-                        if port_data["service_name"] != "unknown":
-                            del port_data["service_data_raw"]
-
-                        del port_data["service_data"]
-                        del port_data["timestamp"]
-                        del port_data['unix_epoch']
-                        
-                        ipdata[ip][source][f"port{port}"] = port_data
-                    
-                    ipdata[ip][source].pop("ports", None)
-
-                if source == "threatfox":
-                    reduced_threatfox_data = []
-                    for result in ipdata[ip][source]:
-                        result["ioc_data"].pop('IOC ID', None)
-                        result["ioc_data"].pop('UUID', None)
-                        result["ioc_data"].pop('Reporter', None)
-                        result["ioc_data"].pop('Reward', None)
-                        result["ioc_data"].pop('Tags', None)
-                        result["ioc_data"].pop('Reference', None)
-                        
-
-                        reduced_threatfox_data.append(result["ioc_data"])
-                    
-                    ipdata[ip][source] = reduced_threatfox_data
-
-
-        # if attack:
-        #     #attack.full_ipdata = full_ipdata
-        #     attack.reduced_ipdata = ipdata
-
-        return ipdata
 
 
         
-if __name__ == "__main__":
-    pass
+    # def get_attack_data_for_ips(self, attack, ips, sources=SOURCES):
+    #     """
+    #     TODO REFACTOR to base.get_reduced_data with self.reduce_<source> interface
+
+    #     Attack Postprocessor method used by AI assistant in _do_tool_call. 
+    #     Gets ipdata using get_data then reduces JSON structure to reduce tokens
+    #     before passing to AI. 
+    #     """
+        
+    #     # Get ipdata for all ips and sources to be reduced and returned to AI
+    #     ipdata = self.get_data(args=ips, arg_type="ip", sources=sources, update_counts=False)
+    #     # Copy full ipdata before reducing to attach to attack object 
+    #     # full_ipdata = deepcopy(ipdata)
+
+    #     for ip in ips:
+    #         for source in sources:
+
+    #             if ipdata[ip][source]['results']:
+    #                 #Only leave results and reduce nesting by one level
+    #                 ipdata[ip][source] = ipdata[ip][source]['results']
+
+    #             else:
+    #                 #Only leave error message
+    #                 ipdata[ip][source] = ipdata[ip][source].get('error')
+    #                 continue
+
+    #             if source == "isc":
+    #                 reduced_isc_data = {}
+    #                 reduced_isc_data['total_reports'] = ipdata[ip][source].pop("count", None)
+    #                 reduced_isc_data['honeypots_targeted'] = ipdata[ip][source].pop("attacks", None)
+    #                 reduced_isc_data['firstseen'] = ipdata[ip][source].pop("mindate", None)
+    #                 reduced_isc_data['lastseen'] = ipdata[ip][source].pop("maxdate", None)
+    #                 reduced_isc_data['network'] = ipdata[ip][source].pop("network", None)
+    #                 reduced_isc_data['asname'] = ipdata[ip][source].pop("asname", None)
+    #                 reduced_isc_data['as_country_code'] = ipdata[ip][source].pop("ascountry")   , None 
+
+    #                 weblogs = ipdata[ip][source].pop("weblogs", None)
+    #                 if weblogs:
+    #                     reduced_isc_data['weblogs'] = weblogs
+
+    #                 reduced_isc_data['threatfeeds'] = ipdata[ip][source].pop("threatfeeds", None)
+
+    #                 ipdata[ip][source] = reduced_isc_data
+
+
+
+    #             if source == 'cybergordon':
+    #                 reduced_cybergordon_data = {}
+    #                 for priority in ["high", "medium"]:
+    #                     for result in ipdata[ip][source][priority]:
+    #                         reduced_cybergordon_data[result["engine"]] = result["result"]
+                    
+    #                 ipdata[ip][source] = reduced_cybergordon_data
+
+    #             if source == "shodan":
+    #                 reduced_shodan_data = {}
+    #                 for port, port_data in ipdata[ip][source].get("ports", {}).items():
+    #                     if port_data["service_name"] != "unknown":
+    #                         del port_data["service_data_raw"]
+
+    #                     del port_data["service_data"]
+    #                     del port_data["timestamp"]
+    #                     del port_data['unix_epoch']
+                        
+    #                     ipdata[ip][source][f"port{port}"] = port_data
+                    
+    #                 ipdata[ip][source].pop("ports", None)
+
+    #             if source == "threatfox":
+    #                 reduced_threatfox_data = []
+    #                 for result in ipdata[ip][source]:
+    #                     result["ioc_data"].pop('IOC ID', None)
+    #                     result["ioc_data"].pop('UUID', None)
+    #                     result["ioc_data"].pop('Reporter', None)
+    #                     result["ioc_data"].pop('Reward', None)
+    #                     result["ioc_data"].pop('Tags', None)
+    #                     result["ioc_data"].pop('Reference', None)
+                        
+
+    #                     reduced_threatfox_data.append(result["ioc_data"])
+                    
+    #                 ipdata[ip][source] = reduced_threatfox_data
+
+
+    #     # if attack:
+    #     #     #attack.full_ipdata = full_ipdata
+    #     #     attack.reduced_ipdata = ipdata
+
+    #     return ipdata

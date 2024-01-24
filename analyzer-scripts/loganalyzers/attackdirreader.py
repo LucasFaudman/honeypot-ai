@@ -1,20 +1,14 @@
 from analyzerbase import *
-# from .logparser import CowrieParser
 
 
 class AttackDirReader:
     """Reads and counts logs from attack directory"""
 
-    #log_types = ("cowrie", "firewall", "zeek", "web")
-
     def __init__(self, 
-                 #parser: CowrieParser, 
-                 #attacks_path=test_attacks_path, 
                  attacks={},
                  log_types=("cowrie", "firewall", "zeek", "web")
                  ):        
-        # self.parser = parser
-        #self.attacks_path = Path(attacks_path)
+
         self.attacks = attacks
         self.log_types = log_types
         self.log_paths = defaultdict(lambda: defaultdict(list))

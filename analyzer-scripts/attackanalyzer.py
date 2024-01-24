@@ -6,7 +6,7 @@ from loganalyzers.attackdirreader import AttackDirReader
 
 from osintanalyzers.ipanalyzer import IPAnalyzer
 from osintanalyzers.malwareanalyzer import MalwareAnalyzer
-from openaianalyzers.openaianalyzer import OpenAIAnalyzer, OPENAI_API_KEY
+from openaianalyzers.openaianalyzer import OpenAIAnalyzer
 
 
 
@@ -60,7 +60,8 @@ class AttackAnalyzer:
                  attack_dir_reader: AttackDirReader, 
                  ip_analyzer: Union[IPAnalyzer, None]=None,
                  malware_analyzer: Union[MalwareAnalyzer, None]=None, 
-                 openai_analyzer: Union[OpenAIAnalyzer, None]=None
+                 openai_analyzer: Union[OpenAIAnalyzer, None]=None,
+                 allow_fetch_failed_malware: bool=True
                  ):
         
         self.attacks = attacks
@@ -68,6 +69,7 @@ class AttackAnalyzer:
         self.ip_analyzer = ip_analyzer
         self.malware_analyzer = malware_analyzer
         self.openai_analyzer = openai_analyzer
+        self.allow_fetch_failed_malware = allow_fetch_failed_malware
 
 
     def analyze_attacks(self):
@@ -87,6 +89,11 @@ class AttackAnalyzer:
             print("Getting mwdata.")
             mwdata = self.get_all_mwdata()
             print(f"Done getting mwdata. \nMW data: {mwdata}")
+            if self.allow_fetch_failed_malware:
+                print("Fetching failed malware.")
+                failed_malware = self.fetch_all_failed_malware()
+                print(f"Done fetching failed malware. \nFailed malware: {failed_malware}")
+
 
         if self.openai_analyzer:        
             print("Getting command explanations.")
@@ -134,7 +141,7 @@ class AttackAnalyzer:
         
         ipdata = {}
         for attack in attacks.values():
-            attack.add_postprocessor(self.ip_analyzer)
+            # attack.add_postprocessor(self.ip_analyzer)
             attack_ipdata = self.ip_analyzer.get_data(attack.uniq_ips)
             
             attack.update_ipdata(attack_ipdata)
@@ -144,7 +151,7 @@ class AttackAnalyzer:
         
         return ipdata
     
-
+    
     def get_all_mwdata(self, attacks=None):
         attacks = attacks or self.attacks
 
@@ -186,7 +193,6 @@ class AttackAnalyzer:
 
         return mwdata
     
-
     
 
     def get_all_command_explanations(self, attacks=None):
@@ -264,7 +270,7 @@ class AttackAnalyzer:
             
 
 
-            question_run_logs = self.openai_analyzer.ass_answer_questions(questions, attack)
+            question_run_logs = self.openai_analyzer.answer_attack_questions(questions, attack)
             attack.questions = questions
             for question_key, question_run_log in question_run_logs.items():
                 attack.question_run_logs[question_key] = question_run_log
@@ -275,7 +281,38 @@ class AttackAnalyzer:
         return assistant_answers
             
             
+    def fetch_all_failed_malware(self, attacks=None):
+        attacks = attacks or self.attacks
 
+        if not self.malware_analyzer:
+            raise MissingAnalyzerError("MalwareAnalyzer not initialized can't get malware.")
+        
+        
+        failed_malware = {}
+        for attack in attacks.values():
+            if attack._malware:
+                for malware_id, malware_obj in list(attack._malware.items()):
+                    if malware_obj.failed and malware_obj.source_address:
+                        mw_bytes = self.malware_analyzer.get_urlhaus_download(malware_obj.source_address)
+                        if not mw_bytes:
+                            continue
+                        
+                        mw_hash = sha256hex(mw_bytes)
+                        mw_file = attack.attack_dir / f"malware/downloads/{mw_hash}"
+                        with mw_file.open('wb+') as f:
+                            f.write(mw_bytes)
+                        
+                        malware_obj.filepath = mw_file
+                        malware_obj.id = mw_hash
+                        malware_obj.shasum = mw_hash
+                        malware_obj.failed = False
+                        attack._malware[mw_hash] = attack._malware.pop(malware_id)
+                        
+                        failed_malware[mw_hash] = malware_obj
+                        print(f"Successfully fetched failed malware {mw_hash} for attack {attack.attack_id} from {malware_obj.source_address}")
+                        
+        
+        return failed_malware
 
     
 

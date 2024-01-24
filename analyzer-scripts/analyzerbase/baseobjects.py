@@ -49,7 +49,7 @@ class SmartAttrObject(object):
         self._smart_attr_access_enabled = False
 
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr) -> Any:
         """Modifys value of attr before returning based <modifier>_addr while _smart_attr_access_enabled = True. See class docstring for more info"""
         # Return the attribute normally if smart attribute access is disabled
         if not super().__getattribute__('_smart_attr_access_enabled'):

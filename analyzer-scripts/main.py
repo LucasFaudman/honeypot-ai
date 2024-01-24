@@ -9,10 +9,12 @@ from osintanalyzers.ipanalyzer import IPAnalyzer
 from osintanalyzers.malwareanalyzer import MalwareAnalyzer
 from openaianalyzers.openaianalyzer import OpenAIAnalyzer
 
-from markdownwriters.markdownwriter import MarkdownWriter
+from markdownwriters.markdownwriter import ReportMarkdownWriter, RunStepsMarkdownWriter, DocsMarkdownWriter
 
+from shutil import copytree, rmtree
 import argparse
 import code
+
 
 DEFAULT_CONFIG = {
     # Sort settings
@@ -61,6 +63,7 @@ DEFAULT_CONFIG = {
 
     # OpenAI Settings
     "USE_OPENAI": True, # Whether or not to run the OpenAIAnalyzer
+    "USE_OPENAI_CODE_INTERPRETER": True, # Whether or not to use the OpenAI Code Interpreter
     "OPENAI_API_KEY": "<PASTE YOUR API KEY HERE>", # OpenAI API Key (Get from https://platform.openai.com/api-keys)
     "OPENAI_MODEL": "gpt-4-1106-preview", # OpenAI Model to use (Get from https://platform.openai.com/docs/models)
     "OPENAI_TRAINING_DATA_PATH": "./resources/openai-training-data", # Path to the openai-training-data directory
@@ -76,6 +79,7 @@ DEFAULT_CONFIG = {
     "USE_MALWAREANALYZER": True, # Whether or not to run the MalwareAnalyzer
     "MALWAREANALYZER_SOURCES": [ "exploitdb", "malpedia", "malwarebazaar", "threatfox", "urlhaus" ], # Sources to use for the MalwareAnalyzer
     "MALWAREANALYZER_MAX_ERRORS": 5, # Maximum number of errors allowed before a source is skipped
+    "MALWAREANALYZER_ALLOW_DOWNLOADS": False, # Weather or not to malware analyzer to attempt to download failed malware samples from Urlhaus
 
     # User and Honeypot Environment Settings
     "USER_IPS": [], #IPs that belong to the user to be excluded from analysis
@@ -104,6 +108,7 @@ DEFAULT_CONFIG = {
     "IPDB_PATH": "./db/ipdb", # Path to the ipdb directory where IP data will be stored and loaded from (Should be a subdirectory of DB_PATH)
     "MWDB_PATH": "./db/mwdb", # Path to the mwdb directory where Malware data will be stored and loaded from (Should be a subdirectory of DB_PATH)
     "AIDB_PATH": "./db/aidb", # Path to the aidb directory where OpenAI data will be stored and loaded from (Should be a subdirectory of DB_PATH)
+    "REPORTS_PATH": "./reports", # Path to the reports directory where attack markdown reports and files will be exported too
 
     # Resource Paths
     # "RESOURCES_PATH": "./resources", # Path to the resources directory
@@ -145,6 +150,7 @@ ARG_DESCRIPTIONS = {
 
     # OpenAI Settings
     "USE_OPENAI": "Whether or not to run the OpenAIAnalyzer",
+    "USE_OPENAI_CODE_INTERPRETER": "Whether or not to use the OpenAI Code Interpreter",
     "OPENAI_API_KEY": "OpenAI API Key (Get from https://platform.openai.com/api-keys)",
     "OPENAI_MODEL": "OpenAI Model to use (Get from https://platform.openai.com/docs/models)",
     "OPENAI_TRAINING_DATA_PATH": "Path to the openai-training-data directory",
@@ -160,7 +166,8 @@ ARG_DESCRIPTIONS = {
     "USE_MALWAREANALYZER": "Whether or not to run the MalwareAnalyzer",
     "MALWAREANALYZER_SOURCES": "Sources to use for the MalwareAnalyzer",
     "MALWAREANALYZER_MAX_ERRORS": "Maximum number of errors allowed before a source is skipped",
-    
+    "MALWAREANALYZER_ALLOW_DOWNLOADS": "Weather or not to malware analyzer to attempt to download failed malware samples from Urlhaus",
+
     # User and Honeypot Environment Settings    
     "USER_IPS": "IPs that belong to the user to be excluded from analysis",
     "HONEYPOT_INTERNAL_IPS": "Interal IPs of the honeypot system(s) to inform AI for more accurate analysis",
@@ -183,6 +190,7 @@ ARG_DESCRIPTIONS = {
     "IPDB_PATH": "Path to the ipdb directory where IP data will be stored and loaded from (Should be a subdirectory of DB_PATH)",
     "MWDB_PATH": "Path to the mwdb directory where Malware data will be stored and loaded from (Should be a subdirectory of DB_PATH)",
     "AIDB_PATH": "Path to the aidb directory where OpenAI data will be stored and loaded from (Should be a subdirectory of DB_PATH)",
+    "REPORTS_PATH": "Path to the reports directory where attack markdown reports and files will be exported too",
 
     # Resource Paths
     "RESOURCES_PATH": "Path to the resources directory",
@@ -206,9 +214,7 @@ ARG_GROUP_DESCRIPTIONS = {
     #"Resource Paths": "Paths to resources",
 }
 
-def main(test_args=None):
-    print("Starting honeypot-ai...\n")
-
+def config_arg_parser():
     parser = argparse.ArgumentParser(description='honeypot-ai: Honeypot Log Analyzer Built on OpenAI')
     
     # Create argument groups for each section of arguments
@@ -222,7 +228,8 @@ def main(test_args=None):
     groups['Actions'].add_argument('--print-attrs', '--print', '-P', metavar='ATTACK_ATTRS', type=str, nargs='+', action='extend', help='Print specified attributes of loaded attacks')
     groups['Actions'].add_argument('--organize-attacks', '--organize', '-O', action='store_true', help='Organize attacks into attack directories')
     groups['Actions'].add_argument('--analyze-attacks', '--analyze', '-A', action='store_true', help='Analyze loaded attacks with OpenAI and OSINT Analyzers')
-    groups['Actions'].add_argument('--write-markdown', '--write', '-W', action='store_true', help='Write markdown reports for analyzed attacks')
+    groups['Actions'].add_argument('--write-reports', '--write', '-W', action='store_true', help='Write markdown reports for analyzed attacks')
+    groups["Actions"].add_argument('--export-reports', '--export', '-E', action='store_true', help='Export attack report and files to REPORTS_PATH')
     groups["Actions"].add_argument('--interactive', '--interact', '-I', action='store_true', help='Enter interactive mode after loading attacks (python shell with loaded attacks in the "ATTACKS" variable)')
 
     groups['Config File'].add_argument('--config', '-c', metavar="FILE", type=str, default='config.json', help='Path to config file')
@@ -270,10 +277,7 @@ def main(test_args=None):
 
         # Dict of kwargs for argparse .add_argument method
         add_argument_kwargs = {
-            #"dest": key,
-            #"default": value,
             "type": type(value),
-            #"metavar": ARG_METAVARS.get(key, None),
             "help": f"{ARG_DESCRIPTIONS[key]} (default: {value})",
             "required": False,
         }
@@ -286,14 +290,25 @@ def main(test_args=None):
 
         if isinstance(value, bool):
             add_argument_kwargs["action"] = argparse.BooleanOptionalAction
-
+            add_argument_kwargs["default"] = value
 
         # Add argument to parser via groups[group_name] or to parser if not in a group
         groups.get(group_name, parser).add_argument(*arg_names, **add_argument_kwargs)
 
+    return parser
+
+
+def main(test_args=None):
+    print("Starting honeypot-ai...\n")
+
+    parser = config_arg_parser()
     # Parse args
-    args = parser.parse_args(args=test_args)
-    #args = parser.parse_args()
+    if test_args:
+        args = parser.parse_args(args=test_args)
+    else:
+        args = parser.parse_args()
+    
+    
 
     # Set initial config to copy of default config
     config = DEFAULT_CONFIG.copy()
@@ -500,11 +515,12 @@ def main(test_args=None):
                 "external_ips": config["HONEYPOT_EXTERNAL_IPS"],
                 "ports": dict(zip(config["HONEYPOT_PORTS"], config["HONEYPOT_SOFTWARE"])),
             },
+            use_code_interpreter=config["USE_OPENAI_CODE_INTERPRETER"],
         )
 
 
-    # Setup AttackAnalyzer if --analyze-attacks or --write-markdown flags are True
-    if args.analyze_attacks or args.write_markdown:
+    # Setup AttackAnalyzer if --analyze-attacks or --write-reports flags are True
+    if args.analyze_attacks or args.write_reports:
         ATTACK_DIR_READER = AttackDirReader(
             attacks=ATTACKS, 
             log_types=config["LOG_TYPES"]
@@ -516,6 +532,7 @@ def main(test_args=None):
             ip_analyzer=IP_ANALYZER, 
             malware_analyzer=MALWARE_ANALYZER,
             openai_analyzer=OPENAI_ANALYZER,
+            allow_fetch_failed_malware=config["MALWAREANALYZER_ALLOW_DOWNLOADS"],
         )    
 
         # Analyze Attacks if --analyze-attacks flag is set using AttackAnalyzer
@@ -523,16 +540,37 @@ def main(test_args=None):
             ATTACKS = ATTACK_ANALYZER.analyze_attacks()
     
         # Write markdown reports for analyzed attacks if --write-markdown flag is set
-        if args.write_markdown:
+        if args.write_reports:
             for attack in ATTACKS.values():
-                MARKDOWN_WRITER = MarkdownWriter(
-                    filepath=attack.attack_dir / "report.md",
+                report_filepath = attack.attack_dir / "README.md"
+                print(f"Writing markdown report for attack {attack.attack_id} to {report_filepath}")
+                REPORT_MARKDOWN_WRITER = ReportMarkdownWriter(
+                    filepath=report_filepath,
                     mode="w+",
                     data_object=attack,
                 )
-                MARKDOWN_WRITER.update_md()
+                REPORT_MARKDOWN_WRITER.update_md()
 
-    
+                run_steps_filepath = attack.attack_dir / "run_steps.md"
+                print(f"Writing markdown run steps for attack {attack.attack_id} to {run_steps_filepath}")
+                RUN_STEPS_MARKDOWN_WRITER = RunStepsMarkdownWriter(
+                    filepath=run_steps_filepath,
+                    mode="w+",
+                    data_object=attack,
+                )
+                RUN_STEPS_MARKDOWN_WRITER.update_md()
+
+                print(f"Finished writing markdown report for attack {attack.attack_id} to {report_filepath}")
+
+                # Export attack report and files to REPORTS_PATH if --export-reports flag is set
+                if args.export_reports:
+                    print(f"Exporting attack report and files for attack {attack.attack_id} to {config['REPORTS_PATH']}")
+                    export_dir = config["REPORTS_PATH"] / attack.answers['title']
+                    copytree(attack.attack_dir, export_dir,  dirs_exist_ok=True)
+                    print(f"Finished exporting attack report and files for attack {attack.attack_id} to {config['REPORTS_PATH']}")
+
+
+
     # Print specified attributes of attacks if --print-attrs flag is set. 
     # Called after analyze_attacks so that the attributes are updated before printing
     if args.print_attrs:
@@ -562,17 +600,27 @@ if __name__ == "__main__":
 
 # """
 #     more_args = [
-#         "-h"
+#         "-h" 8a57f997513e762dec5cd58a2de822cdf3d2c7ef6372da6c5be01311e96e8358
 #     ]     --only-attacks 8a57f997513e762dec5cd58a2de822cdf3d2c7ef6372da6c5be01311e96e8358 7b7dc9dd5e34bfc3aa1b8f8b07b0bb2a3405203656ae072f61a98894cc5a0794 
-
+# 3b2fd2547b16ad137ecff842cf9880ce744a99d9b9059c66caaa28c5846c57a6 f03b5186bfc5f66608e1505f2a7f386900f54ebb810d7e8f3ac644bcb811bbed
 #   
     test_args = """
-    --attacks-path attacks/
-    
-    -lLP first_uniq_split_commands
-    -O
+    --attacks-path attacks/ 
+    --only-attacks  3b2fd2547b16ad137ecff842cf9880ce744a99d9b9059c66caaa28c5846c57a6
+    -auLP commands malware
     """
-    main(test_args=test_args.strip().split())
+
+    #test_args = ""
+    #main(test_args=test_args.strip().split())
+    writer = DocsMarkdownWriter(
+        filepath="README.md", 
+        mode="w+", 
+        data_object = {
+            "config_parser": config_arg_parser(),
+            "default_config": pprint_str(DEFAULT_CONFIG, sort_dicts=False),
+        }
+    )
+    writer.update_md()
     
 
 

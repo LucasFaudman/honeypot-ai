@@ -1,5 +1,4 @@
 from analyzerbase import *
-from markdownwriters.markdownwriterbase import *
 
 from .markdownwriterbase import *
 from .visualizer import CounterGrapher
@@ -10,12 +9,11 @@ class AttackMarkdownWriter(MarkdownWriterBase):
 
     def prepare(self):
         attack = self.data_object
-        #self.md += h1(f"Attack: {attack.attack_id}")
         self.md += h1(attack.answers.get("title", f"Attack: {attack.attack_id}"))
 
         self.md_editors.append(self.add_attack_summary)
 
-        self.md_editors.append(self.add_custom_scripts)
+
         self.md_editors.append(self.add_time_and_date)
         self.md_editors.append(self.add_relevant_logs)
 
@@ -239,11 +237,9 @@ class AttackMarkdownWriter(MarkdownWriterBase):
         return md
 
     def add_ssh_analysis(self, md, attack: Attack):
-        # TODO FIX THIS MAKE CLEANER
         if not attack.ssh_sessions or not attack.telnet_sessions:
             return md
 
-        #ssh_md = ""  # h2("SSH Analysis")
         n = 10
 
         pairs = {"Username": "usernames",
@@ -304,88 +300,6 @@ class AttackMarkdownWriter(MarkdownWriterBase):
         return md
 
 
-
-    def script_link(self, script):
-        return link(script.split("/")[-1], f"https://github.com/LucasFaudman/honeypot-ai/blob/main/analyzer-scripts/{script}")
-
-
-
-    def add_custom_scripts(self, md, attack: Attack):
-        scripts = {
-            "main.py": {
-                "description":"Main script for running all analyzers through AttackAnalyzer inteface. (IN PROGRESS)",
-            },
-            "runtests.py": {
-                "description": "Script for running tests from the tests directory",
-            },
-            "analyzerbase":{
-                "description" : "Base classes, utility functions, libraries, and constants for all analyzer modules",
-                "attack.py" : "Attack object for storing all data related to a single attack. Constructed by the loganalyzer scripts then processed by openaianlyzers and ipanalyzers before being passed to markdownwriters",
-                "common.py" : "Imports and constants used by all analyzer modules",
-                "malware.py": "Malware object for storing, standardizing and reading a malware sample. Constructed by its parent Session object and accessed by its Attack object",                
-                "session.py": "Session object for storing all data related to a single session. Constructed by its parent SourceIP object and accessed by its parent Attack object",
-                "sourceip.py": "SourceIP object for storing all data related to a single source IP. Constructed by the loganalyzer scripts and accessed by its Attack object",
-                "util.py": "Utility functions for all analyzer modules including functions for extracting IPs and URLs from text, standardizing malware, and hashing text",
-            },
-            "loganalyzers":{
-                "description" : "Scripts for analyzing logs to create Attack objects, organizing and read Attack files",
-                "logparser.py": "Classes for reading all logs as json objects with standardized keys",
-                "cowrieloganalyzer.py": "Reads Cowrie logs to create and merge Attack objects",
-                "webloganalyzer.py": "Reads Web logs to create and merge Attack objects (IN PROGRESS)",
-                "attackdirorganizer.py": "Organizes Attack files into directories by source IP and attack ID for easy reading and quicker loading",
-                "attackdirreader.py": "Reads Attack files from directories organized by attackdirorganizer",
-            },
-            "openaianalyzers":{
-                "description" : "Scripts for analyzing Attack objects using OpenAI's Completion and Assistant APIs",
-                "aibase.py": "Base class used by all OpenAI analyzers that handles catching API errors, formating content for the API, and counting tokens to calculate cost",
-                "completions.py": "OpenAICompletionsAnalyzer uses the the Completions API with few-shot-prompting to explain commands and comment malware source code",
-                "assistant.py": "OpenAIAssistantAnalyzer uses the Assistant API with function-calling to query an Attack object to answer questions about the attack",
-                "tools.py": "Function schemas used by the OpenAIAssistantAnalyzer to structure how the model can iterogate the Attack object and its Session and Malware subobjects",
-            },
-            "osintanalyzers":{
-                "description" : "Scripts for collecting OSINT data for IPs, URLS and Malware found in the Attack object",
-                "osintbase.py": "Base class for all OSINT analyzers that uses requests and SoupScraper to collect data handles catching API errors, reading/writing stored data, and reducing data for before passing to OpenAIAnalyzer",
-                "ipanalyzer.py": "IPAnalyzer handles collecting data on IPs from ISC, Shodan, Threatfox, Cybergordon, Whois",
-                "mwanalyzer.py": "MalwareAnalyzer handles collecting data on malware and IOCs from MalwareBazaar, ThreatFox, URLhaus, and Malpedia, ",
-                "soupscraper.py": "SoupScraper an all in one class for simple scraping with BeautifulSoup + Selenium I borrowed from my previous projects",
-                "getchromedrier.py": "Utility script to download correct chromedriver for Selenium",
-            },
-            "markdownwriters":{
-                "description" : "Scripts for writing markdown files from Attack objects",
-                "markdownwriterbase.py": "Base class for all markdown writers and markdown shortcut functions",
-                "cowrieattackmarkdownwriter.py": "Markdown writer for Cowrie Attack objects (TODO abstract this to be AttackMarkdownWriter so it can be used for all future Attack objects types, Cowrie, Web, etc.)",
-                "ipmarkdownwriter.py": "Markdown writer for ipdata added to Attack objects by IPAnalyzer",
-                "visualizer.py": "Graphing functions for visualizing data from Counter objects from Attack().counts and osint_data['counts']",
-            },
-            "tests":{
-                "description" : "Tests for all analyzer modules",
-                "test_analyzerbase.py": "Tests for analyzerbase",
-                "test_loganalyzers.py": "Tests for loganalyzers",
-                "test_openaianalyzers.py": "Tests for openaianalyzers",
-                "test_osintanalyzers.py": "Tests for osintanalyzers",
-                "test_markdownwriter.py": "Tests for markdownwriter",
-            },
-        }
-
-        script_md = ""
-
-        for module, module_dict in scripts.items():
-            module_md = h4(self.script_link(module))
-            module_md += blockquote(module_dict.pop("description"))
-            
-            if module_dict:
-                module_md += table(["Script", "Description"], [[self.script_link(
-                    module + "/" + script), description] for script, description in module_dict.items()])
-            
-            script_md += module_md
-        
-        
-        md += collapseable_section(script_md,
-                                   "Custom Scripts Used To Generate This Report", 1)
-
-
-        return md
-
     def command_analysis(self, attack: Attack):
         commands = attack.commands
         split_commands = attack.split_commands
@@ -415,6 +329,7 @@ class AttackMarkdownWriter(MarkdownWriterBase):
                                    "Commands Explained", 2) + "\n"
 
         return md
+
 
     def malware_analysis(self, attack: Attack):
         malware = attack.malware
@@ -467,6 +382,7 @@ class AttackMarkdownWriter(MarkdownWriterBase):
 
         return md
 
+
     def http_analysis(self, attack: Attack):
         md = h1("HTTP Sessions Analysis")
         md += '\n' + attack.answers.get("http_sessions", "") + "\n"
@@ -516,3 +432,50 @@ class AttackMarkdownWriter(MarkdownWriterBase):
             md += attack.answers[key] + "\n"
 
         return md
+
+
+
+class RunStepsMarkdownWriter(MarkdownWriterBase):
+     
+    def prepare(self):
+        attack = self.data_object
+        self.md += h1("Run Steps: " + attack.answers.get("title", f"Attack: {attack.attack_id}").strip('"'))
+        self.md_editors.append(self.add_question_run_logs)
+
+    
+    def add_question_run_logs(self, md, attack: Attack):
+        question_run_logs = attack.question_run_logs    
+
+        for n, run_log in enumerate(question_run_logs.values()):
+            if n == 0:
+                md += f"{bold('Assistant ID:')} {code(run_log['ass_id'])}\n\n"
+                md += f"{bold('Thread ID:')} {code(run_log['thread_id'])}\n\n"
+                md += collapseable_section(blockquote(code(run_log["system_prompt"])), "System Prompt", 3)
+
+            md += self.make_question_run_log_md(run_log)
+        
+        
+        return md
+    
+    def make_question_run_log_md(self, run_log):
+
+        question_md = h2(f"Prompt: {run_log['content']}") + '\n'
+        question_md += f"{bold('Run ID:')} {code(run_log['run_id'])}\n"
+               
+        tool_call_steps = [step for step in run_log["run_steps"]["data"] if step.get('type') == 'tool_calls'] 
+        if tool_call_steps:
+            question_md += h3("Funciton Calls")
+            for step in tool_call_steps:
+                question_md += f"{bold('Step ID:')} {code(step['id'])}\n"
+
+                for tool_call in step["step_details"]["tool_calls"]:
+                    question_md += f"\n{bold('Function called:')} {code(tool_call['function']['name'])}\n"
+                    arguments = json.loads(tool_call["function"]["arguments"])
+                    output = json.loads(tool_call["function"]["output"])
+                    question_md += table(["Argument", "Value"], [(code(arg), code(value)) for arg, value in arguments.items()])
+                    question_md += table(["Output", "Value"], [(code(arg), code(value)) for arg, value in output.items()])
+                    question_md += "\n"
+    
+        question_md += collapseable_section(run_log["answer"], "Answer", 3)
+
+        return question_md

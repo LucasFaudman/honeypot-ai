@@ -1,4 +1,3 @@
-from .aibase import OPENAI_API_KEY
 from .completions import OpenAICompletionsAnalyzer
 from .assistant import OpenAIAssistantAnalyzer
 

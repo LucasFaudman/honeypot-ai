@@ -19,7 +19,7 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
     def __init__(self, 
                  db_path=Path("tests/aidb"), 
                  training_data_path=Path("openai-training-data"), 
-                 api_key=OPENAI_API_KEY, 
+                 api_key="<OPENAI_API_KEY>", 
                  model="gpt-4-1106-preview",
                  ip_analyzer: Union[IPAnalyzer, None]=None,
                  malwareanalyzer: Union[MalwareAnalyzer, None]=None,
@@ -28,6 +28,7 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
                     "external_ips": [],
                     "ports": {},
                  },
+                 use_code_interpreter=False,
                  ) -> None:
         super().__init__(db_path, training_data_path, api_key, model)
         # Make dir to store data for assistants    
@@ -46,8 +47,10 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         # To handle tool calls (See _do_tool_call and tools.py)
         self.ip_analyzer = ip_analyzer
         self.malwareanalyzer = malwareanalyzer
+
+        # To update system_prompt/instructions and tools
         self.honeypot_details = honeypot_details
-    
+        self.use_code_interpreter = use_code_interpreter
     
     def create_assistant(self, **kwargs):
         """Creates an assistant and stores it in ai_assistants dict and ai_assistants_dir/assistant_ids.txt"""
@@ -238,16 +241,16 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
             }
 
         # Sets tool_output to reduced ipdata from sources in arguments["sources"] for each ip in arguments["ips"] 
-        elif tool_name == "query_ip_data":
+        elif tool_name == "query_ip_data" and self.ip_analyzer:
             # Uses IPAnalyzer to get data for ips from sources
-            tool_output = self.ip_analyzer.get_attack_data_for_ips(
-                attack,
+            tool_output = self.ip_analyzer.get_reduced_data(
                 arguments["ips"],
+                "ip",
                 arguments["sources"]
             )
-        
+            
         # Sets tool_output to reduced iocdata from sources in arguments["sources"] for each ioc in arguments["iocs"]
-        elif tool_name == "query_ioc_data":
+        elif tool_name == "query_ioc_data" and self.malwareanalyzer:
             # Uses MalwareAnalyzer to get data for iocs from sources
             tool_output = self.malwareanalyzer.get_reduced_data(
                 arguments["iocs"],
@@ -256,7 +259,7 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
             )
 
         # Sets tool_output Malpedia result for malware with malpedia_name 
-        elif tool_name == "query_malpedia":
+        elif tool_name == "query_malpedia" and self.malwareanalyzer:
             # Uses MalwareAnalyzer to get Malpedia data for malware with malpedia_name
             tool_output = self.malwareanalyzer.get_reduced_data(
                 [arguments.get("malpedia_name", arguments.get("malware_name", "error")), ],
@@ -265,7 +268,7 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
             )
 
         # Sets tool_output to ExploitDB search result for search_text
-        elif tool_name == "search_exploitdb":
+        elif tool_name == "search_exploitdb" and self.malwareanalyzer:
             # Uses MalwareAnalyzer to get ExploitDB results for search_text
             tool_output = self.malwareanalyzer.get_reduced_data(
                 args=[arguments.get("search_text", arguments.get("text", "error")), ],
@@ -274,7 +277,7 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
             )
 
         # Sets tool_output to ExploitDB exploit result for exploit_id
-        elif tool_name == "get_exploitdb_exploit":
+        elif tool_name == "get_exploitdb_exploit" and self.malwareanalyzer:
             # Uses MalwareAnalyzer to get ExploitDB exploit for exploit_id
             tool_output = self.malwareanalyzer.get_reduced_data(
                 args=[arguments.get("exploit_id", arguments.get("id", "error")), ],
@@ -353,10 +356,30 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
             else:
                 raise e # Raise the RunStatusError if no more retries 
 
+
+    def read_or_init_attack_assistant(self):
+        ass_id_file = self.ai_assistants_dir / "assistant_ids.txt"
+        if ass_id_file.exists():
+            with ass_id_file.open("r") as f:
+                ass_id = f.readline().strip()
+        else:
+            ass_id = self.create_assistant()
         
+        return ass_id
 
+    def read_or_init_attack_thread(self, attack_questions_dir):
+        attack_thread_id_file = attack_questions_dir / "thread_id.txt"
+        if attack_thread_id_file.exists():
+            with attack_thread_id_file.open("r") as f:
+                thread_id = f.readline().strip()
+        else:
+            thread_id = self.create_thread().id
+            with attack_thread_id_file.open("a+") as f:
+                f.write(thread_id + '\n')
+        
+        return thread_id
 
-    def ass_answer_questions(self, questions, attack: Attack, code_interpreter=True):
+    def answer_attack_questions(self, questions, attack: Attack):
         
         system_prompt = ''.join([
         "Your role is to answer questions about an attack on a Linux honeypot. "
@@ -374,17 +397,17 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         "IMPORTANT: When using get_attack_attrs use the uniq_<attr> modifier first "
         "and only get all values if necessary after analyzing the unique values. "
         "For context that the honeypot system has the following open ports: ",
-        ''.join(f'Port {port}: {software} ' for port, software in self.honeypot_details["ports"].items() if port in attack.uniq_dst_ips),
+        ''.join(f'Port {port}: {software} ' for port, software in self.honeypot_details["ports"].items() if port in attack.uniq_dst_ports),
         f" Its internal IP address is: {','.join(self.honeypot_details['internal_ips'])} "
-        f"and its external IP address is: {self.honeypot_details['external_ips']}. "
+        f"and its external IP address is: {','.join(self.honeypot_details['external_ips'])}. "
         ])
 
 
         # Function schemas for Assistant tool_calls. See tools.py
         tools = list(TOOLS)
 
-        # Add code_interpreter tool if code_interpreter is True
-        if code_interpreter:
+        # Add code_interpreter tool if use_code_interpreter is True.
+        if self.use_code_interpreter:
             tools.append({"type": "code_interpreter"})
             system_prompt += ''.join([
             "Use the code_interpreter tool to enhance your analysis. ",
@@ -394,22 +417,21 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
             ])
 
 
-        #TODO dynamically load assitant and thread ids for Attacks
-        ass_id = "asst_R5O9vhLKONwNlqmmxbMYugLo"
-        thread_id = None
-
         # Make a dir to store answers to questions for Attack
         attack_questions_dir = self.ai_assistants_dir / attack.attack_id
         attack_questions_dir.mkdir(exist_ok=True)
 
+        
+        ass_id = self.read_or_init_attack_assistant()
+        thread_id = self.read_or_init_attack_thread(attack_questions_dir)
 
-        question_run_logs = {}        
+        question_run_logs = {}
         # Iter through questions and get answer for each question
         for question_key, question in questions.items():
 
             # Filename for saving answer is hash of question concat with attack_id
             #question_answer_file = attack_questions_dir / (sha256hex(question + attack.attack_id) + '.json')
-            question_answer_file = attack_questions_dir / question_key + '.json'
+            question_answer_file = attack_questions_dir / (question_key + '.json')
             
 
             # Use stored answer if answer file exists

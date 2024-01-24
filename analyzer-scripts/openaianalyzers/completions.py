@@ -7,10 +7,11 @@ class OpenAICompletionsAnalyzer(OpenAIAnalyzerBase):
     def openai_get_completion(self, messages=[], n=1, **kwargs):
         message_hash = sha256hex(str(messages))
 
-        tokens, cost = self.num_tokens_from_messages(messages)
-        proceed = input(f"Cost of {message_hash} is: {tokens} tokens ${cost} USD at $.01 per 1K tokens\n Proceed? (y/n):")
-        if proceed.lower() not in ("y", "yes"):
-            return (None, None)
+        # TODO add cost calculation back in
+        # tokens, cost = self.num_tokens_from_messages(messages)
+        # proceed = input(f"Cost of {message_hash} is: {tokens} tokens ${cost} USD at $.01 per 1K tokens\n Proceed? (y/n):")
+        # if proceed.lower() not in ("y", "yes"):
+        #     return (None, None)
 
         print(f"Getting OpenAI resp for message_hash {message_hash}")
         response, result = self._try_openai(
