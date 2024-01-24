@@ -1,10 +1,5 @@
 from analyzerbase import *
 from markdownwriters.markdownwriterbase import *
-
-
-from osintanalyzers.ipanalyzer import IPAnalyzer
-from openaianalyzers.openaianalyzer import OpenAIAnalyzer
-
 from .visualizer import CounterGrapher
 
 

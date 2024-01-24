@@ -20,15 +20,12 @@ class IPAnalyzer(OSINTAnalyzerBase):
         super().__init__(db_path, selenium_webdriver_type, webdriver_path, sources, max_errors)
 
 
-
-
     def check_isc(self, ip, arg_type="ip"):
         """Gets ISC data for ip"""
 
         url = f"https://isc.sans.edu/api/ip/{ip}?json"
         response = requests.get(url)
 
-        
         output = response.json()
         output["sharing_link"] = f"https://isc.sans.edu/ipinfo/{ip}"
         
@@ -37,15 +34,13 @@ class IPAnalyzer(OSINTAnalyzerBase):
         # error key already added to output if error {"error":"bad IP address"}
 
         output["results"] = output.pop("ip")
-        
         return output
     
-
     
     def check_whois(self, ip, arg_type="ip"):
         """Gets whois data for ip"""
         url = f"https://www.whois.com/whois/{ip}"
-        output = self.get_empty_ouput(url)
+        output = self.get_output_template(url)
 
 
         self.scraper.gotos(url)

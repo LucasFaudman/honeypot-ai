@@ -1,15 +1,10 @@
-from time import time
+from analyzerbase import *
 from attackanalyzer import *
-from loganalyzers.logparser import LogParser, CowrieParser, WebLogParser, DshieldParser, ZeekParser
-from loganalyzers.logprocessor import LogProcessor
-from loganalyzers.attackdirorganizer import AttackDirOrganizer, ProcessPoolExecutor, ThreadPoolExecutor
-from loganalyzers.attackdirreader import AttackDirReader
 
-from osintanalyzers.ipanalyzer import IPAnalyzer
-from osintanalyzers.malwareanalyzer import MalwareAnalyzer
-from openaianalyzers.openaianalyzer import OpenAIAnalyzer
-
-from markdownwriters.markdownwriter import ReportMarkdownWriter, RunStepsMarkdownWriter, DocsMarkdownWriter
+from loganalyzers import CowrieParser, WebLogParser, DshieldParser, ZeekParser, LogProcessor, AttackDirOrganizer, AttackDirReader
+from osintanalyzers import IPAnalyzer, MalwareAnalyzer
+from openaianalyzers import OpenAIAnalyzer
+from markdownwriters import ReportMarkdownWriter, RunStepsMarkdownWriter, DocsMarkdownWriter
 
 from shutil import copytree, rmtree
 import argparse
@@ -431,9 +426,9 @@ def main(test_args=None):
     # Filter Attacks
     for attack in list(ATTACKS.values()):
         # Remove attacks with more than max_ips_per_attack IPs
-        if args.max_ips_per_attack and len(attack.source_ips) > args.max_ips_per_attack:
+        if args.max_ips_per_attack and attack.num_source_ips > args.max_ips_per_attack:
             del ATTACKS[attack.attack_id]
-            print(f"Skipping attack {attack.attack_id} with {len(attack.source_ips)} IPs (max_ips_per_attack={args.max_ips_per_attack})")
+            print(f"Skipping attack {attack.attack_id} with {attack.num_source_ips} IPs (max_ips_per_attack={args.max_ips_per_attack})")
         # Remove attacks not in only_attacks if --only-attacks flag is set
         elif args.only_attacks and attack.attack_id not in args.only_attacks:
             del ATTACKS[attack.attack_id]

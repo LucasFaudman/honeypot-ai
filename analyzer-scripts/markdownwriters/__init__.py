@@ -1,14 +1,15 @@
 from .markdownwriterbase import *
-from .attackmarkdownwriter import AttackMarkdownWriter, RunStepsMarkdownWriter
+from .attackmarkdownwriter import AttackMarkdownWriter
 from .ipmarkdownwriter import IPMarkdownWriter
 from .docsmarkdownwriter import DocsMarkdownWriter
+from .runstepsmarkdownwriter import RunStepsMarkdownWriter
 
 
 class ReportMarkdownWriter(AttackMarkdownWriter, IPMarkdownWriter, DocsMarkdownWriter):
 
     def prepare(self):
         attack = self.data_object
-        self.md += h1(attack.answers.get("title", f"Attack: {attack.attack_id}").strip('"'))
+        self.md += h1(attack.answers.get("title", f"Attack: {attack.attack_id}"))
 
         self.md_editors.append(self.add_attack_summary)
         self.custom_scripts_title = "Custom Scripts Used To Generate This Report"

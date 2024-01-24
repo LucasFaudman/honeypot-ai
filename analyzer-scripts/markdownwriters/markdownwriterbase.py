@@ -1,5 +1,6 @@
-# from analyzerbase import *
+from analyzerbase import *
 from pathlib import Path
+
 
 class MarkdownWriterBase:
     """Base class for writing markdown files."""

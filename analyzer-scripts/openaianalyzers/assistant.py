@@ -499,11 +499,12 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
 
     def interactive_chat_about_attack(self, attack):
         print(f"\nEntering Chat Mode.\nAsk the AI assistant custom questions about:\n{attack}")
-
         question_run_logs = {}
         question_to_ask = {}
+        
         choice = "1"
-        while choice not in ("q", "quit", "exit", "exit()"):
+        quit_strings = ("q", "quit", "exit", "exit()")
+        while choice not in quit_strings:
             msg = "\nCurrent questions:\n" 
             msg += pprint_str(question_to_ask)
             msg += "\nChoices:\n 1) Enter a question (adds to current questions)"
@@ -525,7 +526,7 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
             elif choice == "3":
                 question_to_ask = {}
             
-            else:
+            elif choice not in quit_strings:
                 print("\nInvalid choice. Try again.")
                 sleep(1)
         

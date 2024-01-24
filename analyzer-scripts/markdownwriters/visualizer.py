@@ -5,12 +5,13 @@ from pathlib import Path
 
 class CounterGrapher:
 
-    def __init__(self, outpath: Path, counter: Counter, n=10, title="", xlabel="", ylabel=""):
+    def __init__(self, outpath: Path, counter: Counter, n=10, title="", xlabel="", ylabel="", tight_layout=True):
         self.outpath = outpath
         self.counter = counter
         self.title = title
         self.xlabel = xlabel
         self.ylabel = ylabel
+        self.tight_layout = tight_layout
 
         if self.counter:
             self.labels, self.values = zip(*self.counter.most_common(n))
@@ -28,34 +29,46 @@ class CounterGrapher:
         plt.bar(self.labels, self.values)
         plt.xlabel(self.xlabel)
         plt.ylabel(self.ylabel)
-
         plt.title(self.title)
-        # plt.tight_layout()
-
+        
+        if self.tight_layout:
+            plt.tight_layout()
+        
         plt.savefig(self.outpath)
         plt.close()
+
+        return self.outpath
+
 
     def pie(self):
         plt.clf()
         plt.pie(self.values, labels=self.labels, autopct='%1.1f%%', shadow=True, startangle=90)
         
         plt.title(self.title)
-        # plt.tight_layout()
+        if self.tight_layout:
+            plt.tight_layout()
 
         plt.savefig(self.outpath)
         plt.close()
+
+        return self.outpath
+
 
     def hist(self):
         plt.clf()
         plt.hist(self.values, bins=len(self.counter), align='left')
         plt.xlabel('Values')
         plt.ylabel('Frequency')
-        
         plt.title(self.title)
         
-        # plt.tight_layout()
+        if self.tight_layout:
+            plt.tight_layout()
+
         plt.savefig(self.outpath)
         plt.close()
+        
+        return self.outpath
+
 
     def plot(self):
         print(self.bar())

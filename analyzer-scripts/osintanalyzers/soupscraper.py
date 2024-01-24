@@ -1,14 +1,11 @@
-
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
-
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
-
 from bs4 import BeautifulSoup
 from time import sleep
+
 
 def import_webdriver(webdriver_type):
     """Conditionally Imports and returns Selenium WebDriver class, Service class, and Options class for webdriver_type"""

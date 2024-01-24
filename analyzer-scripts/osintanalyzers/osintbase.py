@@ -1,6 +1,5 @@
 from analyzerbase import *
 from .soupscraper import *
-
 import requests
 
 
@@ -34,16 +33,13 @@ class OSINTAnalyzerBase:
         # Store sources to get data from
         self.SOURCES = sources or self.SOURCES
 
-        # Store max_errors for each source
+        # Store max_errors for each source. If max_errors is an int, use it for all sources
         if isinstance(max_errors, int):
             self.max_errors = {source: max_errors for source in self.SOURCES}
         else:
             self.max_errors = max_errors
 
-        # # So it can be added as Attack postprocessor if needed
-        # self.attacks = {}
-        
-
+            
     @property
     def scraper(self):
         """SoupScraper object for scraping web pages"""
@@ -64,7 +60,7 @@ class OSINTAnalyzerBase:
             self._scraper.quit()
 
 
-    def get_empty_ouput(self, sharing_link="", default_results={}, default_error=""):
+    def get_output_template(self, sharing_link="", default_results={}, default_error=""):
         """Returns empty output template with sharing_link, results, and error"""
         return {"sharing_link": sharing_link, 
                 "results": default_results, 
@@ -147,7 +143,7 @@ class OSINTAnalyzerBase:
 
                         # Set source data to empty output with only error message
                         error_counts[source] += 1
-                        source_data = self.get_empty_ouput("", {}, err_msg)
+                        source_data = self.get_output_template("", {}, err_msg)
                     
                     
                 # Add source data for arg to data (output)

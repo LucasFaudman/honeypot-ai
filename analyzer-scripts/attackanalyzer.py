@@ -1,13 +1,7 @@
 from analyzerbase import *
-from loganalyzers.logparser import LogParser, CowrieParser, WebLogParser, DshieldParser, ZeekParser
-from loganalyzers.logprocessor import LogProcessor
-from loganalyzers.attackdirorganizer import AttackDirOrganizer, ProcessPoolExecutor
 from loganalyzers.attackdirreader import AttackDirReader
-
-from osintanalyzers.ipanalyzer import IPAnalyzer
-from osintanalyzers.malwareanalyzer import MalwareAnalyzer
-from openaianalyzers.openaianalyzer import OpenAIAnalyzer
-
+from osintanalyzers import IPAnalyzer, MalwareAnalyzer
+from openaianalyzers import OpenAIAnalyzer
 
 
 DEFAULT_QUESTIONS = {
@@ -258,17 +252,13 @@ class AttackAnalyzer:
             if not attack.http_requests:
                 del questions["http_sessions"]
                 del questions["http_analysis"]
-
             if not attack.ssh_sessions and not attack.telnet_sessions:
                 del questions["ssh_analysis"]
-
             if not attack.malware:
                 del questions["malware_analysis"]
-                
             if not attack.commands:
                 del questions["commands_analysis"]
             
-
 
             question_run_logs = self.openai_analyzer.answer_attack_questions(questions, attack)
             attack.questions = questions
