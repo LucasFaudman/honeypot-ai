@@ -43,7 +43,7 @@ DEFAULT_CONFIG = {
         r"(\d+\.\d+\.\d+\.\d+[:/]\d+)",
     ],
     "STANDARDIZE_REGEX_MALWARE": [ # Regexes to match in malware that should be standardized before hashing. All captured groups will be replaced with X before hashing.
-        rb"C0755 4745 (\S+)",
+        r"C0755 4745 (\S+)",
     ],
     "STANDARDIZE_REGEX_HTTP_REQUESTS": [], # Regexes to match in HTTP requests that should be standardized before hashing. All captured groups will be replaced with X before hashing.
     
@@ -92,8 +92,8 @@ DEFAULT_CONFIG = {
 
     # User and Honeypot Environment Settings
     "USER_IPS": [], #IPs that belong to the user to be excluded from analysis
-    "HONEYPOT_INTERNAL_IPS": [], # Interal IPs of the honeypot system(s) to inform AI for more accurate analysis
     "HONEYPOT_EXTERNAL_IPS": [], # External IPs of the honeypot system(s) to inform AI for more accurate analysis
+    "HONEYPOT_INTERNAL_IPS": [], # Interal IPs of the honeypot system(s) to inform AI for more accurate analysis
     "HONEYPOT_PORTS": [22, 23, 80, 2222, 2223, 2323, 5555, 7547, 8000, 8080, 9000], # Open ports of on honeypot system(s) to inform AI for more accurate analysis
     "HONEYPOT_SOFTWARE": [  # Version strings of the software running on each open port of the honeypot system(s) to inform AI for more accurate analysis.
         "Cowrie SSH server running OpenSSH 6.0p1 Debian 4+deb7u2 (protocol 2.0)",
@@ -110,7 +110,10 @@ DEFAULT_CONFIG = {
     "ZEEK_LOGS_PATH": "./logs/zeek", # Path to the zeek logs directory (Should be a subdirectory of LOGS_PATH)
     "MALWARE_DOWNLOADS_PATH": "./logs/malware/downloads", # Path to the malware downloads directory (Should be a subdirectory of LOGS_PATH)
     "AUTH_RANDOM_PATH": "./logs/auth_random.json", # Path to the auth_random.json file (Should be a subdirectory of LOGS_PATH)
-    
+    #Resource Paths
+    "RESOURCES_PATH": "./resources", # Path to the resources directory
+
+
     # Output Paths
     "ATTACKS_PATH": "./attacks", # Path to the attacks directory where Attack data will be stored and loaded from 
     "DB_PATH": "./db", # Path to the db directory where IP, Malware, and OpenAI data will be stored and loaded from
@@ -119,8 +122,6 @@ DEFAULT_CONFIG = {
     "AIDB_PATH": "./db/aidb", # Path to the aidb directory where OpenAI data will be stored and loaded from (Should be a subdirectory of DB_PATH)
     "REPORTS_PATH": "./reports", # Path to the reports directory where attack markdown reports and files will be exported too
 
-    # Resource Paths
-    # "RESOURCES_PATH": "./resources", # Path to the resources directory
 }
 
 ARG_DESCRIPTIONS = {
@@ -186,8 +187,8 @@ ARG_DESCRIPTIONS = {
 
     # User and Honeypot Environment Settings    
     "USER_IPS": "IPs that belong to the user to be excluded from analysis",
-    "HONEYPOT_INTERNAL_IPS": "Interal IPs of the honeypot system(s) to inform AI for more accurate analysis",
     "HONEYPOT_EXTERNAL_IPS": "External IPs of the honeypot system(s) to inform AI for more accurate analysis",
+    "HONEYPOT_INTERNAL_IPS": "Interal IPs of the honeypot system(s) to inform AI for more accurate analysis",
     "HONEYPOT_PORTS": "Open ports of on honeypot system(s) to inform AI for more accurate analysis",
     "HONEYPOT_SOFTWARE": "Version strings of the software running on each open port of the honeypot system(s) to inform AI for more accurate analysis.",
 
@@ -284,7 +285,7 @@ def config_arg_parser():
             group_name = "Malware Analyzer Settings"         
         elif key.startswith("USER_") or key.startswith("HONEYPOT_"):
             group_name = "User and Honeypot Environment Settings"               
-        elif "DB_PATH" in key or key == "ATTACKS_PATH":
+        elif "DB_PATH" in key or key == "ATTACKS_PATH" or key == "REPORTS_PATH":
             group_name = "Output Paths"
         elif "S_PATH" in key or key == "AUTH_RANDOM_PATH":
             group_name = "Input Paths"
@@ -375,7 +376,8 @@ def main(test_args=None):
     # Compile and set class standardization regexes to config values
     Session.STANDARDIZE_REGEX_COMMANDS = list(map(re.compile, config["STANDARDIZE_REGEX_COMMANDS"]))
     Session.STANDARDIZE_REGEX_HTTP_REQUESTS = list(map(re.compile, config["STANDARDIZE_REGEX_HTTP_REQUESTS"]))
-    Malware.STANDARDIZE_REGEX_MALWARE = list(map(re.compile, config["STANDARDIZE_REGEX_MALWARE"]))
+    Malware.STANDARDIZE_REGEX_MALWARE = [re.compile(regex.encode()) for regex in config["STANDARDIZE_REGEX_MALWARE"]]
+    
 
 
     # Setup LogParsers
@@ -675,17 +677,3 @@ if __name__ == "__main__":
     # ).update_md()
     
     
-
-
-
-
-
-
-
-
-
-
-
-
-
-

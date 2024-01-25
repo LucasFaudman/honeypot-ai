@@ -1,4 +1,11 @@
 import requests
+import sys
+
+args = sys.argv[1:]
+if args:
+    RESOURCES_PATH = args[0]
+else:
+    RESOURCES_PATH = './resources'
 
 versions_url = 'https://googlechromelabs.github.io/chrome-for-testing/latest-versions-per-milestone-with-downloads.json'
 versions = requests.get(versions_url).json()
@@ -33,7 +40,7 @@ Select a platform: """
 platform = input(platform_q)
 
 filename = f"{executable}{selected_version}-{platform}.zip"
-destfolder = input(f"Where do you want to save {filename}? (default: ./resources): ").rstrip('/') or './resources'
+destfolder = input(f"Where do you want to save {filename}? (default: {RESOURCES_PATH}): ").rstrip('/') or RESOURCES_PATH
 
 for download in milestones[selected_version]['downloads'][executable]:
     if download['platform'] == platform:

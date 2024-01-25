@@ -30,7 +30,7 @@ mkdir -p "$MALWARE_LOCAL_PATH"
 
 
 if [ ! -z "$KEYFILE" ]; then
-    KEYFILE="-i $KEYFILE"
+    KEYFILE="-i$KEYFILE"
 else
     KEYFILE="" 
     echo "No keyfile provided. Using password authentication."

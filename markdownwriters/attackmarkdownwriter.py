@@ -271,8 +271,6 @@ class AttackMarkdownWriter(MarkdownWriterBase):
             most_common_tables_md += "\n" + image(title, str(graph_file))
 
 
-        
- 
         ssh_md = attack.answers["ssh_analysis"] + "\n"
         if attack.ssh_sessions:
             ssh_md += collapseable_section(

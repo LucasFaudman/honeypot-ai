@@ -357,6 +357,7 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
             ass_id = self.create_assistant()
         
         return ass_id
+    
 
     def read_or_init_attack_thread(self, attack):
         attack_thread_id_file = attack.attack_dir / "thread_id.txt"
@@ -369,6 +370,7 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
                 f.write(thread_id + '\n')
         
         return thread_id
+
 
     def answer_attack_questions(self, questions, attack: Attack, interactive_chat=False):
         
@@ -409,15 +411,16 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
 
 
         # Make a dir to store answers to questions for Attack
-        # Use assistants_dir in aidb when runnning in standard mode and attack_dir/chat when running in interactive_chat mode
+        # Use assistants_dir in aidb when runnning in standard mode and attack_dir/ai-chat when running in interactive_chat mode
         if not interactive_chat:
             attack_questions_dir = self.ai_assistants_dir / attack.attack_id
-            attack_questions_dir.mkdir(exist_ok=True)
         else:
             attack_questions_dir = attack.attack_dir / "ai-chat"
-            attack_questions_dir.mkdir(exist_ok=True)
 
-        
+        attack_questions_dir.mkdir(exist_ok=True, parents=True)
+
+        # Get or create Assistant and Thread for the Attack.
+        # Reusing the same Thread is critical for the Assistant to be able to use context from previous questions to answer new questions.
         ass_id = self.read_or_init_attack_assistant()
         thread_id = self.read_or_init_attack_thread(attack)
 
@@ -425,8 +428,7 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         # Iter through questions and get answer for each question
         for question_key, question in questions.items():
 
-            # Filename for saving answer is hash of question concat with attack_id
-            #question_answer_file = attack_questions_dir / (sha256hex(question + attack.attack_id) + '.json')
+            # Filename for saving answer is the question_key and is saved in the attack directory
             question_answer_file = attack_questions_dir / (question_key + '.json')
             
             # Use stored answer if answer file exists
@@ -493,26 +495,38 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         
         choice = "1"
         quit_strings = ("q", "quit", "exit", "exit()")
-        while choice not in quit_strings:
+        while choice.lower() not in quit_strings:
             msg = "\nCurrent questions:\n" 
             msg += pprint_str(question_to_ask)
             msg += "\nChoices:\n 1) Enter a question (adds to current questions)"
-            msg += "\n 2) Ask questions (asks all questions in current questions)"
-            msg += "\n 3) Clear questions (clears current questions)"
-            msg += "\n\nEnter choice (1, 2, 3 OR q to exit): "
+            msg += "\n 2) Upload multiline question from file (adds to current questions)"
+            msg += "\n 3) Ask questions (asks all questions in current questions)"
+            msg += "\n 4) Clear questions (clears current questions)"
+            msg += "\n\nEnter choice (1, 2, 3, 4 OR q to exit): "
             choice = input(msg)
 
             if choice == "1":
                 question = input("Enter question: ")
                 question_key = f"question_{len(question_run_logs) + 1}"
-                question_key = input(f"Enter question key or leave black to use '{question_key}' : ").replace(' ', '_') or question_key
+                question_key = input(f"Enter question key or leave empty to use '{question_key}' : ").replace(' ', '_').replace('/', '_') or question_key
                 question_to_ask[question_key] = question
             
             elif choice == "2":
+                question_file = input("Enter question file path: ")
+                question_key = f"question_{len(question_run_logs) + 1}"
+                question_key = input(f"Enter question key or leave empty to use '{question_key}' : ").replace(' ', '_').replace('/', '_') or question_key
+                if not Path(question_file).exists():
+                    print(f"ERROR: File {question_file} does not exist.")
+                    continue
+                
+                with Path(question_file).open("r") as f:
+                    question_to_ask[question_key] = f.read()
+                    
+            elif choice == "3":
                 question_run_logs.update(self.answer_attack_questions(question_to_ask, attack, interactive_chat=True))
                 question_to_ask = {}
             
-            elif choice == "3":
+            elif choice == "4":
                 question_to_ask = {}
             
             elif choice not in quit_strings:
