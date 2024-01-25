@@ -6,11 +6,13 @@ milestones = versions['milestones']
 latest_milestone = list(milestones)[-1]
 
 available_versions = '\n    - '.join(ms for ms in milestones if milestones[ms]['downloads'].get('chromedriver'))
-version_q = f"""Which chrome version number do you have installed? 
-See how to find out here: 
-https://www.digitalcitizen.life/version-google-chrome/
+version_q = f"""
+Which chrome version number do you have installed? 
+Open chrome and go to chrome://settings/help to find out.
+you will see a version number like Version 121.0.6167.85 (Official Build) (x86_64)
+which corresponds to chromedriver version 121
 
-Available versions: 
+Available chromedriver versions: 
     - {available_versions}
 Select a version number (default: {latest_milestone}): """
 
