@@ -18,7 +18,7 @@ ZEEK_LOCAL_PATH="${LOGS_PATH}/zeek"
 WEBLOGS_LOCAL_PATH="${LOGS_PATH}/web"
 COWRIE_LOCAL_PATH="${LOGS_PATH}/cowrie"
 FIREWALL_LOCAL_PATH="${LOGS_PATH}/firewall"
-MALWARE_LOCAL_PATH="${LOGS_PATH}/malware"
+MALWARE_LOCAL_PATH="${LOGS_PATH}/malware/downloads"
 
 
 # Create local directories if they don't exist
@@ -26,7 +26,7 @@ mkdir -p "$ZEEK_LOCAL_PATH"
 mkdir -p "$WEBLOGS_LOCAL_PATH"
 mkdir -p "$COWRIE_LOCAL_PATH"
 mkdir -p "$FIREWALL_LOCAL_PATH"
-mkdir -p "$MALWARE_LOCAL_PATH/downloads"
+mkdir -p "$MALWARE_LOCAL_PATH"
 
 
 if [ ! -z "$KEYFILE" ]; then
@@ -37,14 +37,14 @@ else
 fi
 
 # Sync the logs from the remote server to the local machine 
-scp -P "$SSH_PORT" "$KEYFILE" "$USER@$HONEYPOT_IP:$ZEEK_REMOTE_PATH/*.log" "$ZEEK_LOCAL_PATH" &
+scp -P "$SSH_PORT" "$KEYFILE" "$USER@$HONEYPOT_IP:$FIREWALL_REMOTE_PATH/dshield*" "$FIREWALL_LOCAL_PATH" &
 scp -P "$SSH_PORT" "$KEYFILE" "$USER@$HONEYPOT_IP:$WEBLOGS_REMOTE_PATH/*.json" "$WEBLOGS_LOCAL_PATH" &
 scp -P "$SSH_PORT" "$KEYFILE" "$USER@$HONEYPOT_IP:$COWRIE_REMOTE_PATH/*cowrie*" "$COWRIE_LOCAL_PATH" &
-scp -P "$SSH_PORT" "$KEYFILE" "$USER@$HONEYPOT_IP:$FIREWALL_REMOTE_PATH/dshield*" "$FIREWALL_LOCAL_PATH" &
+scp -P "$SSH_PORT" "$KEYFILE" "$USER@$HONEYPOT_IP:$ZEEK_REMOTE_PATH/*.log" "$ZEEK_LOCAL_PATH" &
 
 # Sync the auth_random.json and cowrie downloaded files from the remote server to the local machine
-scp -P "$SSH_PORT" "$KEYFILE" "$USER@$HONEYPOT_IP:$MALWARE_REMOTE_PATH/*.json" "$LOGS_PATH" &
-scp -P "$SSH_PORT" "$KEYFILE" "$USER@$HONEYPOT_IP:$MALWARE_REMOTE_PATH/downloads/*" "$MALWARE_LOCAL_PATH/downloads" &
+scp -P "$SSH_PORT" "$KEYFILE" "$USER@$HONEYPOT_IP:$COWRIE_REMOTE_PATH/auth_random.json" "$LOGS_PATH" &
+scp -P "$SSH_PORT" "$KEYFILE" "$USER@$HONEYPOT_IP:$MALWARE_REMOTE_PATH/*" "$MALWARE_LOCAL_PATH" &
 
 # Wait for all the scp processes to finish
 wait
