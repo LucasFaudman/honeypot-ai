@@ -222,22 +222,22 @@ class LogProcessor:
         self.ips_with_flagged_http_requests = []
         self.benign_ips = []
         
-        self.source_ips_already_in_attacks = set()
-        
+        # self.all_attack_ids_by_type = {"malware_hash": OrderedSet(()), "cmdlog_hash": OrderedSet(()), "httplog_hash": OrderedSet(())}
+        self.all_attack_ids_by_type = {"malware_hash": set(), "cmdlog_hash": set(), "httplog_hash": set()}
         for source_ip in sorted(self.source_ips.values(), key=lambda source_ip: source_ip.first_seen):
             ip = source_ip.ip
-            attack_ids_by_type = defaultdict(OrderedSet)
+            src_ip_attack_ids_by_type = defaultdict(set)
 
             if source_ip.successful_logins >= self.min_successful_logins:
                 self.ips_with_successful_logins.append(ip)
 
             if source_ip.total_malware >= self.min_malware:
                 self.ips_with_malware.append(ip)
-                attack_ids_by_type['malware_hash'].update(source_ip.all_malware_hashes)
+                src_ip_attack_ids_by_type['malware_hash'].update(source_ip.all_malware_hashes)
 
             if source_ip.commands >= self.min_commands:
                 self.ips_with_commands.append(ip)
-                attack_ids_by_type['cmdlog_hash'].update(source_ip.all_cmdlog_hashes)
+                src_ip_attack_ids_by_type['cmdlog_hash'].update(source_ip.all_cmdlog_hashes)
 
             if source_ip.http_requests >= self.min_http_requests:
                 self.ips_with_http_requests.append(ip)
@@ -262,29 +262,33 @@ class LogProcessor:
                     
                 if flagged:
                     self.ips_with_flagged_http_requests.append(ip)
-                    attack_ids_by_type['httplog_hash'].update(source_ip.all_httplog_hashes)            
+                    src_ip_attack_ids_by_type['httplog_hash'].update(source_ip.all_httplog_hashes)            
 
 
             # If no attacks found, add to benign_ips delete the SourceIP obj and continue
-            if not any(attack_ids_by_type.values()):
+            if not any(src_ip_attack_ids_by_type.values()):
+            # if not src_ip_attack_ids_by_type:
                 self.benign_ips.append(ip)
                 del self.source_ips[ip]
                 print(f"Deleted benign ip {ip}", end='\r')
                 continue
 
+            shared_attack_ids = {
+                attack_id_type: attack_ids & self.all_attack_ids_by_type[attack_id_type] 
+                for attack_id_type, attack_ids in src_ip_attack_ids_by_type.items()
+            }
 
-            for attack_id_type, attack_ids in attack_ids_by_type.items():
-                for attack_id in attack_ids:
-                    # Add source_ip to existing attack if attack_id already exists
-                    if attack_id in self.attacks:
-                        self.attacks[attack_id].add_source_ip(source_ip)
-                    # Create new attack if attack_id doesn't exist yet and the source_ip isn't already in an attack
-                    elif ip not in self.src_ip_attack_ids:
-                        self.attacks[attack_id] = Attack(attack_id, attack_id_type, source_ip)
-                    # Add ip and attack_id to check if the ip is already in an attack
-                    if ip not in self.src_ip_attack_ids:
-                        self.src_ip_attack_ids[ip] = attack_id
-            
+            if not set(*shared_attack_ids.values()):
+            # if not any(shared_attack_ids.values()):
+                attack_id_type, attack_ids = next(filter(lambda x: x[1], src_ip_attack_ids_by_type.items()))
+                attack_id = attack_ids[0]
+                self.attacks[attack_id] = Attack(attack_id, attack_id_type, source_ip)
+                self.all_attack_ids_by_type[attack_id_type].add(attack_id)
+            else:
+                attack_id_type, attack_ids = next(filter(lambda x: x[1], shared_attack_ids.items()))
+                attack_id = attack_ids[0]
+                self.attacks[attack_id].add_source_ip(source_ip)    
+
 
         return self.attacks
 
@@ -311,7 +315,7 @@ class LogProcessor:
         for attack_id, attack in list(self.attacks.items()):
             if attack.uniq_src_ips & set(ips_to_remove):
                 del self.attacks[attack_id]
-                print(f"Removed {attack_id} with ips {attack.src_ips}")
+                print(f"Removed {attack_id} with ips {attack.uniq_src_ips}")
                     
 
     def merge_attacks_by_shared_attrs(self):

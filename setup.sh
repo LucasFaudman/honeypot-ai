@@ -11,7 +11,8 @@ function review_file(){
 
 printf "\nBeginning honeypot-ai setup"
 # Get the directory of the script
-HONEYPOT_AI_PATH="$(dirname $(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd))"
+# HONEYPOT_AI_PATH="$(dirname $(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd))"
+HONEYPOT_AI_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CURRENT_PATH="$(pwd)"
 printf "\nHoneypot AI Path: $HONEYPOT_AI_PATH\n"
 printf "\nCurrent Path: $CURRENT_PATH\n"
@@ -172,7 +173,7 @@ python3 "$HONEYPOT_AI_PATH/main.py" -u \
 printf "\nConfiguring $HONEYPOT_AI_PATH/run.sh.\n"
 echo "#!/bin/bash
 source $HONEYPOT_AI_PATH/honeypot-ai-venv/bin/activate
-python3 $HONEYPOT_AI_PATH/main.py $@
+python3 $HONEYPOT_AI_PATH/main.py \$\@
 deactivate
 " > "$HONEYPOT_AI_PATH/run.sh" 
 chmod +x "$HONEYPOT_AI_PATH/run.sh"
@@ -189,6 +190,7 @@ read -p "Show help for main.py? (y/n): " SHOW_HELP
 
 read -p "Run sync-logs.sh now? (y/n): " RUN_SYNC_LOGS
 [ "$RUN_SYNC_LOGS" == "y" ] && "$HONEYPOT_AI_PATH/sync-logs.sh"
+
 
 exit 0
 

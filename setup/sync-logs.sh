@@ -43,7 +43,7 @@ scp -P "$SSH_PORT" "$KEYFILE" "$USER@$HONEYPOT_IP:$COWRIE_REMOTE_PATH/*cowrie*" 
 scp -P "$SSH_PORT" "$KEYFILE" "$USER@$HONEYPOT_IP:$ZEEK_REMOTE_PATH/*.log" "$ZEEK_LOCAL_PATH" &
 
 # Sync the auth_random.json and cowrie downloaded files from the remote server to the local machine
-scp -P "$SSH_PORT" "$KEYFILE" "$USER@$HONEYPOT_IP:$COWRIE_REMOTE_PATH/auth_random.json" "$LOGS_PATH" &
+scp -P "$SSH_PORT" "$KEYFILE" "$USER@$HONEYPOT_IP:$MALWARE_REMOTE_PATH/../auth_random.json" "$LOGS_PATH" &
 scp -P "$SSH_PORT" "$KEYFILE" "$USER@$HONEYPOT_IP:$MALWARE_REMOTE_PATH/*" "$MALWARE_LOCAL_PATH" &
 
 # Wait for all the scp processes to finish
