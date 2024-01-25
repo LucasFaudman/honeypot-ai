@@ -222,11 +222,10 @@ class LogProcessor:
         self.ips_with_flagged_http_requests = []
         self.benign_ips = []
         
-        # self.all_attack_ids_by_type = {"malware_hash": OrderedSet(()), "cmdlog_hash": OrderedSet(()), "httplog_hash": OrderedSet(())}
-        self.all_attack_ids_by_type = {"malware_hash": set(), "cmdlog_hash": set(), "httplog_hash": set()}
+        self.all_attack_ids_by_type = {"malware_hash": OrderedSet(()), "cmdlog_hash": OrderedSet(()), "httplog_hash": OrderedSet(())}
         for source_ip in sorted(self.source_ips.values(), key=lambda source_ip: source_ip.first_seen):
             ip = source_ip.ip
-            src_ip_attack_ids_by_type = defaultdict(set)
+            src_ip_attack_ids_by_type = defaultdict(OrderedSet)
 
             if source_ip.successful_logins >= self.min_successful_logins:
                 self.ips_with_successful_logins.append(ip)
@@ -267,7 +266,6 @@ class LogProcessor:
 
             # If no attacks found, add to benign_ips delete the SourceIP obj and continue
             if not any(src_ip_attack_ids_by_type.values()):
-            # if not src_ip_attack_ids_by_type:
                 self.benign_ips.append(ip)
                 del self.source_ips[ip]
                 print(f"Deleted benign ip {ip}", end='\r')
@@ -278,8 +276,7 @@ class LogProcessor:
                 for attack_id_type, attack_ids in src_ip_attack_ids_by_type.items()
             }
 
-            if not set(*shared_attack_ids.values()):
-            # if not any(shared_attack_ids.values()):
+            if not any(shared_attack_ids.values()):
                 attack_id_type, attack_ids = next(filter(lambda x: x[1], src_ip_attack_ids_by_type.items()))
                 attack_id = attack_ids[0]
                 self.attacks[attack_id] = Attack(attack_id, attack_id_type, source_ip)
@@ -288,7 +285,6 @@ class LogProcessor:
                 attack_id_type, attack_ids = next(filter(lambda x: x[1], shared_attack_ids.items()))
                 attack_id = attack_ids[0]
                 self.attacks[attack_id].add_source_ip(source_ip)    
-
 
         return self.attacks
 

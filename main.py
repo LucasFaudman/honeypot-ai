@@ -17,7 +17,7 @@ DEFAULT_CONFIG = {
     "LOAD_ATTACKS_MAX_WORKERS": 2, # Maximum number of workers to use when loading attacks from the attacks directory
 
     # Log Types and Zeek Settings
-    "LOG_TYPES": ["cowrie", "firewall", "web", "zeek"], # Log types to process
+    "LOG_TYPES": ["cowrie", "zeek"], # Log types to process
     "ZEEK_LOG_TYPES": ["http"], # Zeek log types to process
     "ZEEK_LOG_EXT": ".log", # Zeek log file extension
     "ZEEK_KEEP_EMPTY_FIELDS": True, # Whether or not to keep empty fields in Zeek logs

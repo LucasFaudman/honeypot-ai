@@ -92,7 +92,6 @@ class OpenAICompletionsAnalyzer(OpenAIAnalyzerBase):
         return messages
     
 
-
     def explain_commands(self, commands=[], n=1, retries=0, **kwargs):
         system_prompt = [
         "Your role is to throughly explain a series commands that were executed by an attacker on a Linux honeypot system.",
@@ -137,8 +136,6 @@ class OpenAICompletionsAnalyzer(OpenAIAnalyzerBase):
         response, result = self.get_json_result(messages, n=n, retries=retries, **kwargs)
 
         return self.zip_command_explanations(commands, result)
-
-
 
 
     def zip_command_explanations(self, commands, result):
@@ -196,13 +193,9 @@ class OpenAICompletionsAnalyzer(OpenAIAnalyzerBase):
         ])
 
         
-
-
         example_malware1 = self.read_training_data("shared/example_malware1.py")
         example_commands1 = self.read_training_data("shared/example_commands1.sh", returnas=list)
         example_explanation1 = self.read_training_data("shared/example_explanation.txt")
-
-
 
         example_input1 = {"malware_source_code": example_malware1, "commands": self.index_content(example_commands1)}
         example_response1 = {"malware_explanation": example_explanation1, "malware_language": "python"}
@@ -219,7 +212,6 @@ class OpenAICompletionsAnalyzer(OpenAIAnalyzerBase):
         return result
 
     
-
     def comment_malware(self, malware_source_code, commands=[], n=1, retries=0, **kwargs):
         system_prompt = " ".join([
         "Your role is to add detailed comments to a file that was downloaded/uploaded by an attacker to a Linux honeypot system.",
@@ -242,10 +234,8 @@ class OpenAICompletionsAnalyzer(OpenAIAnalyzerBase):
         language, commented_malware = self.read_training_data("shared/commented_malware2.sh", returnas="split_firstline")
         language = language.split(":")[1].strip()
 
-        #example_input = {"malware_source_code": example_malware, "commands": self.index_content(example_commands)}
-        example_commands = ''
         
-        #example_response = commented_malware
+        example_commands = ''
         example_response = {}
         commented_malware_lines = commented_malware.split("\n")
         example_malware_lines = example_malware.split("\n")
@@ -254,8 +244,6 @@ class OpenAICompletionsAnalyzer(OpenAIAnalyzerBase):
         example_input = {"malware_source_code": example_malware_lines_input, 
                          "commands": self.index_content(example_commands)}
         
-
-
 
         comment = ""
         for line in commented_malware_lines:
@@ -290,15 +278,8 @@ class OpenAICompletionsAnalyzer(OpenAIAnalyzerBase):
                 line_index = int(line_index)
                 lines[line_index] = comment + "\n" + lines[line_index]
 
-            with (self.training_data_dir / "out.test").open("w+") as f:
-                f.write("\n".join(lines))
-        
-
         return "\n".join(lines)
     
-
-
-
 
     def explain_and_comment_malware(self, malware_source_code, commands=[], n=1, retries=0, **kwargs):
         system_prompt = " ".join([
@@ -317,9 +298,6 @@ class OpenAICompletionsAnalyzer(OpenAIAnalyzerBase):
         ])
 
 
-
-
-        
         example_commands1 = self.read_training_data("shared/example_commands1.sh", returnas=list)
         example_malware1 = self.read_training_data("shared/example_malware1.py")
         example_explanation1 = self.read_training_data("shared/example_explanation1.md")
@@ -343,9 +321,6 @@ class OpenAICompletionsAnalyzer(OpenAIAnalyzerBase):
         return result
 
 
-
-
-
     def answer_attack_questions(self, questions: list, commands=[], malware_source_code=None, n=1, retries=0, **kwargs):
         #TODO an attack
         system_prompt = " ".join([
@@ -359,7 +334,6 @@ class OpenAICompletionsAnalyzer(OpenAIAnalyzerBase):
         "Output must be in the following format {answer_index: paragraph(s) explaining answer to question at question_index, ...}.",
         "The answer values will be used in a GitHub .md file so you can use markdown syntax to format your output.",
         ])
-
 
 
         q1, a1 = self.read_training_data("answer_attack_questions/example_questions1.md", returnas="split_firstline")

@@ -11,7 +11,6 @@ function review_file(){
 
 printf "\nBeginning honeypot-ai setup"
 # Get the directory of the script
-# HONEYPOT_AI_PATH="$(dirname $(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd))"
 HONEYPOT_AI_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CURRENT_PATH="$(pwd)"
 printf "\nHoneypot AI Path: $HONEYPOT_AI_PATH\n"
@@ -118,7 +117,7 @@ sed -i"$SAFE_TO_DELETE_EXT" -e "s|<LOGS_PATH>|$LOGS_PATH|" "$HONEYPOT_AI_PATH/sy
 rm "$HONEYPOT_AI_PATH/"*"$SAFE_TO_DELETE_EXT"
 
 chmod +x "$HONEYPOT_AI_PATH/sync-logs.sh"
-printf "\nDone configuring "$HONEYPOT_AI_PATH/sync-logs.sh". You can now use this script to sync logs from your Honeypot to your local machine.\n"
+printf "\nDone configuring "$HONEYPOT_AI_PATH/sync-logs.sh". \nYou can now use this script to sync logs from your Honeypot to your local machine.\n"
 review_file "$HONEYPOT_AI_PATH/sync-logs.sh"
 
 printf "\nConfiguring $HONEYPOT_AI_PATH/setup/install-zeek-on-honeypot.sh.\n"
@@ -130,7 +129,7 @@ sed -i"$SAFE_TO_DELETE_EXT" -e "s|<KEYFILE>|$KEYFILE|" "$HONEYPOT_AI_PATH/instal
 rm "$HONEYPOT_AI_PATH/"*"$SAFE_TO_DELETE_EXT"
 
 chmod +x "$HONEYPOT_AI_PATH/install-zeek-on-honeypot.sh"
-printf "\nDone configuring setup/install-zeek-on-honeypot.sh. You can now use this script to install Zeek on your Honeypot.\n"
+printf "\nDone configuring setup/install-zeek-on-honeypot.sh. \nYou can now use this script to install Zeek on your Honeypot.\n"
 review_file "$HONEYPOT_AI_PATH/install-zeek-on-honeypot.sh"
 
 printf "\n"
