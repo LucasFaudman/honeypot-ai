@@ -78,7 +78,7 @@ DEFAULT_CONFIG = {
     "USE_OPENAI_CODE_INTERPRETER": True, # Whether or not to use the OpenAI Code Interpreter
     "OPENAI_API_KEY": "<PASTE YOUR API KEY HERE>", # OpenAI API Key (Get from https://platform.openai.com/api-keys)
     "OPENAI_MODEL": "gpt-4-1106-preview", # OpenAI Model to use (Get from https://platform.openai.com/docs/models)
-    "OPENAI_TRAINING_DATA_PATH": "./resources/openai-training-data", # Path to the openai-training-data directory
+    "OPENAI_TRAINING_DATA_PATH": "./honeypot-ai/resources/openai-training-data", # Path to the openai-training-data directory
 
     # IPAnalyzer and Webdriver Settings
     "USE_IPANALYZER": True, # Whether or not to run the IPAnalyzer
