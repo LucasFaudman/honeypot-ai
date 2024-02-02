@@ -2,7 +2,10 @@ from .markdownwriterbase import *
 
 
 class RunStepsMarkdownWriter(MarkdownWriterBase):
-     
+    """
+    Markdown writer for AI RunSteps for questions asked by the OpenAIAssistantAnalyzer when processed by the AttackAnalyzer
+    and when in interactive mode. 
+    """
     def prepare(self):
         attack = self.data_object
         self.md += h1("Run Steps: " + attack.answers.get("title", f"Attack: {attack.attack_id}").strip('"'))

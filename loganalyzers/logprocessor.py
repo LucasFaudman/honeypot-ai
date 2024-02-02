@@ -271,6 +271,8 @@ class LogProcessor:
                 print(f"Deleted benign ip {ip}", end='\r')
                 continue
 
+
+            # Find shared attack ids for each attack_id_type
             shared_attack_ids = {
                 attack_id_type: attack_ids & self.all_attack_ids_by_type[attack_id_type] 
                 for attack_id_type, attack_ids in src_ip_attack_ids_by_type.items()

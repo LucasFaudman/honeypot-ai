@@ -74,7 +74,7 @@ class AttackDirOrganizer:
             # Init executor_cls in context manager to execute organizer_fn on iterable and yield results in yield_order
             with executor_cls(max_workers=max_workers) as executor:
                 if yield_order == "as_completed":
-                    for future in as_completed(executor.submit(organizer_fn, item) for item in iterable):
+                    for future in as_completed(executor.submit(organizer_fn, item) for item in iterable): #type: ignore
                         yield future.result()
                 
                 elif yield_order == "as_submitted":
@@ -95,7 +95,6 @@ class AttackDirOrganizer:
 
         
 
-    
     def _prepare_attack_dir(self, attack):        
         attack_dir = self.attacks_path / attack.attack_id
         attack_dir.mkdir(exist_ok=True, parents=True)
@@ -261,9 +260,6 @@ class AttackDirOrganizer:
 
         return f"Done organizing {file}"
             
-
-
-
 
     def _organize_attack(self, attack):
         print(f"Started organizing {attack}")

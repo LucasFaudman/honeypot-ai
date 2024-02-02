@@ -81,25 +81,24 @@ class IPMarkdownWriter(MarkdownWriterBase):
 
         location_data = [
             (ip, 
-            data[ip]["shodan"]["results"]["general"]["Country"],
-            data[ip]["shodan"]["results"]["general"]["City"],
-            data[ip]["shodan"]["results"]["general"]["ISP"],
-            data[ip]["shodan"]["results"]["general"]["Organization"],
-            #data[ip]["isc"]["results"]["asname"],
-            data[ip]["shodan"]["results"]["general"]["ASN"],
-            data[ip]["isc"]["results"]["network"]
+            data[ip]["shodan"]["results"]["general"].get("Country"),
+            data[ip]["shodan"]["results"]["general"].get("City"),
+            data[ip]["shodan"]["results"]["general"].get("ISP"),
+            data[ip]["shodan"]["results"]["general"].get("Organization"),
+            data[ip]["shodan"]["results"]["general"].get("ASN"),
+            data[ip]["isc"]["results"].get("network"),
             ) for ip in data \
                 if data[ip]["isc"].get("results") \
                 and data[ip]["shodan"].get("results")
         ]
 
         location_data.sort(key=lambda x: 
-                           (counts["shodan"]["Country"].get(x[1]),
-                            counts["shodan"]["City"].get(x[2]),
-                            counts["shodan"]["ISP"].get(x[3]),
-                            counts["shodan"]["Organization"].get(x[4]),
-                            counts["shodan"]["ASN"].get(x[5]),                            
-                            counts["isc"]["network"].get(x[5])
+                           (counts["shodan"]["Country"].get(x[1], 0),
+                            counts["shodan"]["City"].get(x[2], 0),
+                            counts["shodan"]["ISP"].get(x[3], 0),
+                            counts["shodan"]["Organization"].get(x[4], 0),
+                            counts["shodan"]["ASN"].get(x[5], 0),                            
+                            counts["isc"]["network"].get(x[5], 0)
                             
                             ), 
                             reverse=True)

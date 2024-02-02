@@ -59,7 +59,10 @@ DEFAULT_CONFIG = {
         r"cd ~; chattr -ia .ssh; lockr -ia .ssh",
     ],
     'MERGE_REGEX_MALWARE': [], # Regexes to match in malware of attacks that should be merged
-    "MERGE_REGEX_HTTP_REQUESTS": [], # Regexes to match in HTTP requests of attacks that should be merged
+    "MERGE_REGEX_HTTP_REQUESTS": [
+        r'GET /shell\?cd\+/tmp',
+
+    ], # Regexes to match in HTTP requests of attacks that should be merged
 
     # Oranizer Settings
     "ORGANIZER_OVERWRITE": True, # Whether or not to overwrite existing attack directories when organizing

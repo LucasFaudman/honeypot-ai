@@ -21,7 +21,7 @@ DEFAULT_QUESTIONS = {
                 "cybergordon_summary": "Summarize what is known about the IP addresses involved in the attack using CyberGordon.",
 
                 # Malware OSINT Questions (Asked after AI context window has been updated with IP OSINT)
-                "malware_osint_summary": "Explain what is known about the malware and/or exploits used in the attack using data from MalwareBazaar, ThreatFox, URLhaus, and Malpedia. "
+                "malware_osint_summary": "Explain what is known about the hosts, malware, and/or exploits used in the attack using data from MalwareBazaar, ThreatFox, URLhaus, and Malpedia. "
                 "Be sure to analyze the src_ips, malware hashes, and any urls or hosts found in the malware samples, commands and/or HTTP requests.",
                 
                 # OSINT Full Summary (Asked once all OSINT data is in the AI context window)
@@ -31,8 +31,12 @@ DEFAULT_QUESTIONS = {
                 "http_analysis": "Explain the HTTP requests and their functions in the context of the attack.",
                 "commands_analysis": "Explain the commands used and their functions in the context of the attack.",
                 "malware_analysis": "Explain the how the malware functions in the context of the attack.",
-                "vuln_analysis": "Explain which vulnerabilities are being exploited. Include the exploit name(s), CVE number(s) and example code from ExploitDB, if possible.",
-        
+                #"vuln_analysis": "Explain which vulnerabilities are being exploited. Include the exploit name(s), CVE number(s) and example code from ExploitDB, if possible.",
+                "vuln_analysis": "Explain which vulnerabilities are being exploited. Include the exploit name(s), CVE number(s) and example code from ExploitDB, if possible. "
+                "First use search_exploitdb to find potential exploits, then use the get_exploitdb_exploit to get the code for the exploit that is being used in the attack.",
+                
+
+
                 # Attack Classification Questions (Asked after AI context window has been updated with OSINT data and attack methods analysis)
                 "mitre_attack": "How can this attack be classified using the MITRE ATT&CK framework?",
                 "goal_of_attack": "What is the goal of the attack?",
@@ -40,7 +44,7 @@ DEFAULT_QUESTIONS = {
                 "how_to_protect": "How can a system be protected from this attack?",
                 "what_iocs": "What are the indicators of compromise (IOCs) for this attack?",
                 "summary": "Summarize attack details, methods and goals to begin the report.",
-                "title": "Create an informative title for this attack based on the analysis. Do not use any markdown.",
+                "title": "Create an informative title for this attack based on the analysis that describes the attack methods, goals and source. Do not use any markdown.",
 }
 
 
