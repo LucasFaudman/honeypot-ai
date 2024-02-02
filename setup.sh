@@ -186,7 +186,7 @@ printf " python3 $HONEYPOT_AI_PATH/main.py\nOR\n $CURRENT_PATH/run.sh \nto run H
 
 read -p "Run sync-logs.sh now? (y/n): " RUN_SYNC_LOGS
 [ "$RUN_SYNC_LOGS" == "y" ] && "$HONEYPOT_AI_PATH/sync-logs.sh" && read -p "List attacks now? (y/n): " LIST_NOW 
-[ "$LIST_NOW" == "y" ] && python3 "$HONEYPOT_AI_PATH/main.py" --lfl --list-attacks
+[ "$LIST_NOW" == "y" ] && python3 "$HONEYPOT_AI_PATH/main.py" -lfl --list-attacks
 
 read -p "Show help for main.py? (y/n): " SHOW_HELP
 [ "$SHOW_HELP" == "y" ] && python3 "$HONEYPOT_AI_PATH/main.py" -h
