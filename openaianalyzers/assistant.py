@@ -354,7 +354,7 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
             with ass_id_file.open("r") as f:
                 ass_id = f.readline().strip()
         else:
-            ass_id = self.create_assistant()
+            ass_id = self.create_assistant().id
         
         return ass_id
     
@@ -535,44 +535,4 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         
         
         return question_run_logs
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
