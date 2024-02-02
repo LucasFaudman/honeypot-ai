@@ -3,9 +3,13 @@ from .markdownwriterbase import *
 
 class DocsMarkdownWriter(MarkdownWriterBase):
     def prepare(self):
-        self.custom_scripts_title = "Modules"
+        self.md_editors.append(self.add_description)
+        self.md_editors.append(self.add_setup)
+        self.md_editors.append(self.add_basic_usage)
+        self.md_editors.append(self.add_advanced_usage)
         self.md_editors.append(self.add_help_from_parser)
         self.md_editors.append(self.add_default_config)
+        self.custom_scripts_title = "Module Descriptions"
         self.md_editors.append(self.add_custom_scripts)
 
     
@@ -23,7 +27,6 @@ class DocsMarkdownWriter(MarkdownWriterBase):
             },
             "analyzerbase":{
                 "description" : "Base classes, utility functions, libraries, and constants for all analyzer modules",
-                #"__init__.py": "Exports all classes, utility functions and imports from the analyzerbase folder",
                 "common.py" : "Imports and constants used by all analyzer modules",
                 "baseobjects.py": "Custom base classes for all objects. CachePropertyObject allows temporary caching of properties for faster processing while remaining dynamic. SmartAttrObject allows properties to be called with modifiers like uniq_ and num_",
                 "attack.py" : "Attack object for storing all data related to a single attack. Constructed by LogProcessor and modified by OSINTAnalyzers and OpenAIAnalyzers",
@@ -68,7 +71,6 @@ class DocsMarkdownWriter(MarkdownWriterBase):
             },
             "setup":{
                 "description" : "Scripts for setting up the honeypot-ai project",
-                "setup.py": "Setup script for installing the honeypot-ai project",
                 "requirements.txt": "List of all required packages for the honeypot-ai project",
                 "getchromedrier.py": "Utility script to download correct chromedriver for Selenium",
                 "sync-logs.sh": "Utility script to sync logs from honeypot to honeypot-ai project logs directory",
@@ -89,20 +91,97 @@ class DocsMarkdownWriter(MarkdownWriterBase):
             script_md += module_md
         
         
-        md += collapseable_section(script_md, self.custom_scripts_title, 1)
+        md += collapseable_section(script_md, self.custom_scripts_title, 2)
         
         return md
     
 
     def add_help_from_parser(self, md, data_object):
         help_text = data_object.get("config_parser").format_help()
-        md += collapseable_section(codeblock(help_text), "All Command Line Arguments", 1)
+        md += collapseable_section(codeblock(help_text), "All Command Line Arguments", 2)
         return md
     
     
     def add_default_config(self, md, data_object):
-        md += collapseable_section(codeblock(data_object.get("default_config"), lang='python'), "Default Config", 1)
+        md += collapseable_section(codeblock(data_object.get("default_config"), lang='python'), "Default Config", 2)
         return md
     
 
+    def add_setup(self, md, data_object):
+        setup = ""
+        setup += h4("Step 1: Clone the Repository")
+        setup += codeblock("git clone https://github.com/LucasFaudman/honeypot-ai", lang="bash")
+        
+        setup += h4(f"Step 2: Run the Setup Script {self.script_link('setup.sh')}")
+        setup += codeblock("chmod +x honeypot-ai/setup.sh && honeypot-ai/setup.sh", lang="bash")
+        setup += blockquote("This will install all required packages in a virtual environment and walk you through setting up your config.json file. ")
+        setup += "\n" + blockquote(
+            f"You will need your honeypot IP and login credentials to create {self.script_link('setup/sync-logs.sh')} and {self.script_link('setup/install-zeek-on-honeypot.sh')}.")
+        
+        setup += h4(f"Optional: Install Zeek on your Honeypot using {self.script_link('setup/install-zeek-on-honeypot.sh')}")
+        setup += codeblock("honeypot-ai/install-zeek-on-honeypot.sh", lang="bash")
+        
+        setup += h4(f"Step 3: Sync Logs from Honeypot to local logs directory using {self.script_link('setup/sync-logs.sh')}")
+        setup += codeblock("honeypot-ai/sync-logs.sh", lang="bash")
+        
+        setup += h4("Step 4: Run Honeypot-AI with --help to see all command line arguments and options.")
+        setup += codeblock("honeypot-ai/run.sh --help", lang="bash")
+        setup += "\nOR\n" 
+        setup += codeblock("python3 honeypot-ai/main.py --help", lang="bash")
+        
+        md += collapseable_section(setup, "Setup", 2)
+        return md
 
+    def add_description(self, md, data_object):
+        description = ""
+        description += h1("honeypot-ai")
+        description += h4(
+            "A modular honeypot log analyzer and OSINT collector with OpenAI integration to easily create ISC style reports and interactively chat with AI about attacks. "
+            "Currently supports Cowrie, DShield and Zeek logs. "
+            )
+        
+        description +=  blockquote("Built by Lucas Faudman for SANS ISC")
+        md += description
+        return md
+
+    def add_basic_usage(self, md, data_object):
+        basic_usage = ""
+        basic_usage += blockquote("Load all attacks from logs and list loaded attacks")
+        basic_usage += codeblock( "honeypot-ai/run.sh --load-from-logs --list-attacks")
+
+        basic_usage += blockquote("Load all attacks from logs and list attacks in order of start time, then number of commands, in ascending order")
+        basic_usage += codeblock( "honeypot-ai/run.sh -lfl --list --sort-attrs start_time num_commands --sort-order asc")
+        
+        basic_usage += blockquote("Organize attacks with at most 50 source IPs into attack directories for faster loading and storing analysis results")
+        basic_usage += codeblock( "honeypot-ai/run.sh -lfl  --organize-attacks --max-ips-per-attack 50")
+
+        basic_usage += blockquote("Load attacks from the attacks directory and print the commands, malware, and HTTP requests for attacks with at least 2 commands, or at least 5 HTTP requests")
+        basic_usage += codeblock("honeypot-ai/run.sh --load-from-attacks-dir --min-commands 2 --min-http-requests 5 --print-attrs commands malware http_requests")
+
+        basic_usage += blockquote("Load only attacks with IDs XXXX and YYYY from the attacks directory then analyze each with OpenAI and IP analyzers, but not the Malware analyzer")
+        basic_usage += codeblock("honeypot-ai/run.sh -lfa --only-attacks XXXX YYYY --analyze --no-malwareanalyzer")
+
+        basic_usage += blockquote("Write and export markdown report for attack id XXXX")
+        basic_usage += codeblock("honeypot-ai/run.sh -lfa --only-attack XXXX --analyze --write-markdown --export-report")
+
+        basic_usage += blockquote("Enter chat mode to interactively ask questions about attack id XXXX before writing and exporting markdown report")
+        basic_usage += codeblock("honeypot-ai/run.sh -lfa --only-attack XXXX --chat --analyze --write --export")
+
+        md += collapseable_section(basic_usage, "Basic Usage", 2)
+        return md
+
+
+    def add_advanced_usage(self, md, data_object):
+        advanced_usage = ""
+        advanced_usage += blockquote("Update config file with values from command line arguments")
+        advanced_usage += codeblock( "honeypot-ai/run.sh --config config.json --update-config --openai-api-key YOUR_API_KEY")
+
+
+        advanced_usage += blockquote("Enter interactive Python shell to manually modify attacks before analyzing and writing reports")
+        advanced_usage += codeblock( "honeypot-ai/run.sh -lfa --interactive --analyze --write --export")
+
+        advanced_usage += bullet("Modify the config file to change the default behavior of the honeypot-ai.")
+        advanced_usage += bullet("See all command line arguments with --help to see all options and arguments.")
+
+        md += collapseable_section(advanced_usage, "Advanced Usage", 2)
+        return md

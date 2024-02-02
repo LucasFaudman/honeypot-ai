@@ -6,9 +6,7 @@ from .visualizer import CounterGrapher
 class IPMarkdownWriter(MarkdownWriterBase):
     """Writes markdown for IP OSINT ipdata"""
 
-    def prepare(self):
-        
-        #self.md += h1("What do you know about the attacker?")
+    def prepare(self):        
         self.md_editors.append(self.add_osint_header)
         self.md_editors.append(self.add_ip_locations)
         self.md_editors.append(self.add_cybergordon)

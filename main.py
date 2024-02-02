@@ -658,25 +658,25 @@ def main(test_args=None):
                   + '\n'.join(f"{attr}:\n{pprint_str(getattr(attack, attr))}" for attr in args.print_attrs)
             )
 
+    
+    # Hidden option to update README.md with config_parser and default_config when --write-reports and --only-attacks "README" flags are set
+    if args.only_attacks == ["README"] and args.write_reports:
+        DocsMarkdownWriter(
+            filepath="README.md", 
+            mode="w+", 
+            data_object = {
+                "config_parser": config_arg_parser(),
+                "default_config": pprint_str(DEFAULT_CONFIG, sort_dicts=False),
+            }
+        ).update_md()
 
 
     print(f'Honeypot AI Finished Successfully!')
     exit(0)
 
 
-
-
 if __name__ == "__main__":
     main()
 
-    # Update README.md with config_parser and default_config
-    # DocsMarkdownWriter(
-    #     filepath="README.md", 
-    #     mode="w+", 
-    #     data_object = {
-    #         "config_parser": config_arg_parser(),
-    #         "default_config": pprint_str(DEFAULT_CONFIG, sort_dicts=False),
-    #     }
-    # ).update_md()
     
     
