@@ -181,7 +181,7 @@ chmod +x "$HONEYPOT_AI_PATH/run.sh"
 printf "\nSetup complete.\n\nYou can now run:\n"
 printf " ./sync-logs.sh to sync logs from your Honeypot to your local machine.\n"
 printf " ./install-zeek-on-honeypot.sh to install/update Zeek on your Honeypot.\n"
-printf " python3 $HONEYPOT_AI_PATH/main.py\nOR\n $CURRENT_PATH/run.sh \nto run Honeypot AI.\n"
+printf " python3 $HONEYPOT_AI_PATH/main.py\nOR\n $HONEYPOT_AI_PATH/run.sh \nto run Honeypot AI.\n"
 
 
 read -p "Run sync-logs.sh now? (y/n): " RUN_SYNC_LOGS
