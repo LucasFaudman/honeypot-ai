@@ -60,8 +60,9 @@ class OSINTAnalyzerBase:
             self._scraper.quit()
 
 
-    def get_output_template(self, sharing_link="", default_results={}, default_error=""):
+    def get_output_template(self, sharing_link="", default_results: Union[dict,None]=None, default_error=""):
         """Returns empty output template with sharing_link, results, and error"""
+        default_results = default_results or {}
         return {"sharing_link": sharing_link, 
                 "results": default_results, 
                 "error": default_error}
@@ -123,7 +124,7 @@ class OSINTAnalyzerBase:
                     source_data = saved_source_data                
                 
                 # Skip if max errors reached
-                elif error_counts[source] >= self.max_errors[source]:    
+                elif error_counts[source] >= self.max_errors.get(source, 0):    
                     print(f"Max errors reached for {source} skipping {arg}")
                     continue
 

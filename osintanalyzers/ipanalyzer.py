@@ -42,31 +42,22 @@ class IPAnalyzer(OSINTAnalyzerBase):
         url = f"https://www.whois.com/whois/{ip}"
         output = self.get_output_template(url)
 
-
         self.scraper.gotos(url)
-
-
-
         whois_data_elm = self.scraper.wait_for_visible_element(By.ID, "registryData")
-
         soup = self.scraper.soup
         
-        #if "Please respond to the question below to continue." in soup.text:
         if  "Security Check" in soup.text and not whois_data_elm:
             raise RateLimitError("ERROR: Captcha required")
-
 
         if "Invalid domain name" in soup.text:
             output["error"] = "ERROR: Invalid domain name"
             return output
-        
         
         if whois_data_elm and hasattr(whois_data_elm, "text"):
             whois_text = whois_data_elm.text 
             output["results"]["whois_text"] = whois_text
         else:
             output["error"] = "ERROR: No whois data found. Uncaught error."
-        
         
         return output
         
@@ -453,94 +444,10 @@ class IPAnalyzer(OSINTAnalyzerBase):
         return reduced_results
 
 
-
-        
-    # def get_attack_data_for_ips(self, attack, ips, sources=SOURCES):
-    #     """
-    #     TODO REFACTOR to base.get_reduced_data with self.reduce_<source> interface
-
-    #     Attack Postprocessor method used by AI assistant in _do_tool_call. 
-    #     Gets ipdata using get_data then reduces JSON structure to reduce tokens
-    #     before passing to AI. 
-    #     """
-        
-    #     # Get ipdata for all ips and sources to be reduced and returned to AI
-    #     ipdata = self.get_data(args=ips, arg_type="ip", sources=sources, update_counts=False)
-    #     # Copy full ipdata before reducing to attach to attack object 
-    #     # full_ipdata = deepcopy(ipdata)
-
-    #     for ip in ips:
-    #         for source in sources:
-
-    #             if ipdata[ip][source]['results']:
-    #                 #Only leave results and reduce nesting by one level
-    #                 ipdata[ip][source] = ipdata[ip][source]['results']
-
-    #             else:
-    #                 #Only leave error message
-    #                 ipdata[ip][source] = ipdata[ip][source].get('error')
-    #                 continue
-
-    #             if source == "isc":
-    #                 reduced_isc_data = {}
-    #                 reduced_isc_data['total_reports'] = ipdata[ip][source].pop("count", None)
-    #                 reduced_isc_data['honeypots_targeted'] = ipdata[ip][source].pop("attacks", None)
-    #                 reduced_isc_data['firstseen'] = ipdata[ip][source].pop("mindate", None)
-    #                 reduced_isc_data['lastseen'] = ipdata[ip][source].pop("maxdate", None)
-    #                 reduced_isc_data['network'] = ipdata[ip][source].pop("network", None)
-    #                 reduced_isc_data['asname'] = ipdata[ip][source].pop("asname", None)
-    #                 reduced_isc_data['as_country_code'] = ipdata[ip][source].pop("ascountry")   , None 
-
-    #                 weblogs = ipdata[ip][source].pop("weblogs", None)
-    #                 if weblogs:
-    #                     reduced_isc_data['weblogs'] = weblogs
-
-    #                 reduced_isc_data['threatfeeds'] = ipdata[ip][source].pop("threatfeeds", None)
-
-    #                 ipdata[ip][source] = reduced_isc_data
-
-
-
-    #             if source == 'cybergordon':
-    #                 reduced_cybergordon_data = {}
-    #                 for priority in ["high", "medium"]:
-    #                     for result in ipdata[ip][source][priority]:
-    #                         reduced_cybergordon_data[result["engine"]] = result["result"]
-                    
-    #                 ipdata[ip][source] = reduced_cybergordon_data
-
-    #             if source == "shodan":
-    #                 reduced_shodan_data = {}
-    #                 for port, port_data in ipdata[ip][source].get("ports", {}).items():
-    #                     if port_data["service_name"] != "unknown":
-    #                         del port_data["service_data_raw"]
-
-    #                     del port_data["service_data"]
-    #                     del port_data["timestamp"]
-    #                     del port_data['unix_epoch']
-                        
-    #                     ipdata[ip][source][f"port{port}"] = port_data
-                    
-    #                 ipdata[ip][source].pop("ports", None)
-
-    #             if source == "threatfox":
-    #                 reduced_threatfox_data = []
-    #                 for result in ipdata[ip][source]:
-    #                     result["ioc_data"].pop('IOC ID', None)
-    #                     result["ioc_data"].pop('UUID', None)
-    #                     result["ioc_data"].pop('Reporter', None)
-    #                     result["ioc_data"].pop('Reward', None)
-    #                     result["ioc_data"].pop('Tags', None)
-    #                     result["ioc_data"].pop('Reference', None)
-                        
-
-    #                     reduced_threatfox_data.append(result["ioc_data"])
-                    
-    #                 ipdata[ip][source] = reduced_threatfox_data
-
-
-    #     # if attack:
-    #     #     #attack.full_ipdata = full_ipdata
-    #     #     attack.reduced_ipdata = ipdata
-
-    #     return ipdata
+    def reduce_whois(self, results):
+        """
+        Reduce whois results to only relevant fields to reduce tokens before passing to AI model.
+        Also renames fields to be more verbose to improve AI comprehension.
+        """
+        # TODO: Implement reduce_whois after parsing whois data
+        return results
