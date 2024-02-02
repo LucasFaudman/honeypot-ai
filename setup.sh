@@ -172,7 +172,7 @@ python3 "$HONEYPOT_AI_PATH/main.py" -u \
 printf "\nConfiguring $HONEYPOT_AI_PATH/run.sh.\n"
 echo "#!/bin/bash
 source $HONEYPOT_AI_PATH/honeypot-ai-venv/bin/activate
-python3 $HONEYPOT_AI_PATH/main.py \$\@
+python3 $HONEYPOT_AI_PATH/main.py \$@
 deactivate
 " > "$HONEYPOT_AI_PATH/run.sh" 
 chmod +x "$HONEYPOT_AI_PATH/run.sh"
@@ -184,12 +184,12 @@ printf " ./install-zeek-on-honeypot.sh to install/update Zeek on your Honeypot.\
 printf " python3 $HONEYPOT_AI_PATH/main.py\nOR\n $CURRENT_PATH/run.sh \nto run Honeypot AI.\n"
 
 
+read -p "Run sync-logs.sh now? (y/n): " RUN_SYNC_LOGS
+[ "$RUN_SYNC_LOGS" == "y" ] && "$HONEYPOT_AI_PATH/sync-logs.sh" && read -p "List attacks now? (y/n): " LIST_NOW 
+[ "$LIST_NOW" == "y" ] && python3 "$HONEYPOT_AI_PATH/main.py" --lfl --list-attacks
+
 read -p "Show help for main.py? (y/n): " SHOW_HELP
 [ "$SHOW_HELP" == "y" ] && python3 "$HONEYPOT_AI_PATH/main.py" -h
-
-read -p "Run sync-logs.sh now? (y/n): " RUN_SYNC_LOGS
-[ "$RUN_SYNC_LOGS" == "y" ] && "$HONEYPOT_AI_PATH/sync-logs.sh"
-
 
 exit 0
 
