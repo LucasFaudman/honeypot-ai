@@ -232,7 +232,7 @@ ARG_GROUP_DESCRIPTIONS = {
     "User and Honeypot Environment Settings": "Settings specific to the user and honeypot environment",
     "Input Paths": "Paths to input logs and files",
     "Output Paths": "Paths to output files and directories",
-    #"Resource Paths": "Paths to resources",
+    # "Resource Paths": "Paths to resources",
 }
 
 def config_arg_parser():

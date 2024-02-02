@@ -192,5 +192,3 @@ read -p "Show help for main.py? (y/n): " SHOW_HELP
 [ "$SHOW_HELP" == "y" ] && python3 "$HONEYPOT_AI_PATH/main.py" -h
 
 exit 0
-
-

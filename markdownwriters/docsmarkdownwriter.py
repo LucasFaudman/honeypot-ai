@@ -1,20 +1,24 @@
 from .markdownwriterbase import *
-
+from urllib.parse import quote
 
 class DocsMarkdownWriter(MarkdownWriterBase):
+    """Writes markdown for the honeypot-ai project documentation and README"""
+    
+    GITHUB_BASE_URL = "https://github.com/LucasFaudman/honeypot-ai/blob/main/"
+
     def prepare(self):
         self.md_editors.append(self.add_description)
+        self.md_editors.append(self.add_example_reports)
         self.md_editors.append(self.add_setup)
         self.md_editors.append(self.add_basic_usage)
         self.md_editors.append(self.add_advanced_usage)
-        self.md_editors.append(self.add_help_from_parser)
         self.md_editors.append(self.add_default_config)
         self.custom_scripts_title = "Module Descriptions"
         self.md_editors.append(self.add_custom_scripts)
 
     
     def script_link(self, script):
-        return link(script.split("/")[-1], f"https://github.com/LucasFaudman/honeypot-ai/blob/main/{script}")
+        return link(script.split("/")[-1], f"{self.GITHUB_BASE_URL}{quote(script)}")
 
 
     def add_custom_scripts(self, md, *arg):
@@ -85,25 +89,16 @@ class DocsMarkdownWriter(MarkdownWriterBase):
             module_md += blockquote(module_dict.pop("description"))
             
             if module_dict:
-                module_md += table(["Script", "Description"], [[self.script_link(
-                    module + "/" + script), description] for script, description in module_dict.items()])
+                module_md += table(
+                    ["Script", "Description"], 
+                    [[self.script_link(module + "/" + script), description] for script, description in module_dict.items()]
+                    )
             
             script_md += module_md
         
         
         md += collapseable_section(script_md, self.custom_scripts_title, 2)
         
-        return md
-    
-
-    def add_help_from_parser(self, md, data_object):
-        help_text = data_object.get("config_parser").format_help()
-        md += collapseable_section(codeblock(help_text), "All Command Line Arguments", 2)
-        return md
-    
-    
-    def add_default_config(self, md, data_object):
-        md += collapseable_section(codeblock(data_object.get("default_config"), lang='python'), "Default Config", 2)
         return md
     
 
@@ -132,6 +127,7 @@ class DocsMarkdownWriter(MarkdownWriterBase):
         md += collapseable_section(setup, "Setup", 2)
         return md
 
+
     def add_description(self, md, data_object):
         description = ""
         description += h1("honeypot-ai")
@@ -140,48 +136,109 @@ class DocsMarkdownWriter(MarkdownWriterBase):
             "Currently supports Cowrie, DShield and Zeek logs. "
             )
         
-        description +=  blockquote("Built by Lucas Faudman for SANS ISC")
+        description +=  blockquote("Built by Lucas Faudman for SANS ISC/DShield")
         md += description
         return md
+    
+
+    def make_usage_example(self, description, command, output):
+        usage_md = blockquote(description)
+        usage_md += codeblock(command, lang="bash")
+        usage_md += collapseable_section(codeblock(output.strip()), "Output", 0, end_line=False)
+        return usage_md
+
 
     def add_basic_usage(self, md, data_object):
         basic_usage = ""
-        basic_usage += blockquote("Load all attacks from logs and list loaded attacks")
-        basic_usage += codeblock( "honeypot-ai/run.sh --load-from-logs --list-attacks")
-
-        basic_usage += blockquote("Load all attacks from logs and list attacks in order of start time, then number of commands, in ascending order")
-        basic_usage += codeblock( "honeypot-ai/run.sh -lfl --list --sort-attrs start_time num_commands --sort-order asc")
+        for example in BASIC_USAGE.values():
+            basic_usage += self.make_usage_example(**example)
         
-        basic_usage += blockquote("Organize attacks with at most 50 source IPs into attack directories for faster loading and storing analysis results")
-        basic_usage += codeblock( "honeypot-ai/run.sh -lfl  --organize-attacks --max-ips-per-attack 50")
-
-        basic_usage += blockquote("Load attacks from the attacks directory and print the commands, malware, and HTTP requests for attacks with at least 2 commands, or at least 5 HTTP requests")
-        basic_usage += codeblock("honeypot-ai/run.sh --load-from-attacks-dir --min-commands 2 --min-http-requests 5 --print-attrs commands malware http_requests")
-
-        basic_usage += blockquote("Load only attacks with IDs XXXX and YYYY from the attacks directory then analyze each with OpenAI and IP analyzers, but not the Malware analyzer")
-        basic_usage += codeblock("honeypot-ai/run.sh -lfa --only-attacks XXXX YYYY --analyze --no-malwareanalyzer")
-
-        basic_usage += blockquote("Write and export markdown report for attack id XXXX")
-        basic_usage += codeblock("honeypot-ai/run.sh -lfa --only-attack XXXX --analyze --write-markdown --export-report")
-
-        basic_usage += blockquote("Enter chat mode to interactively ask questions about attack id XXXX before writing and exporting markdown report")
-        basic_usage += codeblock("honeypot-ai/run.sh -lfa --only-attack XXXX --chat --analyze --write --export")
-
         md += collapseable_section(basic_usage, "Basic Usage", 2)
         return md
 
 
     def add_advanced_usage(self, md, data_object):
         advanced_usage = ""
-        advanced_usage += blockquote("Update config file with values from command line arguments")
-        advanced_usage += codeblock( "honeypot-ai/run.sh --config config.json --update-config --openai-api-key YOUR_API_KEY")
-
-
-        advanced_usage += blockquote("Enter interactive Python shell to manually modify attacks before analyzing and writing reports")
-        advanced_usage += codeblock( "honeypot-ai/run.sh -lfa --interactive --analyze --write --export")
-
-        advanced_usage += bullet("Modify the config file to change the default behavior of the honeypot-ai.")
-        advanced_usage += bullet("See all command line arguments with --help to see all options and arguments.")
-
+        advanced_usage += h3("All Command Line Arguments")
+        help_text = data_object.get("config_parser").format_help()
+        advanced_usage += codeblock(help_text, lang="bash")
+        advanced_usage += blockquote(f"For more advanced usage see comments in the source code and/or edit DEFAULT_CONFIG in {self.script_link('main.py')}.")
         md += collapseable_section(advanced_usage, "Advanced Usage", 2)
         return md
+    
+
+    def add_default_config(self, md, data_object):
+        md += collapseable_section(codeblock(data_object.get("default_config"), lang='python'), "Default Config", 2)
+        return md
+
+
+    def add_example_reports(self, md, data_object):
+        example_reports_md = h2("Attack Examples")
+        titles = [f"example-reports/{dir.name}" for dir in Path("./reports").glob("*")]
+        reports_table = table(
+            ["Attack", "AI Run Steps"],
+            [[self.script_link(title), self.script_link(title+"/run-steps.md")] for title in titles]
+        )
+        example_reports_md += reports_table
+        md += example_reports_md
+        return md
+
+
+
+BASIC_USAGE = {
+    "load_from_logs_list": {
+        "description": "Load attacks from logs then list all attacks",
+        "command": "honeypot-ai/run.sh --load-from-logs --list-attacks",
+        "output": """
+        """
+    },
+    "load_from_logs_sort": {
+        "description": "Load attacks from logs then list first 5 attacks sorted in descending order by number of commands, then start time. Then print the commands for each attack",
+        "command": "honeypot-ai/run.sh -lfl --list --max-attacks 5 --sort-order desc --sort-attrs num_commands start_time --print commands",
+        "output": """
+        """
+    },
+    "organize_attacks": {
+        "description": "Organize attacks with at most 10 source IPs into attack directories for faster loading and to prepare for storing analysis results",
+        "command": "honeypot-ai/run.sh -lfl  --organize-attacks --max-ips-per-attack 50",
+        "output": """
+        """
+    },
+    "load_from_attacks_dir": {
+        "description": "Load attacks from the attacks directory with at least 2 commands, or at least 5 HTTP requests then print the commands, malware, and HTTP requests for each attack",
+        "command": "honeypot-ai/run.sh --load-from-attacks-dir --min-commands 2 --min-http-requests 5 --print-attrs commands malware http_requests",
+        "output": """
+        """
+    },
+    "only_attacks": {
+        "description": "Load only attacks with IDs XXXX and YYYY from the attacks directory then print the unique sessions and unique source IPs for each attack",
+        "command": "honeypot-ai/run.sh -lfa --only-attacks XXXX YYYY --print-attrs uniq_sessions uniq_source_ips",
+        "output": """
+        """
+    },
+    "analyze_write_export": {
+        "description": "Analyze attack with ID XXXX using OpenAI and OSINT analyzers then write markdown and export to reports directory",
+        "command": "honeypot-ai/run.sh -lfa --only-attack XXXX --analyze --write-markdown --export-report",
+        "output": """
+        """
+    },
+    "chat_mode": {
+        "description": "Enter chat mode to ask custom questions about attack with ID XXXX before analyzing, writing markdown, and exporting",
+        "command": "honeypot-ai/run.sh -lfa --only-attack XXXX -AWE --chat",
+        "output": """
+        """
+    },
+    "interactive": {
+        "description": "Enter interactive Python shell to manually modify attacks before analyzing, writing markdown, and exporting",
+        "command": "honeypot-ai/run.sh -lfa -AWE --interact",
+        "output": """
+        """
+    },
+    "config_update": {
+        "description": "Update config file with values from command line arguments",
+        "command": "honeypot-ai/run.sh --config config.json --update-config --openai-api-key YOUR_API_KEY",
+        "output": """
+        """
+    },
+        
+}

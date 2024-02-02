@@ -2,7 +2,17 @@
 # honeypot-ai
 
 #### A modular honeypot log analyzer and OSINT collector with OpenAI integration to easily create ISC style reports and interactively chat with AI about attacks. Currently supports Cowrie, DShield and Zeek logs. 
-> Built by Lucas Faudman for SANS ISC
+> Built by Lucas Faudman for SANS ISC/DShield
+
+## Attack Examples
+
+| Attack | AI Run Steps |
+| --- | --- |
+| [Malicious IP 204.76.203.13: Unauthorized Access, Malware Deployment, and Persistence](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Malicious%20IP%20204.76.203.13%3A%20Unauthorized%20Access%2C%20Malware%20Deployment%2C%20and%20Persistence) | [run-steps.md](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Malicious%20IP%20204.76.203.13%3A%20Unauthorized%20Access%2C%20Malware%20Deployment%2C%20and%20Persistence/run-steps.md) |
+| [Multi-Vector Cyber Attack Exploiting Shellshock and Targeting Apache Tomcat via Compromised IP Addresses](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Multi-Vector%20Cyber%20Attack%20Exploiting%20Shellshock%20and%20Targeting%20Apache%20Tomcat%20via%20Compromised%20IP%20Addresses) | [run-steps.md](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Multi-Vector%20Cyber%20Attack%20Exploiting%20Shellshock%20and%20Targeting%20Apache%20Tomcat%20via%20Compromised%20IP%20Addresses/run-steps.md) |
+| [Telnet Compromise and Shell Script Malware Deployment on Linux Honeypot by Organized Attacker](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Telnet%20Compromise%20and%20Shell%20Script%20Malware%20Deployment%20on%20Linux%20Honeypot%20by%20Organized%20Attacker) | [run-steps.md](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Telnet%20Compromise%20and%20Shell%20Script%20Malware%20Deployment%20on%20Linux%20Honeypot%20by%20Organized%20Attacker/run-steps.md) |
+| [Unauthenticated Command Execution Attack Exploiting Vulnerable Netgear Devices from IP 178.72.69.244 for Malware Deployment](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Unauthenticated%20Command%20Execution%20Attack%20Exploiting%20Vulnerable%20Netgear%20Devices%20from%20IP%20178.72.69.244%20for%20Malware%20Deployment) | [run-steps.md](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Unauthenticated%20Command%20Execution%20Attack%20Exploiting%20Vulnerable%20Netgear%20Devices%20from%20IP%20178.72.69.244%20for%20Malware%20Deployment/run-steps.md) |
+| [Multi-Stage SSH Brute Force Attack with Possible Botnet Indications Launched from Compromised DigitalOcean Server](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Multi-Stage%20SSH%20Brute%20Force%20Attack%20with%20Possible%20Botnet%20Indications%20Launched%20from%20Compromised%20DigitalOcean%20Server) | [run-steps.md](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Multi-Stage%20SSH%20Brute%20Force%20Attack%20with%20Possible%20Botnet%20Indications%20Launched%20from%20Compromised%20DigitalOcean%20Server/run-steps.md) |
 
 <details>
 <summary>
@@ -59,41 +69,177 @@ python3 honeypot-ai/main.py --help
 <h2>Basic Usage</h2>
 </summary>
 
-> Load all attacks from logs and list loaded attacks
+> Load attacks from logs then list all attacks
 
-```
+```bash
 honeypot-ai/run.sh --load-from-logs --list-attacks
 ```
-> Load all attacks from logs and list attacks in order of start time, then number of commands, in ascending order
+
+<details>
+<summary>
+Output
+</summary>
+
 
 ```
-honeypot-ai/run.sh -lfl --list --sort-attrs start_time num_commands --sort-order asc
-```
-> Organize attacks with at most 50 source IPs into attack directories for faster loading and storing analysis results
 
 ```
+
+</details>
+
+
+> Load attacks from logs then list first 5 attacks sorted in descending order by number of commands, then start time. Then print the commands for each attack
+
+```bash
+honeypot-ai/run.sh -lfl --list --max-attacks 5 --sort-order desc --sort-attrs num_commands start_time --print commands
+```
+
+<details>
+<summary>
+Output
+</summary>
+
+
+```
+
+```
+
+</details>
+
+
+> Organize attacks with at most 10 source IPs into attack directories for faster loading and to prepare for storing analysis results
+
+```bash
 honeypot-ai/run.sh -lfl  --organize-attacks --max-ips-per-attack 50
 ```
-> Load attacks from the attacks directory and print the commands, malware, and HTTP requests for attacks with at least 2 commands, or at least 5 HTTP requests
+
+<details>
+<summary>
+Output
+</summary>
+
 
 ```
+
+```
+
+</details>
+
+
+> Load attacks from the attacks directory with at least 2 commands, or at least 5 HTTP requests then print the commands, malware, and HTTP requests for each attack
+
+```bash
 honeypot-ai/run.sh --load-from-attacks-dir --min-commands 2 --min-http-requests 5 --print-attrs commands malware http_requests
 ```
-> Load only attacks with IDs XXXX and YYYY from the attacks directory then analyze each with OpenAI and IP analyzers, but not the Malware analyzer
+
+<details>
+<summary>
+Output
+</summary>
+
 
 ```
-honeypot-ai/run.sh -lfa --only-attacks XXXX YYYY --analyze --no-malwareanalyzer
-```
-> Write and export markdown report for attack id XXXX
 
 ```
+
+</details>
+
+
+> Load only attacks with IDs XXXX and YYYY from the attacks directory then print the unique sessions and unique source IPs for each attack
+
+```bash
+honeypot-ai/run.sh -lfa --only-attacks XXXX YYYY --print-attrs uniq_sessions uniq_source_ips
+```
+
+<details>
+<summary>
+Output
+</summary>
+
+
+```
+
+```
+
+</details>
+
+
+> Analyze attack with ID XXXX using OpenAI and OSINT analyzers then write markdown and export to reports directory
+
+```bash
 honeypot-ai/run.sh -lfa --only-attack XXXX --analyze --write-markdown --export-report
 ```
-> Enter chat mode to interactively ask questions about attack id XXXX before writing and exporting markdown report
+
+<details>
+<summary>
+Output
+</summary>
+
 
 ```
-honeypot-ai/run.sh -lfa --only-attack XXXX --chat --analyze --write --export
+
 ```
+
+</details>
+
+
+> Enter chat mode to ask custom questions about attack with ID XXXX before analyzing, writing markdown, and exporting
+
+```bash
+honeypot-ai/run.sh -lfa --only-attack XXXX -AWE --chat
+```
+
+<details>
+<summary>
+Output
+</summary>
+
+
+```
+
+```
+
+</details>
+
+
+> Enter interactive Python shell to manually modify attacks before analyzing, writing markdown, and exporting
+
+```bash
+honeypot-ai/run.sh -lfa -AWE --interact
+```
+
+<details>
+<summary>
+Output
+</summary>
+
+
+```
+
+```
+
+</details>
+
+
+> Update config file with values from command line arguments
+
+```bash
+honeypot-ai/run.sh --config config.json --update-config --openai-api-key YOUR_API_KEY
+```
+
+<details>
+<summary>
+Output
+</summary>
+
+
+```
+
+```
+
+</details>
+
+
 
 </details>
 
@@ -105,31 +251,10 @@ honeypot-ai/run.sh -lfa --only-attack XXXX --chat --analyze --write --export
 <h2>Advanced Usage</h2>
 </summary>
 
-> Update config file with values from command line arguments
 
-```
-honeypot-ai/run.sh --config config.json --update-config --openai-api-key YOUR_API_KEY
-```
-> Enter interactive Python shell to manually modify attacks before analyzing and writing reports
+### All Command Line Arguments
 
-```
-honeypot-ai/run.sh -lfa --interactive --analyze --write --export
-```
-* Modify the config file to change the default behavior of the honeypot-ai.
-* See all command line arguments with --help to see all options and arguments.
-
-</details>
-
----
-
-
-<details>
-<summary>
-<h2>All Command Line Arguments</h2>
-</summary>
-
-
-```
+```bash
 usage: main.py [-h] [--list-attacks] [--print-attrs ATTACK_ATTRS [ATTACK_ATTRS ...]] [--organize-attacks] [--analyze-attacks] [--chat] [--write-reports] [--export-reports] [--interactive] [--config FILE]
                [--update-config] [--load-from-logs] [--load-from-attacks-dir] [--only-attacks ATTACK_IDS [ATTACK_IDS ...]] [--skip-attacks ATTACK_IDS [ATTACK_IDS ...]] [--max-ips-per-attack MAX_IPS_PER_ATTACK]
                [--max-attacks MAX_ATTACKS] [--sort-attrs SORT_ATTRS [SORT_ATTRS ...]] [--sort-order SORT_ORDER] [--load-attacks-max-workers LOAD_ATTACKS_MAX_WORKERS] [--log-types LOG_TYPES [LOG_TYPES ...]]
@@ -373,6 +498,7 @@ Output Paths:
                         Path to the reports directory where attack markdown reports and files will be exported too (default: ./reports)
 
 ```
+> For more advanced usage see comments in the source code and/or edit DEFAULT_CONFIG in [main.py](https://github.com/LucasFaudman/honeypot-ai/blob/main/main.py).
 
 </details>
 

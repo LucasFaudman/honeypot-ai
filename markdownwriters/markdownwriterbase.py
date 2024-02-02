@@ -64,20 +64,27 @@ ordered_list = lambda items, style_fn=nomd: ''.join([f'\n{n}. {style_fn(item)}\n
 collapsed = lambda text, summary="", style_fn=nomd: f'<details>{text}<summary>{style_fn(summary)}</summary></details>'
 
 
-def collapseable_section(text, label, header_level=2, blockquote=False):
+def collapseable_section(text, label, header_level=2, blockquote=False, end_line=True):
     bqstart = '\n<blockquote>' if blockquote else ''
     bqend = '</blockquote>\n' if blockquote else ''
+    end_line = '---\n' if end_line else ''
+    if header_level:
+        hstart = f"<h{str(header_level)}>" 
+        hend = f"</h{str(header_level)}>"
+    else:
+        hstart = ''
+        hend = ''
+
     section_md = f"""{bqstart}
 <details>
 <summary>
-<h{str(header_level)}>{label}</h{str(header_level)}>
+{hstart}{label}{hend}
 </summary>
 
 {text}
 </details>
 {bqend}
----
-
+{end_line}
 """
 
     return section_md
