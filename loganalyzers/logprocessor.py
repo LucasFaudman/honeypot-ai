@@ -302,7 +302,7 @@ class LogProcessor:
 
         attacks_before = len(self.attacks)
         self.merge_attacks_by_sig_regexes()
-        print(f"({attacks_before}->{len(self.attacks)}) - Merged {attacks_before - len(self.attacks)} attacks with manual merge")
+        print(f"({attacks_before}->{len(self.attacks)}) - Merged {attacks_before - len(self.attacks)} attacks with shared sig regexes")
 
         return self.attacks
 
