@@ -31,11 +31,9 @@ DEFAULT_QUESTIONS = {
                 "http_analysis": "Explain the HTTP requests and their functions in the context of the attack.",
                 "commands_analysis": "Explain the commands used and their functions in the context of the attack.",
                 "malware_analysis": "Explain the how the malware functions in the context of the attack.",
-                #"vuln_analysis": "Explain which vulnerabilities are being exploited. Include the exploit name(s), CVE number(s) and example code from ExploitDB, if possible.",
                 "vuln_analysis": "Explain which vulnerabilities are being exploited. Include the exploit name(s), CVE number(s) and example code from ExploitDB, if possible. "
                 "First use search_exploitdb to find potential exploits, then use the get_exploitdb_exploit to get the code for the exploit that is being used in the attack.",
                 
-
 
                 # Attack Classification Questions (Asked after AI context window has been updated with OSINT data and attack methods analysis)
                 "mitre_attack": "How can this attack be classified using the MITRE ATT&CK framework?",
