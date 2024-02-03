@@ -503,7 +503,7 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         choice = ""
         quit_strings = ("q", "quit", "exit", "exit()")
         while choice not in quit_strings:
-            msg = f"AI Interactive Chat\n{attack}\n"
+            msg = f"\nAI Interactive Chat\n{attack}\n"
             msg += "\nCurrent questions:\n" 
             msg += pprint_str(question_to_ask)
             msg += "\nChoices:"

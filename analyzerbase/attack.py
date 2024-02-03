@@ -397,7 +397,7 @@ class Attack(SmartAttrObject, CachedPropertyObject, PostprocessableObject):
         return self.__str__()
     
 
-    def print_attrs(self, *attrs):
+    def print_attrs(self, attrs):
         """Prints self then attributes of self"""
         print(self)
         for attr in attrs:
