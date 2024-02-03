@@ -543,11 +543,13 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
             
             elif choice == "c":
                 question_to_ask = {}
+                print("Questions cleared.")
+                sleep(1)
 
             elif choice == "p":
                 # Get valid attack attributes to pprint
-                attrs = set(input("Enter attack attribute to pprint: ").split()) & set(dir(attack))
-                attack.print_attrs(attrs)
+                attrs = [attr for attr in input("Enter attack attributes to pprint: ").split() if hasattr(attack, attr)]
+                attack.print_attrs(*attrs)
             
             elif choice == "m":
                 new_model = input("Enter new OpenAI model: ")
