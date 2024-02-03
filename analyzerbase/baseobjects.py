@@ -37,6 +37,8 @@ class SmartAttrObject(object):
     Smart attribute access also allows for common typos/abbreviations by AI such as dropped 's', removing '_all_'.
     """
 
+    
+
     def __init__(self, uniq_fn=SetReprOrderedSet) -> None:
         super().__init__()
         self._smart_attr_access_enabled = True
@@ -52,65 +54,69 @@ class SmartAttrObject(object):
         """Disable smart attribute access and return to normal attribute access for slighly better performance"""
         self._smart_attr_access_enabled = False
 
-
     def __getattr__(self, attr) -> Any:
         """Modifys value of attr before returning based <modifier>_addr while _smart_attr_access_enabled = True. See class docstring for more info"""
         # Return the attribute normally if smart attribute access is disabled
         if not super().__getattribute__('_smart_attr_access_enabled'):
             return super().__getattribute__(attr)
 
-        outfn = lambda x: x # Default outfn is identity function
+        modifier_fns = []
         if attr.startswith("num_"):
-            outfn = len
+            modifier_fns.append(len)
             attr = attr.replace("num_", "")
         elif attr.startswith("min_"):
-            outfn = min
+            modifier_fns.append(min)
             attr = attr.replace("min_", "")
         elif attr.startswith("max_"):
-            outfn = max
+            modifier_fns.append(max)
             attr = attr.replace("max_", "")
         elif attr.endswith("_counter"):
-            outfn = Counter
+            modifier_fns.append(Counter)
             attr = attr.replace("_counter", "")
 
-        elif attr.startswith("most_common"):
+        if attr.startswith("most_common"):
             n_str = attr.split("_")[1].replace("common", "")
             if n_str:
                 n = int(n_str)
-                outfn = lambda x: Counter(x).most_common(n)
+                modifier_fns.append(lambda x: Counter(x).most_common(n))
                 attr = attr.replace(f"most_common{n_str}_", "")
             else:
                 n = 1
-                outfn = lambda x: Counter(x).most_common(n)[0][0]
+                modifier_fns.append(lambda x: Counter(x).most_common(n)[0][0])
                 attr = attr.replace("most_common_", "") + ("s" if not attr.endswith("s") else "")
         
         elif attr.startswith("first"):
             # Allow for first_<attr> and first<n>_<attr> to get the first n items
             end_slice = attr.split("_")[0].replace("first", "")
             if end_slice:
-                outfn = lambda x: x[:int(end_slice)]
+                modifier_fns.append(lambda x: x[:int(end_slice)])
                 attr = attr.replace(f"first{end_slice}_", "")
             else:
-                outfn = lambda x: x[0] if x else None
+                modifier_fns.append(lambda x: x[0] if x else None)
                 attr = attr.replace("first_", "") + ("s" if not attr.endswith("s") else "")
-
 
         elif attr.startswith("last"):
             # Allow for last_<attr> and last<n>_<attr> to get the last n items
             start_slice = attr.split("_")[0].replace("last", "")
             if start_slice:
-                outfn = lambda x: x[-int(start_slice):]
+                modifier_fns.append(lambda x: x[-int(start_slice):])
                 attr = attr.replace(f"last{start_slice}_", "")
             else:
-                outfn = lambda x: x[-1] if x else None
+                modifier_fns.append(lambda x: x[-1] if x else None)
                 attr = attr.replace("last_", "") + ("s" if not attr.endswith("s") else "")
 
-        
-        infn = lambda x: x # Default infn is identity function
+        if attr.endswith("_indexed"):
+            modifier_fns.append(lambda x: dict(enumerate(x)))
+            attr = attr.replace("_indexed", "")
+
         if attr.startswith("uniq_"):
-            infn = self._uniq_fn # SetReprOrderedSet or set
+            if modifier_fns:
+                modifier_fns = [self._uniq_fn] + modifier_fns
+            else:
+                modifier_fns.append(self._uniq_fn) # SetReprOrderedSet or set
             attr = attr.replace("uniq_", "")
-        
+
+
         # Hanndle common typos/abbreviations by AI
         _self_dir = dir(self)
         if not attr.startswith("all_") and "all_" + attr in _self_dir:
@@ -121,8 +127,11 @@ class SmartAttrObject(object):
             attr = attr[:-1]
 
         # Return the modified attribute by calling the outfn on the infn of the attribute
-        return outfn(infn(super().__getattribute__(attr)))
-
+        val = super().__getattribute__(attr)
+        for fn in modifier_fns:
+            val = fn(val)
+        
+        return val
 
 
 class CachedProperty(property):
