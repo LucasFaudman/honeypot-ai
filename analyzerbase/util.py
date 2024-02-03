@@ -2,7 +2,6 @@ from .common import *
 from .baseobjects import SetReprOrderedSet
 
 from hashlib import sha256
-from pprint import pprint
 from io import StringIO
 from urllib.parse import urlparse
 

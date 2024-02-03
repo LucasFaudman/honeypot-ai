@@ -397,6 +397,13 @@ class Attack(SmartAttrObject, CachedPropertyObject, PostprocessableObject):
         return self.__str__()
     
 
+    def print_attrs(self, *attrs):
+        """Prints self then attributes of self"""
+        print(self)
+        for attr in attrs:
+            print(f"{attr}:")
+            pprint(getattr(self, attr))
+
 
 def recursive_split_commands(commands):
     """Recursively splits long chained commands into individual commands and returns flat list of split commands"""

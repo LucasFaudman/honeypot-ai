@@ -649,9 +649,7 @@ def main(test_args=None):
     # Called after analyze_attacks so that the attributes are updated before printing
     if args.print_attrs:
         for attack in ATTACKS.values():
-            print(f"\n{attack}\n"
-                  + '\n'.join(f"{attr}:\n{pprint_str(getattr(attack, attr))}" for attr in args.print_attrs)
-            )
+            attack.print_attrs(args.print_attrs)
 
     
     # Hidden option to update README.md with config_parser and default_config when --write-reports and --only-attacks "README" flags are set
