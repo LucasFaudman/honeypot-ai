@@ -20,10 +20,29 @@ def pprint_str(*args, **kwargs):
     """Pretty Print to StringIO and return the string"""
     output_buffer = StringIO()
     kwargs["stream"] = output_buffer
+    # Convert SetReprOrderedSet to list si pprint can handle it
+    for arg in args:
+        if isinstance(arg, (set, SetReprOrderedSet)):
+            arg = list(arg)
     pprint(*args, **kwargs)
     return output_buffer.getvalue()
 
 
+def print_box(string, title="", fill_char="#", width=None):
+    """Prints string in a box"""
+    if not width:
+        width = len(max(string.split("\n") + [title], key=len)) + 4
+    
+    if title:
+        print(fill_char * width)
+        print(f"{fill_char} {title.center(width-4)} {fill_char}")
+    
+    print(fill_char * width)
+    for line in string.split("\n"):
+        print(f"{fill_char} {line.ljust(width-4)} {fill_char}")
+    print(fill_char * width)
+    
+    
 def run_command_with_shlex(command, args, subprocess_kwargs={"shell": True}):
     """Runs command with shlex.quote() on args and returns stdout"""
     if isinstance(args, (list, tuple, set)):
