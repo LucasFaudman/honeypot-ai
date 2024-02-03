@@ -18,7 +18,7 @@ DEFAULT_CONFIG = {
 
     # Log Types and Zeek Settings
     "LOG_TYPES": ["cowrie", "zeek"], # Log types to process
-    "ZEEK_LOG_TYPES": ["http"], # Zeek log types to process
+    "ZEEK_LOG_TYPES": ["http", "conn"], # Zeek log types to process
     "ZEEK_LOG_EXT": ".log", # Zeek log file extension
     "ZEEK_KEEP_EMPTY_FIELDS": True, # Whether or not to keep empty fields in Zeek logs
     "ZEEK_KEEP_UNSET_FIELDS": False, # Whether or not to keep unset fields in Zeek logs
@@ -324,16 +324,11 @@ def config_arg_parser():
 
 def main(test_args=None):
     print("Starting honeypot-ai...\n")
-
-    parser = config_arg_parser()
+    
     # Parse args
-    if test_args:
-        args = parser.parse_args(args=test_args)
-    else:
-        args = parser.parse_args()
+    parser = config_arg_parser()
+    args = parser.parse_args(args=test_args)
     
-    
-
     # Set initial config to copy of default config
     config = DEFAULT_CONFIG.copy()
 
