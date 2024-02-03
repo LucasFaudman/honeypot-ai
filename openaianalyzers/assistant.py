@@ -468,6 +468,7 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
                 )
             
             question_run_log = {
+                "model": self.model,
                 "question_key": question_key,
                 "content": question,
                 "answer": answer,
@@ -492,28 +493,36 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         print(f"\nEntering Chat Mode.\nAsk the AI assistant custom questions about:\n{attack}")
         question_run_logs = {}
         question_to_ask = {}
-        
-        choice = "1"
+
+        question_num = max(
+            [int(qfile.name.split("_")[1].replace(".json", ""))
+             for qfile in (attack.attack_dir / "ai-chat").glob("question_*.json")]
+            + [0]
+        ) + 1  # Start at 1 or highest question number +1 if previous chats
+
+        choice = ""
         quit_strings = ("q", "quit", "exit", "exit()")
         while choice.lower() not in quit_strings:
             msg = "\nCurrent questions:\n" 
             msg += pprint_str(question_to_ask)
-            msg += "\nChoices:\n 1) Enter a question (adds to current questions)"
-            msg += "\n 2) Upload multiline question from file (adds to current questions)"
-            msg += "\n 3) Ask questions (asks all questions in current questions)"
-            msg += "\n 4) Clear questions (clears current questions)"
-            msg += "\n\nEnter choice (1, 2, 3, 4 OR q to exit): "
+            msg += "\nChoices:\n e) Enter a question (adds to current questions)"
+            msg += "\n u) Upload multiline question from file (adds to current questions)"
+            msg += "\n a) Ask questions (asks all questions in current questions)"
+            msg += "\n c) Clear questions (clears current questions)"
+            msg += "\n\nEnter choice (e, u, a, c OR q to exit): "
             choice = input(msg)
+            choice = choice.lower().strip()[0] if choice else ""
 
-            if choice == "1":
+            if choice == "e":
                 question = input("Enter question: ")
-                question_key = f"question_{len(question_run_logs) + 1}"
+                question_key = f"question_{question_num}"
                 question_key = input(f"Enter question key or leave empty to use '{question_key}' : ").replace(' ', '_').replace('/', '_') or question_key
                 question_to_ask[question_key] = question
+                question_num += 1
             
-            elif choice == "2":
+            elif choice == "u":
                 question_file = input("Enter question file path: ")
-                question_key = f"question_{len(question_run_logs) + 1}"
+                question_key = f"question_{question_num}"
                 question_key = input(f"Enter question key or leave empty to use '{question_key}' : ").replace(' ', '_').replace('/', '_') or question_key
                 if not Path(question_file).exists():
                     print(f"ERROR: File {question_file} does not exist.")
@@ -521,12 +530,13 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
                 
                 with Path(question_file).open("r") as f:
                     question_to_ask[question_key] = f.read()
+                    question_num += 1
                     
-            elif choice == "3":
+            elif choice == "a":
                 question_run_logs.update(self.answer_attack_questions(question_to_ask, attack, interactive_chat=True))
                 question_to_ask = {}
             
-            elif choice == "4":
+            elif choice == "c":
                 question_to_ask = {}
             
             elif choice not in quit_strings:
