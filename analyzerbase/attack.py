@@ -1,7 +1,7 @@
 from .baseobjects import *
 from .common import *
 from .malware import Malware
-
+from .util import print_box, pprint_str
 
 class Attack(SmartAttrObject, CachedPropertyObject, PostprocessableObject):
     ATTACKS_PATH = Path("./attacks")
@@ -397,12 +397,14 @@ class Attack(SmartAttrObject, CachedPropertyObject, PostprocessableObject):
         return self.__str__()
     
 
-    def print_attrs(self, attrs):
+    def print_attrs(self, *attrs):
         """Prints self then attributes of self"""
-        print(self)
+        # print(f"\n{self}")
+        print()
         for attr in attrs:
-            print(f"{attr}:")
-            pprint(getattr(self, attr))
+            print(self)
+            print_box(pprint_str(getattr(self, attr)), title=attr)
+        print()
 
 
 def recursive_split_commands(commands):
