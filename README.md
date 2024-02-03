@@ -1486,10 +1486,10 @@ Honeypot AI Finished Successfully!
 </details>
 
 
-> Load only attacks with IDs XXXX and YYYY from the attacks directory then print the unique sessions and unique source IPs for each attack
+> Load only attacks with IDs XXXX and YYYY from the attacks directory then print the source IPs, unique dst ports, sessions,and commands and for each attack
 
 ```bash
-honeypot-ai/run.sh -lfa --only-attacks XXXX YYYY --print-attrs uniq_sessions uniq_source_ips
+honeypot-ai/run.sh -lfa --only-attacks XXXX YYYY --print-attrs source_ips uniq_dst_ports sessions commands 
 ```
 
 <details>
@@ -1499,7 +1499,91 @@ Output
 
 
 ```
+lucasfaudman@Lucass-MacBook-Pro testenv % honeypot-ai/run.sh -lfa --only-attacks 1ae2a0aa7da872071305a1170015dfebfd7e40ebb8cb16a15979522836b53687 846f2a6c936a5c60bf416fa277a315d852da3ed0f52d2c9e22aca882ad3e17d2 --print-attrs source_ips uniq_dst_ports sessions commands
+Starting honeypot-ai...
 
+Loading attacks from attacks directory at /Users/lucasfaudman/Documents/SANS/testenv/attacks
+Loading 2 attacks in parallel with 2 workers.
+WARNING: Output may be jumbled. If errors occur, try again with --load-attacks-max-workers 1
+Loading Attack: 1ae2a0aa7da872071305a1170015dfebfd7e40ebb8cb16a15979522836b53687
+Processing Events from Parser 1 of 2: <loganalyzers.logparser.ZeekParser object at 0x10e9ff650>
+Loading Attack: 846f2a6c936a5c60bf416fa277a315d852da3ed0f52d2c9e22aca882ad3e17d2
+Processing Events from Parser 1 of 2: <loganalyzers.logparser.ZeekParser object at 0x10e613c50>
+Processing Events from Parser 2 of 2: <loganalyzers.logparser.CowrieParser object at 0x10ea13110>
+Processing Events from Parser 2 of 2: <loganalyzers.logparser.CowrieParser object at 0x10e62b5d0>
+Loaded Attack: 1ae2a0aa7da872071305a1170015dfebfd7e40ebb8cb16a15979522836b53687
+Loaded Attack: 846f2a6c936a5c60bf416fa277a315d852da3ed0f52d2c9e22aca882ad3e17d2
+(2->2) - Removed 0 attacks with ips ['216.243.47.166', '172.31.5.68', '54.67.87.80']
+Attempting merge 6: 1ae2a0aa7da872071305a1170015dfebfd7e40ebb8cb16a15979522836b53687 <- 846f2a6c936a5c60bf416fa277a315d852da3ed0f52d2c9e22aca882ad3e17d2 by malware_urls
+Merged 0 attacks by out of 6 attempts (0.0000%) 
+Merge Attacks Time: 0.0015s
+(2->2) - Merged 0 attacks with shared attrs
+(2->2) - Merged 0 attacks with shared sig regexes
+
+Attack (chash: 1ae2a0aa7da872071305a1170015dfebfd7e40ebb8cb16a15979522836b53687), SourceIPs: 4, Sessions: 19, SSH: 7, Commands: 8, Cmdlogs: 1, 
+source_ips:
+[SourceIP 31.208.22.102 Sessions: 7, Successful Logins: 1, Commands: 8, Zeek Events: 12, ,
+ SourceIP 117.190.226.115 Sessions: 3, Successful Logins: 1, Commands: 8, Zeek Events: 4, ,
+ SourceIP 222.111.179.159 Sessions: 4, Successful Logins: 1, Commands: 8, Zeek Events: 6, ,
+ SourceIP 73.43.215.50 Sessions: 5, Successful Logins: 1, Commands: 8, Zeek Events: 8, ]
+
+uniq_dst_ports:
+{22, 2222, 1}
+
+sessions:
+[Session CaD9804xwBAGhgGqjh CONN 31.208.22.102:45084 -> 172.31.5.68:22 Duration: 0.00s,
+ Session CzjRLB2btI3IwEKgRf CONN 31.208.22.102:45084 -> 172.31.5.68:22 Duration: 0.00s,
+ Session C46O2M1I1SednsHSvb CONN 117.190.226.115:61839 -> 172.31.5.68:22 Duration: 0.00s,
+ Session CFpTf64ekxdPAZS3re CONN 117.190.226.115:43521 -> 172.31.5.68:22 Duration: 0.00s,
+ Session CFeUqB213gxD7HIvu4 CONN 222.111.179.159:59572 -> 172.31.5.68:22 Duration: 0.00s,
+ Session 752ae9348058 SSH 117.190.226.115:43521 -> 172.31.5.68:2222 Login: root:12345 Commands: 8, Duration: 0.60s,
+ Session CR41Ym1ydYQS6ugDe6 CONN 222.111.179.159:59572 -> 172.31.5.68:22 Duration: 0.00s,
+ Session CoUKxE3DKW9VAegoic SSH 222.111.179.159:40188 -> 172.31.5.68:22 Duration: 0.00s,
+ Session 046b22ef16f0 SSH 222.111.179.159:40188 -> 172.31.5.68:2222 Login: root:admin Commands: 8, Duration: 0.73s,
+ Session CK3sbPzzOC9boGIsa CONN 31.208.22.102:45084 -> 172.31.5.68:22 Duration: 0.00s,
+ Session ClebOb3qIzWNgOC2Df SSH 31.208.22.102:54334 -> 172.31.5.68:22 Duration: 0.00s,
+ Session Ctw1eC2e8HbtquOy5h CONN 31.208.22.102:3 -> 172.31.5.68:1 Duration: 0.00s,
+ Session CZ8srM1JBlMN4Xy9Fe CONN 31.208.22.102:3 -> 172.31.5.68:1 Duration: 0.00s,
+ Session CePMmX2QZAeQMAYUU1 CONN 73.43.215.50:58337 -> 172.31.5.68:22 Duration: 0.00s,
+ Session CflvHs4DErTsYAB7Pk SSH 73.43.215.50:60428 -> 172.31.5.68:22 Duration: 0.00s,
+ Session CIKm3kztvflb4Ch7e CONN 73.43.215.50:60428 -> 172.31.5.68:22 Duration: 0.00s,
+ Session C0rtMj4DNGgibZd4Wa CONN 73.43.215.50:60428 -> 172.31.5.68:22 Duration: 0.00s,
+ Session 0f1605bd0344 SSH 31.208.22.102:54334 -> 172.31.5.68:2222 Login: root:12345 Commands: 8, Duration: 0.23s,
+ Session 8445fa23f411 SSH 73.43.215.50:60428 -> 172.31.5.68:2222 Login: root:12345 Commands: 8, Duration: 0.55s]
+
+commands:
+['/ip cloud print',
+ 'ifconfig',
+ 'uname -a',
+ 'cat /proc/cpuinfo',
+ "ps | grep '[Mm]iner'",
+ "ps -ef | grep '[Mm]iner'",
+ 'ls -la /dev/ttyGSM* /dev/ttyUSB-mod* /var/spool/sms/* /var/log/smsd.log '
+ '/etc/smsd.conf* /usr/bin/qmuxd /var/qmux_connect_socket /etc/config/simman '
+ '/dev/modem* /var/config/sms/*',
+ 'echo Hi | cat -n']
+
+
+Attack (hhash: 846f2a6c936a5c60bf416fa277a315d852da3ed0f52d2c9e22aca882ad3e17d2), SourceIPs: 2, Sessions: 6, HTTP: 6, Httplogs: 2 
+source_ips:
+[SourceIP 192.227.146.253 Sessions: 2, HTTP Requests: 2, Zeek Events: 6, ,
+ SourceIP 123.99.201.37 Sessions: 4, HTTP Requests: 4, Zeek Events: 12, ]
+
+uniq_dst_ports:
+{8080, 80}
+
+sessions:
+[Session CLianm3XujC5W6HM2c HTTP 192.227.146.253:54693 -> 172.31.5.68:8080 HTTP Requests: 1, Duration: 0.01s,
+ Session Cs9wgp1ZBgxUt2Jr7i HTTP 123.99.201.37:51531 -> 172.31.5.68:8080 HTTP Requests: 1, Duration: 0.15s,
+ Session CtN4AAOh7tuthOk1c HTTP 123.99.201.37:54091 -> 172.31.5.68:8080 HTTP Requests: 1, Duration: 0.17s,
+ Session CUd3x845Q5fiXTGgfg HTTP 123.99.201.37:54578 -> 172.31.5.68:80 HTTP Requests: 1, Duration: 0.14s,
+ Session CkaJEd5MosM5dEHjg HTTP 123.99.201.37:55552 -> 172.31.5.68:80 HTTP Requests: 1, Duration: 0.15s,
+ Session CkwpLu4cv6M9zBnlY8 HTTP 192.227.146.253:52272 -> 172.31.5.68:80 HTTP Requests: 1, Duration: 0.01s]
+
+commands:
+[]
+
+Honeypot AI Finished Successfully!
 ```
 
 </details>
@@ -1508,7 +1592,7 @@ Output
 > Analyze attack with ID XXXX using OpenAI and OSINT analyzers then write markdown and export to reports directory
 
 ```bash
-honeypot-ai/run.sh -lfa --only-attack XXXX --analyze --write-markdown --export-report
+honeypot-ai/run.sh -lfa --only-attack XXXX --analyze --write --export
 ```
 
 <details>
@@ -1518,7 +1602,335 @@ Output
 
 
 ```
+honeypot-ai/run.sh -lfa --only-attack 1ae2a0aa7da872071305a1170015dfebfd7e40ebb8cb16a15979522836b53687 --analyze --write --export
+Starting honeypot-ai...
 
+Loading attacks from attacks directory at /Users/lucasfaudman/Documents/SANS/testenv/attacks
+Loading Attack: 1ae2a0aa7da872071305a1170015dfebfd7e40ebb8cb16a15979522836b53687
+Processing Events from Parser 1 of 2: <loganalyzers.logparser.ZeekParser object at 0x10e58b310>
+Processing Events from Parser 2 of 2: <loganalyzers.logparser.CowrieParser object at 0x10e4a64d0>
+Processed 142 events (127 cowrie events, 15 zeek events). Found 4 source ips
+Loaded Attack: 1ae2a0aa7da872071305a1170015dfebfd7e40ebb8cb16a15979522836b53687
+(1->1) - Removed 0 attacks with ips ['216.243.47.166', '172.31.5.68', '54.67.87.80']
+Merge Attacks Time: 0.0000s
+(1->1) - Merged 0 attacks with shared attrs
+(1->1) - Merged 0 attacks with shared sig regexes
+Analyzing 1 attacks.
+Getting log paths and counts.
+Added functools.partial(<bound method AttackDirReader.update_attack_log_paths_and_counts of <loganalyzers.attackdirreader.AttackDirReader object at 0x10e27ffd0>>, Attack (chash: 1ae2a0aa7da872071305a1170015dfebfd7e40ebb8cb16a15979522836b53687), SourceIPs: 4, Sessions: 19, SSH: 7, Commands: 8, Cmdlogs: 1, ) update_log_paths_and_counts to Attack (chash: 1ae2a0aa7da872071305a1170015dfebfd7e40ebb8cb16a15979522836b53687), SourceIPs: 4, Sessions: 19, SSH: 7, Commands: 8, Cmdlogs: 1,  from <loganalyzers.attackdirreader.AttackDirReader object at 0x10e27ffd0>
+Added functools.partial(<bound method AttackDirReader.update_attack_log_paths of <loganalyzers.attackdirreader.AttackDirReader object at 0x10e27ffd0>>, Attack (chash: 1ae2a0aa7da872071305a1170015dfebfd7e40ebb8cb16a15979522836b53687), SourceIPs: 4, Sessions: 19, SSH: 7, Commands: 8, Cmdlogs: 1, ) update_log_paths to Attack (chash: 1ae2a0aa7da872071305a1170015dfebfd7e40ebb8cb16a15979522836b53687), SourceIPs: 4, Sessions: 19, SSH: 7, Commands: 8, Cmdlogs: 1,  from <loganalyzers.attackdirreader.AttackDirReader object at 0x10e27ffd0>
+Added functools.partial(<bound method AttackDirReader.get_attack_log_names of <loganalyzers.attackdirreader.AttackDirReader object at 0x10e27ffd0>>, Attack (chash: 1ae2a0aa7da872071305a1170015dfebfd7e40ebb8cb16a15979522836b53687), SourceIPs: 4, Sessions: 19, SSH: 7, Commands: 8, Cmdlogs: 1, ) get_log_names to Attack (chash: 1ae2a0aa7da872071305a1170015dfebfd7e40ebb8cb16a15979522836b53687), SourceIPs: 4, Sessions: 19, SSH: 7, Commands: 8, Cmdlogs: 1,  from <loganalyzers.attackdirreader.AttackDirReader object at 0x10e27ffd0>
+Added functools.partial(<bound method AttackDirReader.get_attack_log_paths of <loganalyzers.attackdirreader.AttackDirReader object at 0x10e27ffd0>>, Attack (chash: 1ae2a0aa7da872071305a1170015dfebfd7e40ebb8cb16a15979522836b53687), SourceIPs: 4, Sessions: 19, SSH: 7, Commands: 8, Cmdlogs: 1, ) get_log_paths to Attack (chash: 1ae2a0aa7da872071305a1170015dfebfd7e40ebb8cb16a15979522836b53687), SourceIPs: 4, Sessions: 19, SSH: 7, Commands: 8, Cmdlogs: 1,  from <loganalyzers.attackdirreader.AttackDirReader object at 0x10e27ffd0>
+Added functools.partial(<bound method AttackDirReader.get_attack_log_lines of <loganalyzers.attackdirreader.AttackDirReader object at 0x10e27ffd0>>, Attack (chash: 1ae2a0aa7da872071305a1170015dfebfd7e40ebb8cb16a15979522836b53687), SourceIPs: 4, Sessions: 19, SSH: 7, Commands: 8, Cmdlogs: 1, ) get_log_lines to Attack (chash: 1ae2a0aa7da872071305a1170015dfebfd7e40ebb8cb16a15979522836b53687), SourceIPs: 4, Sessions: 19, SSH: 7, Commands: 8, Cmdlogs: 1,  from <loganalyzers.attackdirreader.AttackDirReader object at 0x10e27ffd0>
+Added functools.partial(<bound method AttackDirReader.update_attack_log_counts of <loganalyzers.attackdirreader.AttackDirReader object at 0x10e27ffd0>>, Attack (chash: 1ae2a0aa7da872071305a1170015dfebfd7e40ebb8cb16a15979522836b53687), SourceIPs: 4, Sessions: 19, SSH: 7, Commands: 8, Cmdlogs: 1, ) update_log_counts to Attack (chash: 1ae2a0aa7da872071305a1170015dfebfd7e40ebb8cb16a15979522836b53687), SourceIPs: 4, Sessions: 19, SSH: 7, Commands: 8, Cmdlogs: 1,  from <loganalyzers.attackdirreader.AttackDirReader object at 0x10e27ffd0>
+Getting ipdata.
+Using saved isc data ip for 31.208.22.102
+Using saved whois data ip for 31.208.22.102
+Using saved cybergordon data ip for 31.208.22.102
+Using saved threatfox data ip for 31.208.22.102
+Using saved shodan data ip for 31.208.22.102
+Using saved isc data ip for 117.190.226.115
+Using saved whois data ip for 117.190.226.115
+Using saved cybergordon data ip for 117.190.226.115
+Using saved threatfox data ip for 117.190.226.115
+Using saved shodan data ip for 117.190.226.115
+Using saved isc data ip for 222.111.179.159
+Using saved whois data ip for 222.111.179.159
+Using saved cybergordon data ip for 222.111.179.159
+Using saved threatfox data ip for 222.111.179.159
+Using saved shodan data ip for 222.111.179.159
+Using saved isc data ip for 73.43.215.50
+Using saved whois data ip for 73.43.215.50
+Using saved cybergordon data ip for 73.43.215.50
+Using saved threatfox data ip for 73.43.215.50
+Using saved shodan data ip for 73.43.215.50
+Getting mwdata.
+Using saved urlhaus data host for 31.208.22.102
+Using saved threatfox data host for 31.208.22.102
+Using saved urlhaus data host for 117.190.226.115
+Using saved threatfox data host for 117.190.226.115
+Using saved urlhaus data host for 222.111.179.159
+Using saved threatfox data host for 222.111.179.159
+Using saved urlhaus data host for 73.43.215.50
+Using saved threatfox data host for 73.43.215.50
+Getting command explanations.
+Getting malware explanations.
+Getting assistant answers.
+
+
+Asking: What are the IP addresses and ports involved in the attack?
+Updated asst_YoneFbWL1esvZiUzwzmNmWNO: instructions, tools
+Status: in_progress Thread id: thread_NFBpA796gCIMMM4DjFEqMneE, run_id: run_LIdzm3P2FSiFcYMepYWI34hC
+Waiting 5 seconds for response
+Status: requires_action Thread id: thread_NFBpA796gCIMMM4DjFEqMneE, run_id: run_LIdzm3P2FSiFcYMepYWI34hC
+
+AI called tool: get_attack_attrs
+with args: {'attrs': ['src_ips', 'src_ports', 'dst_ips', 'dst_ports']}
+
+Submitting tool output: {'src_ips': ['31.208.22.102', '31.208.22.102', '117.190.226.115', '117.190.226.115', '222.111.179.159', '117.190.226.115', '222.111.179.159', '222.111.179.159', '222.111.179.159', '31.208.22.102', '31.208.22.102', '31.208.22.102', '31.208.22.102', '73.43.215.50', '73.43.215.50', '73.43.215.50', '73.43.215.50', '31.208.22.102', '73.43.215.50'], 'src_ports': [45084, 45084, 61839, 43521, 59572, 43521, 59572, 40188, 40188, 45084, 54334, 3, 3, 58337, 60428, 60428, 60428, 54334, 60428], 'dst_ips': ['172.31.5.68', '172.31.5.68', '172.31.5.68', '172.31.5.68', '172.31.5.68', '172.31.5.68', '172.31.5.68', '172.31.5.68', '172.31.5.68', '172.31.5.68', '172.31.5.68', '172.31.5.68', '172.31.5.68', '172.31.5.68', '172.31.5.68', '172.31.5.68', '172.31.5.68', '172.31.5.68', '172.31.5.68'], 'dst_ports': [22, 22, 22, 22, 22, 2222, 22, 22, 2222, 22, 22, 1, 1, 22, 22, 22, 22, 2222, 2222]}
+Status: in_progress Thread id: thread_NFBpA796gCIMMM4DjFEqMneE, run_id: run_LIdzm3P2FSiFcYMepYWI34hC
+Waiting 5 seconds for response
+Status: completed Thread id: thread_NFBpA796gCIMMM4DjFEqMneE, run_id: run_LIdzm3P2FSiFcYMepYWI34hC
+Run run_LIdzm3P2FSiFcYMepYWI34hC completed
+Done asst_YoneFbWL1esvZiUzwzmNmWNO, thread_NFBpA796gCIMMM4DjFEqMneE, run_LIdzm3P2FSiFcYMepYWI34hC
+
+ Done with: What are the IP addresses and ports involved in the attack?
+Answer: The IP addresses and ports involved in the attack are as follows:
+
+Source IP Addresses:
+- 31.208.22.102
+- 117.190.226.115
+- 222.111.179.159
+- 73.43.215.50
+
+Source Ports:
+- 45084
+- 61839
+- 43521
+- 59572
+- 40188
+- 54334
+- 3
+- 58337
+- 60428
+
+Destination IP Address:
+- 172.31.5.68
+
+Destination Ports:
+- 22
+- 2222
+- 1
+
+The attack involved various source IP addresses and a single destination IP address, targeting ports 22 and 2222.
+
+
+Asking: Summarize the Sessions involved in the attack.
+Updated asst_YoneFbWL1esvZiUzwzmNmWNO: instructions, tools
+Status: in_progress Thread id: thread_NFBpA796gCIMMM4DjFEqMneE, run_id: run_bmScJJiaLsMrJQQIVNWLBfFi
+Waiting 5 seconds for response
+Status: requires_action Thread id: thread_NFBpA796gCIMMM4DjFEqMneE, run_id: run_bmScJJiaLsMrJQQIVNWLBfFi
+
+AI called tool: get_attack_attrs
+with args: {'attrs': ['num_sessions', 'uniq_sessions']}
+
+Submitting tool output: {'num_sessions': 19, 'uniq_sessions': {Session CaD9804xwBAGhgGqjh CONN 31.208.22.102:45084 -> 172.31.5.68:22 Duration: 0.00s, Session CzjRLB2btI3IwEKgRf CONN 31.208.22.102:45084 -> 172.31.5.68:22 Duration: 0.00s, Session C46O2M1I1SednsHSvb CONN 117.190.226.115:61839 -> 172.31.5.68:22 Duration: 0.00s, Session CFpTf64ekxdPAZS3re CONN 117.190.226.115:43521 -> 172.31.5.68:22 Duration: 0.00s, Session CFeUqB213gxD7HIvu4 CONN 222.111.179.159:59572 -> 172.31.5.68:22 Duration: 0.00s, Session 752ae9348058 SSH 117.190.226.115:43521 -> 172.31.5.68:2222 Login: root:12345 Commands: 8, Duration: 0.60s, Session CR41Ym1ydYQS6ugDe6 CONN 222.111.179.159:59572 -> 172.31.5.68:22 Duration: 0.00s, Session CoUKxE3DKW9VAegoic SSH 222.111.179.159:40188 -> 172.31.5.68:22 Duration: 0.00s, Session 046b22ef16f0 SSH 222.111.179.159:40188 -> 172.31.5.68:2222 Login: root:admin Commands: 8, Duration: 0.73s, Session CK3sbPzzOC9boGIsa CONN 31.208.22.102:45084 -> 172.31.5.68:22 Duration: 0.00s, Session ClebOb3qIzWNgOC2Df SSH 31.208.22.102:54334 -> 172.31.5.68:22 Duration: 0.00s, Session Ctw1eC2e8HbtquOy5h CONN 31.208.22.102:3 -> 172.31.5.68:1 Duration: 0.00s, Session CZ8srM1JBlMN4Xy9Fe CONN 31.208.22.102:3 -> 172.31.5.68:1 Duration: 0.00s, Session CePMmX2QZAeQMAYUU1 CONN 73.43.215.50:58337 -> 172.31.5.68:22 Duration: 0.00s, Session CflvHs4DErTsYAB7Pk SSH 73.43.215.50:60428 -> 172.31.5.68:22 Duration: 0.00s, Session CIKm3kztvflb4Ch7e CONN 73.43.215.50:60428 -> 172.31.5.68:22 Duration: 0.00s, Session C0rtMj4DNGgibZd4Wa CONN 73.43.215.50:60428 -> 172.31.5.68:22 Duration: 0.00s, Session 0f1605bd0344 SSH 31.208.22.102:54334 -> 172.31.5.68:2222 Login: root:12345 Commands: 8, Duration: 0.23s, Session 8445fa23f411 SSH 73.43.215.50:60428 -> 172.31.5.68:2222 Login: root:12345 Commands: 8, Duration: 0.55s}}
+Status: in_progress Thread id: thread_NFBpA796gCIMMM4DjFEqMneE, run_id: run_bmScJJiaLsMrJQQIVNWLBfFi
+Waiting 5 seconds for response
+Status: in_progress Thread id: thread_NFBpA796gCIMMM4DjFEqMneE, run_id: run_bmScJJiaLsMrJQQIVNWLBfFi
+Waiting 5 seconds for response
+Status: completed Thread id: thread_NFBpA796gCIMMM4DjFEqMneE, run_id: run_bmScJJiaLsMrJQQIVNWLBfFi
+Run run_bmScJJiaLsMrJQQIVNWLBfFi completed
+Done asst_YoneFbWL1esvZiUzwzmNmWNO, thread_NFBpA796gCIMMM4DjFEqMneE, run_bmScJJiaLsMrJQQIVNWLBfFi
+
+ Done with: Summarize the Sessions involved in the attack.
+Answer: The attack involved 19 sessions, each characterized by various connections and SSH activities. Here's a summary of some of the sessions involved in the attack:
+
+1. Session initiated by 31.208.22.102 from port 45084 to the destination IP 172.31.5.68 on port 22.
+2. Session initiated by 117.190.226.115 from port 61839 to the destination IP 172.31.5.68 on port 22.
+3. SSH login session by root with password "12345" from 117.190.226.115 to the destination IP 172.31.5.68 on port 2222.
+4. Session initiated by 222.111.179.159 from port 59572 to the destination IP 172.31.5.68 on port 22.
+5. SSH login session by root with password "admin" from 222.111.179.159 to the destination IP 172.31.5.68 on port 2222.
+6. Session initiated by 73.43.215.50 from port 58337 to the destination IP 172.31.5.68 on port 22.
+7. SSH login session by root with password "12345" from 73.43.215.50 to the destination IP 172.31.5.68 on port 2222.
+
+These are just a few examples of the sessions involved in the attack, showing a combination of connection and SSH login activities from multiple source IP addresses to the destination IP on different ports.
+
+
+Asking: Analyze the SSH/Telnet sessions in the context of the attack. Include the usernames, passwords, ssh hasshes, and any other relevant.
+Updated asst_YoneFbWL1esvZiUzwzmNmWNO: instructions, tools
+Status: in_progress Thread id: thread_NFBpA796gCIMMM4DjFEqMneE, run_id: run_fhoyOEWFEtjwy3zC5Da2JeMq
+Waiting 5 seconds for response
+Status: requires_action Thread id: thread_NFBpA796gCIMMM4DjFEqMneE, run_id: run_fhoyOEWFEtjwy3zC5Da2JeMq
+
+AI called tool: get_attack_attrs
+with args: {'attrs': ['ssh_versions', 'login_pairs', 'ssh_hasshs', 'sessions']}
+
+Submitting tool output: {'ssh_versions': ['SSH-2.0-libssh2_1.9.0', 'SSH-2.0-libssh2_1.9.0', 'SSH-2.0-libssh2_1.9.0', 'SSH-2.0-libssh2_1.9.0'], 'login_pairs': [('root', 'root'), ('root', 'admin'), ('root', '12345'), ('root', 'root'), ('root', 'admin'), ('root', '12345'), ('root', 'root'), ('root', 'admin'), ('root', 'root'), ('root', 'admin'), ('root', '12345')], 'ssh_hasshs': ['1616c6d18e845e7a01168a44591f7a35', '1616c6d18e845e7a01168a44591f7a35', '1616c6d18e845e7a01168a44591f7a35', '1616c6d18e845e7a01168a44591f7a35'], 'sessions': [Session CaD9804xwBAGhgGqjh CONN 31.208.22.102:45084 -> 172.31.5.68:22 Duration: 0.00s, Session CzjRLB2btI3IwEKgRf CONN 31.208.22.102:45084 -> 172.31.5.68:22 Duration: 0.00s, Session C46O2M1I1SednsHSvb CONN 117.190.226.115:61839 -> 172.31.5.68:22 Duration: 0.00s, Session CFpTf64ekxdPAZS3re CONN 117.190.226.115:43521 -> 172.31.5.68:22 Duration: 0.00s, Session CFeUqB213gxD7HIvu4 CONN 222.111.179.159:59572 -> 172.31.5.68:22 Duration: 0.00s, Session 752ae9348058 SSH 117.190.226.115:43521 -> 172.31.5.68:2222 Login: root:12345 Commands: 8, Duration: 0.60s, Session CR41Ym1ydYQS6ugDe6 CONN 222.111.179.159:59572 -> 172.31.5.68:22 Duration: 0.00s, Session CoUKxE3DKW9VAegoic SSH 222.111.179.159:40188 -> 172.31.5.68:22 Duration: 0.00s, Session 046b22ef16f0 SSH 222.111.179.159:40188 -> 172.31.5.68:2222 Login: root:admin Commands: 8, Duration: 0.73s, Session CK3sbPzzOC9boGIsa CONN 31.208.22.102:45084 -> 172.31.5.68:22 Duration: 0.00s, Session ClebOb3qIzWNgOC2Df SSH 31.208.22.102:54334 -> 172.31.5.68:22 Duration: 0.00s, Session Ctw1eC2e8HbtquOy5h CONN 31.208.22.102:3 -> 172.31.5.68:1 Duration: 0.00s, Session CZ8srM1JBlMN4Xy9Fe CONN 31.208.22.102:3 -> 172.31.5.68:1 Duration: 0.00s, Session CePMmX2QZAeQMAYUU1 CONN 73.43.215.50:58337 -> 172.31.5.68:22 Duration: 0.00s, Session CflvHs4DErTsYAB7Pk SSH 73.43.215.50:60428 -> 172.31.5.68:22 Duration: 0.00s, Session CIKm3kztvflb4Ch7e CONN 73.43.215.50:60428 -> 172.31.5.68:22 Duration: 0.00s, Session C0rtMj4DNGgibZd4Wa CONN 73.43.215.50:60428 -> 172.31.5.68:22 Duration: 0.00s, Session 0f1605bd0344 SSH 31.208.22.102:54334 -> 172.31.5.68:2222 Login: root:12345 Commands: 8, Duration: 0.23s, Session 8445fa23f411 SSH 73.43.215.50:60428 -> 172.31.5.68:2222 Login: root:12345 Commands: 8, Duration: 0.55s]}
+Status: in_progress Thread id: thread_NFBpA796gCIMMM4DjFEqMneE, run_id: run_fhoyOEWFEtjwy3zC5Da2JeMq
+Waiting 5 seconds for response
+Status: in_progress Thread id: thread_NFBpA796gCIMMM4DjFEqMneE, run_id: run_fhoyOEWFEtjwy3zC5Da2JeMq
+Waiting 5 seconds for response
+Status: completed Thread id: thread_NFBpA796gCIMMM4DjFEqMneE, run_id: run_fhoyOEWFEtjwy3zC5Da2JeMq
+Run run_fhoyOEWFEtjwy3zC5Da2JeMq completed
+Done asst_YoneFbWL1esvZiUzwzmNmWNO, thread_NFBpA796gCIMMM4DjFEqMneE, run_fhoyOEWFEtjwy3zC5Da2JeMq
+
+ Done with: Analyze the SSH/Telnet sessions in the context of the attack. Include the usernames, passwords, ssh hasshes, and any other relevant.
+Answer: In the context of the attack, the SSH/Telnet sessions involved the following details:
+
+SSH Versions:
+- SSH-2.0-libssh2_1.9.0 (used in all sessions)
+
+Login Pairs:
+- ('root', 'root')
+- ('root', 'admin')
+- ('root', 'user')
+- ('root', 'password')
+
+SSH Hashes:
+- 1616c6d18e845e7a01168a44591f7a35 (common SSH hash used in multiple sessions)
+
+Session Summary:
+- Multiple SSH sessions were initiated by different source IP addresses to the destination IP. These sessions included SSH connections and logins using the username 'root' with various passwords such as 'root', 'admin', '12345', and others.
+- The SSH version 'SSH-2.0-libssh2_1.9.0' was consistently used across all sessions.
+
+This indicates an attempt to gain unauthorized access to the system using different combinations of usernames and passwords, potentially as part of a brute-force attack. The consistent use of the same SSH version and hash suggests a coordinated effort by the attacker to exploit the SSH service on the target machine.
+
+
+Asking: Summarize what is known about the location of the IP addresses involved in the attack.
+Updated asst_YoneFbWL1esvZiUzwzmNmWNO: instructions, tools
+Status: in_progress Thread id: thread_NFBpA796gCIMMM4DjFEqMneE, run_id: run_Id9RjSsTWMuBd5wpQ3EtSs59
+Waiting 5 seconds for response
+Status: requires_action Thread id: thread_NFBpA796gCIMMM4DjFEqMneE, run_id: run_Id9RjSsTWMuBd5wpQ3EtSs59
+
+AI called tool: query_ip_data
+with args: {'ips': ['31.208.22.102', '117.190.226.115', '222.111.179.159', '73.43.215.50'], 'sources': ['shodan', 'cybergordon', 'isc']}
+Using saved shodan data ip for 31.208.22.102
+Using saved cybergordon data ip for 31.208.22.102
+Using saved isc data ip for 31.208.22.102
+Using saved shodan data ip for 117.190.226.115
+Using saved cybergordon data ip for 117.190.226.115
+Using saved isc data ip for 117.190.226.115
+Using saved shodan data ip for 222.111.179.159
+Using saved cybergordon data ip for 222.111.179.159
+Using saved isc data ip for 222.111.179.159
+Using saved shodan data ip for 73.43.215.50
+Using saved cybergordon data ip for 73.43.215.50
+Using saved isc data ip for 73.43.215.50
+
+Submitting tool output: {'31.208.22.102': {'shodan': {'port443': {'protocol': 'tcp', 'service_name': 'unknown', 'service_data_raw': 'HTTP/1.1 200 OK
+Date: Mon, 08 Jan 2024 17:50:51 GMT
+Last-Modified: Mon, 08 Jan 2024 17:50:51 GMT
+Etag: "659c35fb.11a"
+Content-Type: text/html
+Content-Length: 282
+Connection: keep-alive
+Accept-Ranges: bytes'}, 'port5601': {'protocol': 'tcp', 'service_name': 'nginx1.14.2'}}, 'cybergordon': {'[E33] GreyNoise': 'Last report on 02 February 2024 as malicious and scanning the Internet in the last 3 months. ', '[E2] AbuseIPDB': 'Hostname(s): 31-208-22-102.cust.bredband2.com. ISP: Bredband2 AB. Usage: Fixed Line ISP. Risk 100%. 227 report(s) by 115 user(s), last on 02 February 2024  ', '[E26] MetaDefender': 'Found in 3 sources: webroot.com (high risk), dataplane.org (bruteforce, scanner), blocklist.de (scanner) ', '[E17] Pulsedive': 'Risk: low. Last seen on 9 Jan 2024. Found in feed list(s): Blocklist.de Blocklist. Opened service(s): HTTPS. ', '[E24] BlackList DE': 'Found in 9 attack(s) and 7 report(s) ', '[E12] AlienVault OTX': 'Found in 2 pulse-feed(s) ', '[E23] Offline Feeds': 'Found in IPsum (3+ blocklists) '}, 'isc': {'total_reports': 14, 'honeypots_targeted': 9, 'firstseen': '2024-01-06', 'lastseen': '2024-02-01', 'network': '31.208.0.0/16', 'asname': 'BREDBAND2', 'as_country_code': ('SE', None), 'threatfeeds': {'blocklistde22': {'lastseen': '2024-02-01', 'firstseen': '2024-01-09'}}}}, '117.190.226.115': {'shodan': '', 'cybergordon': {'[E33] GreyNoise': 'Last report on 02 February 2024 as malicious and scanning the Internet in the last 3 months. ', '[E34] IPdata.co': 'Geo: China. Network: AS9808, China Mobile, business. Security risk(s): malicious/attacker activity, abuse/bot activity. Blocklist(s): DataPlane.org. ', '[E26] MetaDefender': 'Found in 3 sources: webroot.com (high risk), dataplane.org (bruteforce, scanner), blocklist.de (scanner) ', '[E2] AbuseIPDB': ' ISP: China Mobile Communications Corporation. Usage: None. Risk 100%. 540 report(s) by 271 user(s), last on 01 February 2024  ', '[E24] BlackList DE': 'Found in 33 attack(s) and 19 report(s) ', '[E17] Pulsedive': 'Risk: low. Last seen on 22 Jan 2024. Found in feed list(s): Blocklist.de Blocklist. Opened service(s): FTP, SSH, Telnet. ', '[E11] DShield/ISC': 'Found in 8 report(s) listing 4 target(s), last on 31 Jan 2024 ', '[E12] AlienVault OTX': 'Found in 11 pulse-feed(s) ', '[E23] Offline Feeds': 'Found in Duggy Tuxy - EU Botnets/Zombies/Scanners '}, 'isc': {'total_reports': 8, 'honeypots_targeted': 4, 'firstseen': '2023-10-11', 'lastseen': '2024-01-31', 'network': '117.190.224.0/20', 'asname': 'CHINAMOBILE-CN China Mobile Communications Group Co., Ltd.', 'as_country_code': ('CN', None), 'threatfeeds': {'blocklistde22': {'lastseen': '2024-01-31', 'firstseen': '2023-10-14'}}}}, '222.111.179.159': {'shodan': {'port22': {'protocol': 'tcp', 'service_name': 'OpenSSH7.2p2 Ubuntu-4ubuntu2.1'}, 'port123': {'protocol': 'udp', 'service_name': 'unknown', 'service_data_raw': 'NTP
+protocolversion: 3
+stratum: 3
+leap: 0
+precision: -20
+rootdelay: 0.00852966308594
+rootdisp: 1.05032348633
+refid: 3246125826
+reftime: 3914209137.39
+poll: 3'}, 'port1883': {'protocol': 'tcp', 'service_name': 'MQTT'}, 'port4369': {'protocol': 'tcp', 'service_name': 'Erlang Port Mapper Daemon'}, 'port5672': {'protocol': 'tcp', 'service_name': 'RabbitMQ3.5.7'}}, 'cybergordon': {'[E33] GreyNoise': 'Last report on 02 February 2024 as malicious and scanning the Internet in the last 3 months. ', '[E26] MetaDefender': 'Found in 3 sources: webroot.com (high risk), dataplane.org (bruteforce, scanner), blocklist.de (scanner) ', '[E2] AbuseIPDB': ' ISP: KT Corporation. Usage: None. Risk 100%. 426 report(s) by 267 user(s), last on 02 February 2024  ', '[E24] BlackList DE': 'Found in 44 attack(s) and 16 report(s) ', '[E17] Pulsedive': 'Risk: low. Last seen on 2 Feb 2024. Found in feed list(s): Blocklist.de Blocklist. Opened service(s): HTTP, SSH. ', '[E11] DShield/ISC': 'Found in 2 report(s) listing 1 target(s), last on 1 Feb 2024 ', '[E12] AlienVault OTX': 'Found in 6 pulse-feed(s) ', '[E23] Offline Feeds': 'Found in IPsum (3+ blocklists), Duggy Tuxy - EU Botnets/Zombies/Scanners '}, 'isc': {'total_reports': 2, 'honeypots_targeted': 1, 'firstseen': '2024-01-05', 'lastseen': '2024-02-01', 'network': '222.104.0.0/13', 'asname': 'KIXS-AS-KR Korea Telecom', 'as_country_code': ('KR', None), 'threatfeeds': {'blocklistde22': {'lastseen': '2024-02-01', 'firstseen': '2024-01-05'}}}}, '73.43.215.50': {'shodan': {'port22': {'protocol': 'tcp', 'service_name': 'unknown', 'service_data_raw': 'SSH-2.0-dropbear
+Key type: ssh-rsa
+Key: AAAAB3NzaC1yc2EAAAADAQABAAABAQDxWuxSqJkFDugS3dMcwAICM50PatQPKf15aFhWFCZnuMd7
+kRSvN9L52xCa4zFS9Y93VcTHU2TzLq2aPv2YF7XNQ1EaaDF2ojMEMvLjWHpQnE2++PuMNZAfn0Eb
+G8Lnfp4gJbWF/7FeGsX6rW/fwX8zMEJvGLqNPQCgBTYjpheaiWG7euZYwZp0WyUfG9yzQslRKKL5
+GHU4jfAzkgAD5bTdQAdu93ZQ53bnsLFvY2nO/K8+WcdSKSiO4Nd6gyn09PBbGJIXETlQBkVzso02
+isNYrx2ZTtULaUIM0At6AGLlgK+1gS300DkjkCj9CCJIHklVCpf9x/ZO4U2ntOsMZp8F
+Fingerprint: 91:cb:4a:1c:e8:3a:c2:40:1b:61:90:40:d3:40:f0:f2
+
+Kex Algorithms:
+	curve25519-sha256
+	curve25519-sha256@libssh.org
+	diffie-hellman-group14-sha256
+	diffie-hellman-group14-sha1
+	kexguess2@matt.ucc.asn.au
+
+Server Host Key Algorithms:
+	ssh-ed25519
+	rsa-sha2-256
+	ssh-rsa
+
+Encryption Algorithms:
+	chacha20-poly1305@openssh.com
+	aes128-ctr
+	aes256-ctr
+
+MAC Algorithms:
+	hmac-sha1
+	hmac-sha2-256
+
+Compression Algorithms:
+	none'}}, 'cybergordon': {'[E33] GreyNoise': 'Last report on 29 January 2024 as malicious and scanning the Internet in the last 3 months. ', '[E2] AbuseIPDB': 'Hostname(s): c-73-43-215-50.hsd1.ga.comcast.net. ISP: Comcast Cable Communications LLC. Usage: Fixed Line ISP. Risk 100%. 80 report(s) by 69 user(s), last on 29 January 2024  ', '[E26] MetaDefender': 'Found in 3 sources: webroot.com (high risk), dataplane.org (bruteforce, scanner), blocklist.de (scanner) ', '[E11] DShield/ISC': 'Found in 12 report(s) listing 6 target(s), last on 29 Jan 2024 ', '[E17] Pulsedive': 'Risk: none. Last seen on 26 Jan 2024. Found in feed list(s): Blocklist.de Blocklist. Opened service(s): SSH. ', '[E24] BlackList DE': 'Found in 12 attack(s) and 3 report(s) ', '[E12] AlienVault OTX': 'Found in 1 pulse-feed(s) '}, 'isc': {'total_reports': 12, 'honeypots_targeted': 6, 'firstseen': '2024-01-26', 'lastseen': '2024-01-29', 'network': '73.0.0.0/8', 'asname': 'COMCAST-7922', 'as_country_code': ('US', None), 'threatfeeds': None}}}
+Status: in_progress Thread id: thread_NFBpA796gCIMMM4DjFEqMneE, run_id: run_Id9RjSsTWMuBd5wpQ3EtSs59
+Waiting 5 seconds for response
+Status: in_progress Thread id: thread_NFBpA796gCIMMM4DjFEqMneE, run_id: run_Id9RjSsTWMuBd5wpQ3EtSs59
+Waiting 5 seconds for response
+Status: in_progress Thread id: thread_NFBpA796gCIMMM4DjFEqMneE, run_id: run_Id9RjSsTWMuBd5wpQ3EtSs59
+Waiting 5 seconds for response
+Status: completed Thread id: thread_NFBpA796gCIMMM4DjFEqMneE, run_id: run_Id9RjSsTWMuBd5wpQ3EtSs59
+Run run_Id9RjSsTWMuBd5wpQ3EtSs59 completed
+Done asst_YoneFbWL1esvZiUzwzmNmWNO, thread_NFBpA796gCIMMM4DjFEqMneE, run_Id9RjSsTWMuBd5wpQ3EtSs59
+
+ Done with: Summarize what is known about the location of the IP addresses involved in the attack.
+Answer: Here's a summary of the location data for the IP addresses involved in the attack:
+
+### 31.208.22.102
+- Geolocation data:
+  - Country: Sweden
+  - ISP: Bredband2 AB
+- Risk and Threat Reports:
+  - Identified as malicious and scanning the internet by multiple sources.
+  - High risk reports from webroot.com and several other threat intelligence sources.
+  - Previously involved in attacks and reported on blocklists.
+
+### 117.190.226.115
+- Geolocation data:
+  - Country: China
+  - Network: China Mobile Communications Corporation
+- Risk and Threat Reports:
+  - Identified as malicious and scanning the internet in the last 3 months.
+  - High risk reports from webroot.com and identified as a source of abuse/bot activity.
+
+### 222.111.179.159
+- Geolocation data:
+  - Country: South Korea
+  - ISP: KT Corporation
+- Risk and Threat Reports:
+  - Last reported as malicious and scanning the internet in the last 3 months.
+  - High risk reports from webroot.com and identified in blocklists.
+
+### 73.43.215.50
+- Geolocation data:
+  - Country: United States
+  - ISP: Comcast Cable Communications LLC
+- Risk and Threat Reports:
+  - Identified as malicious and scanning the internet in the last 3 months.
+  - Previously involved in multiple attacks and reported on blocklists.
+
+Based on this data, it is clear that the attacking IP addresses have been associated with malicious and scanning activities, with high-risk reports and identified involvement in attacks and abuse/bot activities. The IPs are from various countries, including Sweden, China, South Korea, and the United States.
+
+
+Asking: Summarize what is known about the IP addresses involved in the attack using Shodan data.
+Updated asst_YoneFbWL1esvZiUzwzmNmWNO: instructions, tools
+Status: in_progress Thread id: thread_NFBpA796gCIMMM4DjFEqMneE, run_id: run_d0PO4wGcQultWwh2zaEa4MdF
+Waiting 5 seconds for response
+Status: in_progress Thread id: thread_NFBpA796gCIMMM4DjFEqMneE, run_id: run_d0PO4wGcQultWwh2zaEa4MdF
+Waiting 5 seconds for response
+Status: completed Thread id: thread_NFBpA796gCIMMM4DjFEqMneE, run_id: run_d0PO4wGcQultWwh2zaEa4MdF
+Run run_d0PO4wGcQultWwh2zaEa4MdF completed
+Done asst_YoneFbWL1esvZiUzwzmNmWNO, thread_NFBpA796gCIMMM4DjFEqMneE, run_d0PO4wGcQultWwh2zaEa4MdF
+
+ Done with: Summarize what is known about the IP addresses involved in the attack using Shodan data.
+Answer: Based on the Shodan data, here's a summary of the information known about the IP addresses involved in the attack:
+
+### 31.208.22.102
+- Open Ports:
+  - Port 443: Unknown service
+  - Port 5601: Nginx 1.14.2
+
+### 117.190.226.115
+- No specific Shodan data available for this IP address.
+
+### 222.111.179.159
+- Open Ports:
+  - Port 22: OpenSSH 7.2p2 Ubuntu-4ubuntu2.1
+  - Port 123: Unknown protocol (NTP-related)
+  - Port 1883: MQTT
+  - Port 4369: Erlang Port Mapper Daemon
+  - Port 5672: RabbitMQ 3.5.7
+
+### 73.43.215.50
+- Open Ports:
+  - Port 22: Unknown service (SSH-2.0-dropbear)
+
+The Shodan data provides information about the open ports and services running on the IP addresses involved in the attack. This data can help identify potential points of entry and the services that may have been targeted or utilized by the attacker during the attack.
+
+...Truncated...
 ```
 
 </details>
@@ -1596,29 +2008,31 @@ Output
 ### All Command Line Arguments
 
 ```bash
-usage: main.py [-h] [--list-attacks] [--print-attrs ATTACK_ATTRS [ATTACK_ATTRS ...]] [--organize-attacks] [--analyze-attacks] [--chat] [--write-reports] [--export-reports] [--interactive] [--config FILE]
-               [--update-config] [--load-from-logs] [--load-from-attacks-dir] [--only-attacks ATTACK_IDS [ATTACK_IDS ...]] [--skip-attacks ATTACK_IDS [ATTACK_IDS ...]] [--max-ips-per-attack MAX_IPS_PER_ATTACK]
-               [--max-attacks MAX_ATTACKS] [--sort-attrs SORT_ATTRS [SORT_ATTRS ...]] [--sort-order SORT_ORDER] [--load-attacks-max-workers LOAD_ATTACKS_MAX_WORKERS] [--log-types LOG_TYPES [LOG_TYPES ...]]
-               [--zeek-log-types ZEEK_LOG_TYPES [ZEEK_LOG_TYPES ...]] [--zeek-log-ext ZEEK_LOG_EXT] [--zeek-keep-empty-fields | --no-zeek-keep-empty-fields]
-               [--zeek-keep-unset-fields | --no-zeek-keep-unset-fields] [--attack-min-commands ATTACK_MIN_COMMANDS] [--attack-min-malware ATTACK_MIN_MALWARE]
-               [--attack-min-successful-logins ATTACK_MIN_SUCCESSFUL_LOGINS] [--attack-min-http-requests ATTACK_MIN_HTTP_REQUESTS]
+usage: main.py [-h] [--list-attacks] [--print-attrs ATTACK_ATTRS [ATTACK_ATTRS ...]] [--organize-attacks] [--analyze-attacks] [--chat] [--write-reports] [--export-reports] [--interactive]
+               [--config FILE] [--update-config] [--load-from-logs] [--load-from-attacks-dir] [--only-attacks ATTACK_IDS [ATTACK_IDS ...]] [--skip-attacks ATTACK_IDS [ATTACK_IDS ...]]
+               [--max-ips-per-attack MAX_IPS_PER_ATTACK] [--max-attacks MAX_ATTACKS] [--sort-attrs SORT_ATTRS [SORT_ATTRS ...]] [--sort-order SORT_ORDER]
+               [--load-attacks-max-workers LOAD_ATTACKS_MAX_WORKERS] [--log-types LOG_TYPES [LOG_TYPES ...]] [--zeek-log-types ZEEK_LOG_TYPES [ZEEK_LOG_TYPES ...]] [--zeek-log-ext ZEEK_LOG_EXT]
+               [--zeek-keep-empty-fields | --no-zeek-keep-empty-fields] [--zeek-keep-unset-fields | --no-zeek-keep-unset-fields] [--attack-min-commands ATTACK_MIN_COMMANDS]
+               [--attack-min-malware ATTACK_MIN_MALWARE] [--attack-min-successful-logins ATTACK_MIN_SUCCESSFUL_LOGINS] [--attack-min-http-requests ATTACK_MIN_HTTP_REQUESTS]
                [--attack-http-uri-regexes ATTACK_HTTP_URI_REGEXES [ATTACK_HTTP_URI_REGEXES ...]] [--attack-http-anywhere-regexes ATTACK_HTTP_ANYWHERE_REGEXES [ATTACK_HTTP_ANYWHERE_REGEXES ...]]
                [--standardize-regex-commands STANDARDIZE_REGEX_COMMANDS [STANDARDIZE_REGEX_COMMANDS ...]] [--standardize-regex-malware STANDARDIZE_REGEX_MALWARE [STANDARDIZE_REGEX_MALWARE ...]]
                [--standardize-regex-http-requests STANDARDIZE_REGEX_HTTP_REQUESTS [STANDARDIZE_REGEX_HTTP_REQUESTS ...]] [--merge-shared-attrs MERGE_SHARED_ATTRS [MERGE_SHARED_ATTRS ...]]
                [--merge-regex-commands MERGE_REGEX_COMMANDS [MERGE_REGEX_COMMANDS ...]] [--merge-regex-malware MERGE_REGEX_MALWARE [MERGE_REGEX_MALWARE ...]]
                [--merge-regex-http-requests MERGE_REGEX_HTTP_REQUESTS [MERGE_REGEX_HTTP_REQUESTS ...]] [--organizer-overwrite | --no-organizer-overwrite | --overwrite | --no-overwrite]
-               [--organizer-iterby ORGANIZER_ITERBY] [--organizer-concurrency-type ORGANIZER_CONCURRENCY_TYPE] [--organizer-max-workers ORGANIZER_MAX_WORKERS] [--organizer-chunksize ORGANIZER_CHUNKSIZE]
-               [--organizer-yield-order ORGANIZER_YIELD_ORDER] [--organizer-ip-subdirs | --no-organizer-ip-subdirs | --ip-subdirs | --no-ip-subdirs] [--use-openai | --no-use-openai | --openai | --no-openai]
-               [--use-openai-code-interpreter | --no-use-openai-code-interpreter | --openai-code-interpreter | --no-openai-code-interpreter] [--openai-api-key OPENAI_API_KEY] [--openai-model OPENAI_MODEL]
-               [--openai-training-data-path OPENAI_TRAINING_DATA_PATH] [--use-ipanalyzer | --no-use-ipanalyzer | --ipanalyzer | --no-ipanalyzer]
-               [--ipanalyzer-sources IPANALYZER_SOURCES [IPANALYZER_SOURCES ...]] [--ipanalyzer-max-errors IPANALYZER_MAX_ERRORS] [--webdriver-path WEBDRIVER_PATH] [--webdriver-type WEBDRIVER_TYPE]
-               [--use-malwareanalyzer | --no-use-malwareanalyzer | --malwareanalyzer | --no-malwareanalyzer] [--malwareanalyzer-sources MALWAREANALYZER_SOURCES [MALWAREANALYZER_SOURCES ...]]
-               [--malwareanalyzer-max-errors MALWAREANALYZER_MAX_ERRORS] [--malwareanalyzer-allow-downloads | --no-malwareanalyzer-allow-downloads] [--user-ips USER_IPS [USER_IPS ...]]
+               [--organizer-iterby ORGANIZER_ITERBY] [--organizer-concurrency-type ORGANIZER_CONCURRENCY_TYPE] [--organizer-max-workers ORGANIZER_MAX_WORKERS]
+               [--organizer-chunksize ORGANIZER_CHUNKSIZE] [--organizer-yield-order ORGANIZER_YIELD_ORDER] [--organizer-ip-subdirs | --no-organizer-ip-subdirs | --ip-subdirs | --no-ip-subdirs]
+               [--use-openai | --no-use-openai | --openai | --no-openai]
+               [--use-openai-code-interpreter | --no-use-openai-code-interpreter | --openai-code-interpreter | --no-openai-code-interpreter] [--openai-api-key OPENAI_API_KEY]
+               [--openai-model OPENAI_MODEL] [--openai-training-data-path OPENAI_TRAINING_DATA_PATH] [--use-ipanalyzer | --no-use-ipanalyzer | --ipanalyzer | --no-ipanalyzer]
+               [--ipanalyzer-sources IPANALYZER_SOURCES [IPANALYZER_SOURCES ...]] [--ipanalyzer-max-errors IPANALYZER_MAX_ERRORS] [--webdriver-path WEBDRIVER_PATH]
+               [--webdriver-type WEBDRIVER_TYPE] [--use-malwareanalyzer | --no-use-malwareanalyzer | --malwareanalyzer | --no-malwareanalyzer]
+               [--malwareanalyzer-sources MALWAREANALYZER_SOURCES [MALWAREANALYZER_SOURCES ...]] [--malwareanalyzer-max-errors MALWAREANALYZER_MAX_ERRORS]
+               [--malwareanalyzer-allow-downloads | --no-malwareanalyzer-allow-downloads] [--user-ips USER_IPS [USER_IPS ...]]
                [--honeypot-external-ips HONEYPOT_EXTERNAL_IPS [HONEYPOT_EXTERNAL_IPS ...]] [--honeypot-internal-ips HONEYPOT_INTERNAL_IPS [HONEYPOT_INTERNAL_IPS ...]]
                [--honeypot-ports HONEYPOT_PORTS [HONEYPOT_PORTS ...]] [--honeypot-software HONEYPOT_SOFTWARE [HONEYPOT_SOFTWARE ...]] [--logs-path LOGS_PATH] [--cowrie-logs-path COWRIE_LOGS_PATH]
                [--firewall-logs-path FIREWALL_LOGS_PATH] [--web-logs-path WEB_LOGS_PATH] [--zeek-logs-path ZEEK_LOGS_PATH] [--malware-downloads-path MALWARE_DOWNLOADS_PATH]
-               [--auth-random-path AUTH_RANDOM_PATH] [--resources-path RESOURCES_PATH] [--attacks-path ATTACKS_PATH] [--db-path DB_PATH] [--ipdb-path IPDB_PATH] [--mwdb-path MWDB_PATH] [--aidb-path AIDB_PATH]
-               [--reports-path REPORTS_PATH]
+               [--auth-random-path AUTH_RANDOM_PATH] [--resources-path RESOURCES_PATH] [--attacks-path ATTACKS_PATH] [--db-path DB_PATH] [--ipdb-path IPDB_PATH] [--mwdb-path MWDB_PATH]
+               [--aidb-path AIDB_PATH] [--reports-path REPORTS_PATH]
 
 honeypot-ai: Honeypot Log Analyzer Built on OpenAI
 
@@ -1679,7 +2093,7 @@ Log Types:
   --log-types LOG_TYPES [LOG_TYPES ...]
                         Log types to process (default: ['cowrie', 'zeek'])
   --zeek-log-types ZEEK_LOG_TYPES [ZEEK_LOG_TYPES ...]
-                        Zeek log types to process (default: ['http'])
+                        Zeek log types to process (default: ['http', 'conn'])
   --zeek-log-ext ZEEK_LOG_EXT
                         Zeek log file extension (default: .log)
   --zeek-keep-empty-fields, --no-zeek-keep-empty-fields
@@ -1723,8 +2137,8 @@ Merge Conditions:
   --merge-shared-attrs MERGE_SHARED_ATTRS [MERGE_SHARED_ATTRS ...]
                         Attributes to automatically merge attacks on when any are shared (default: ['src_ips', 'malware', 'cmdlog_ips', 'cmdlog_urls', 'malware_ips', 'malware_urls'])
   --merge-regex-commands MERGE_REGEX_COMMANDS [MERGE_REGEX_COMMANDS ...]
-                        Regexes to match in commands of attacks that should be merged (default: [">\\??A@/ ?X'8ELFX", 'cat /proc/mounts; /bin/busybox [\\w\\d]+', 'cd /tmp && chmod \\+x [\\w\\d]+ && bash -c
-                        ./[\\w\\d]+', 'cd ~; chattr -ia .ssh; lockr -ia .ssh'])
+                        Regexes to match in commands of attacks that should be merged (default: [">\\??A@/ ?X'8ELFX", 'cat /proc/mounts; /bin/busybox [\\w\\d]+', 'cd /tmp && chmod \\+x [\\w\\d]+
+                        && bash -c ./[\\w\\d]+', 'cd ~; chattr -ia .ssh; lockr -ia .ssh'])
   --merge-regex-malware MERGE_REGEX_MALWARE [MERGE_REGEX_MALWARE ...]
                         Regexes to match in malware of attacks that should be merged (default: [])
   --merge-regex-http-requests MERGE_REGEX_HTTP_REQUESTS [MERGE_REGEX_HTTP_REQUESTS ...]
@@ -1760,7 +2174,7 @@ OpenAI Analyzer Settings:
   --openai-model OPENAI_MODEL
                         OpenAI Model to use (Get from https://platform.openai.com/docs/models) (default: gpt-4-1106-preview)
   --openai-training-data-path OPENAI_TRAINING_DATA_PATH
-                        Path to the openai-training-data directory (default: ./resources/openai-training-data)
+                        Path to the openai-training-data directory (default: ./honeypot-ai/resources/openai-training-data)
 
 IP Analyzer and Webdriver Settings:
   Settings for analyzing OSINT on IPs with IPAnalyzer and Selenium webdrivers
@@ -1800,10 +2214,11 @@ User and Honeypot Environment Settings:
   --honeypot-ports HONEYPOT_PORTS [HONEYPOT_PORTS ...]
                         Open ports of on honeypot system(s) to inform AI for more accurate analysis (default: [22, 23, 80, 2222, 2223, 2323, 5555, 7547, 8000, 8080, 9000])
   --honeypot-software HONEYPOT_SOFTWARE [HONEYPOT_SOFTWARE ...]
-                        Version strings of the software running on each open port of the honeypot system(s) to inform AI for more accurate analysis. (default: ['Cowrie SSH server running OpenSSH 6.0p1 Debian
-                        4+deb7u2 (protocol 2.0)', 'Cowrie Telnet server', 'Web server running Apache httpd 3.2.3 and WordPress 5.6.7', 'Cowrie SSH server running OpenSSH 6.0p1 Debian 4+deb7u2 (protocol 2.0)',
-                        'Cowrie Telnet server', 'Cowrie Telnet server', 'Web server running Apache httpd 3.2.3 and WordPress 5.6.7', 'Web server running Apache httpd 3.2.3 and WordPress 5.6.7', 'Web server
-                        running Apache httpd 3.2.3 and WordPress 5.6.7', 'Web server running Apache httpd 3.2.3 and WordPress 5.6.7', 'Web server running Apache httpd 3.2.3 and WordPress 5.6.7'])
+                        Version strings of the software running on each open port of the honeypot system(s) to inform AI for more accurate analysis. (default: ['Cowrie SSH server running OpenSSH
+                        6.0p1 Debian 4+deb7u2 (protocol 2.0)', 'Cowrie Telnet server', 'Web server running Apache httpd 3.2.3 and WordPress 5.6.7', 'Cowrie SSH server running OpenSSH 6.0p1 Debian
+                        4+deb7u2 (protocol 2.0)', 'Cowrie Telnet server', 'Cowrie Telnet server', 'Web server running Apache httpd 3.2.3 and WordPress 5.6.7', 'Web server running Apache httpd
+                        3.2.3 and WordPress 5.6.7', 'Web server running Apache httpd 3.2.3 and WordPress 5.6.7', 'Web server running Apache httpd 3.2.3 and WordPress 5.6.7', 'Web server running
+                        Apache httpd 3.2.3 and WordPress 5.6.7'])
 
 Input Paths:
   Paths to input logs and files
@@ -1861,7 +2276,7 @@ Output Paths:
  'SORT_ORDER': 'desc',
  'LOAD_ATTACKS_MAX_WORKERS': 2,
  'LOG_TYPES': ['cowrie', 'zeek'],
- 'ZEEK_LOG_TYPES': ['http'],
+ 'ZEEK_LOG_TYPES': ['http', 'conn'],
  'ZEEK_LOG_EXT': '.log',
  'ZEEK_KEEP_EMPTY_FIELDS': True,
  'ZEEK_KEEP_UNSET_FIELDS': False,
@@ -1901,7 +2316,7 @@ Output Paths:
  'USE_OPENAI_CODE_INTERPRETER': True,
  'OPENAI_API_KEY': '<PASTE YOUR API KEY HERE>',
  'OPENAI_MODEL': 'gpt-4-1106-preview',
- 'OPENAI_TRAINING_DATA_PATH': './resources/openai-training-data',
+ 'OPENAI_TRAINING_DATA_PATH': './honeypot-ai/resources/openai-training-data',
  'USE_IPANALYZER': True,
  'IPANALYZER_SOURCES': ['isc', 'whois', 'cybergordon', 'threatfox', 'shodan'],
  'IPANALYZER_MAX_ERRORS': 5,
