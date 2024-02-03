@@ -18,28 +18,33 @@ def sha256hex(string):
 
 def pprint_str(*args, **kwargs):
     """Pretty Print to StringIO and return the string"""
-    output_buffer = StringIO()
-    kwargs["stream"] = output_buffer
-    # Convert SetReprOrderedSet to list si pprint can handle it
+    # Convert SetReprOrderedSet to list so pprint can handle it
     for arg in args:
         if isinstance(arg, (set, SetReprOrderedSet)):
             arg = list(arg)
+    
+    # pprint to StringIO and return the string
+    output_buffer = StringIO()
+    kwargs["stream"] = output_buffer
     pprint(*args, **kwargs)
     return output_buffer.getvalue()
 
 
-def print_box(string, title="", fill_char="#", width=None):
+def print_box(string, title="", fill_char="#", width=None, max_width=120):
     """Prints string in a box"""
     if not width:
         width = len(max(string.split("\n") + [title], key=len)) + 4
-    
+    width = min(width, max_width)
+
     if title:
         print(fill_char * width)
         print(f"{fill_char} {title.center(width-4)} {fill_char}")
     
     print(fill_char * width)
     for line in string.split("\n"):
-        print(f"{fill_char} {line.ljust(width-4)} {fill_char}")
+        while line:
+            print(f"{fill_char} {line[:width-4].ljust(width-4)} {fill_char}")
+            line = line[width-4:]
     print(fill_char * width)
     
     

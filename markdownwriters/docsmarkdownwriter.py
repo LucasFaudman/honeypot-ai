@@ -258,3 +258,59 @@ BASIC_USAGE = {
     },
         
 }
+
+OUTPUTS = {
+    "load_from_logs_list": """
+    
+    """,
+    
+
+
+    "load_from_logs_sort": """
+    
+    """,
+    
+
+
+    "organize_attacks": """
+    
+    """,
+    
+
+
+    "load_from_attacks_dir": """
+    
+    """,
+    
+
+
+    "only_attacks": """
+    
+    """,
+    
+
+
+    "analyze_write_export": """
+    
+    """,
+    
+
+
+    "chat_mode": """
+    
+    """,
+    
+
+
+    "interactive": """
+    
+    """,
+    
+
+
+    "config_update": """
+    
+    """,
+    
+        
+}
