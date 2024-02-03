@@ -1,0 +1,36 @@
+Attack Summary:
+Attack (mhash: 10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c), SourceIPs: 3, Sessions: 9, SSH: 9, Commands: 3, Cmdlogs: 4, Malware: 3 
+
+Raw Commands:
+scp -t /tmp/BUwTrLEj
+cd /tmp && chmod +x BUwTrLEj && bash -c ./BUwTrLEj
+./BUwTrLEj
+
+Split Commands:
+scp -t /tmp/BUwTrLEj
+cd /tmp && chmod +x BUwTrLEj && bash -c ./BUwTrLEj
+./BUwTrLEj
+
+f7bbaf20a0b5d98b0e333ae777118fd19a1c26ff47c5fd063e4c1933dc0b22fc:
+	- Malware 10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c: Size: 4766 bytes Type: application/octet-stream Downloaded by: 93.223.169.159 Session fa6fb05e952d 
+	- Malware 1b82ac2aca7cd9b3b1d352dbb024a1ae736579e23860b353be95f5e19d160d51: Size: 4766 bytes Type: application/octet-stream Downloaded by: 27.93.25.111 Session a9ffcecc6796 
+	- Malware b9e33cd433b4c78c80e6233e829f5b57b64940e83ea8733978300becc3f5a23f: Size: 4766 bytes Type: application/octet-stream Downloaded by: 111.216.194.148 Session c0a95962c75a 
+
+
+
+
+SourceIPs:
+SourceIP 93.223.169.159 Sessions: 3, Successful Logins: 2, Commands: 3, Downloads 1, 
+SourceIP 27.93.25.111 Sessions: 3, Successful Logins: 2, Commands: 3, Downloads 1, 
+SourceIP 111.216.194.148 Sessions: 3, Successful Logins: 2, Commands: 3, Downloads 1, 
+
+Sessions:
+Session 76647820c016 SSH 93.223.169.159:46966 -> 172.31.5.68:2222 Duration: 0.35s
+Session fa6fb05e952d SSH 93.223.169.159:46970 -> 172.31.5.68:2222 Login: pi:raspberry Commands: 1, Malware: 1, Duration: 0.87s
+Session 3383f6a6a93c SSH 93.223.169.159:47004 -> 172.31.5.68:2222 Login: pi:raspberry Commands: 2, Duration: 0.70s
+Session b183188057b3 SSH 27.93.25.111:52094 -> 172.31.5.68:2222 Duration: 0.15s
+Session a9ffcecc6796 SSH 27.93.25.111:52102 -> 172.31.5.68:2222 Login: pi:raspberryraspberry993311 Commands: 1, Malware: 1, Duration: 0.57s
+Session 6c83f979e0b5 SSH 27.93.25.111:52146 -> 172.31.5.68:2222 Login: pi:raspberryraspberry993311 Commands: 2, Duration: 0.46s
+Session 617df930d4a6 SSH 111.216.194.148:52912 -> 172.31.5.68:2222 Duration: 0.09s
+Session c0a95962c75a SSH 111.216.194.148:52922 -> 172.31.5.68:2222 Login: pi:raspberryraspberry993311 Commands: 1, Malware: 1, Duration: 0.52s
+Session 9a98fb146784 SSH 111.216.194.148:52964 -> 172.31.5.68:2222 Login: pi:raspberryraspberry993311 Commands: 2, Duration: 0.28s

@@ -1,0 +1,76 @@
+2024-01-28T12:16:10.353211Z [cowrie.ssh.factory.CowrieSSHFactory] New connection: 27.93.25.111:52094 (172.31.5.68:2222) [session: b183188057b3]
+2024-01-28T12:16:10.482329Z [HoneyPotSSHTransport,4,27.93.25.111] Remote SSH version: SSH-2.0-OpenSSH_7.9p1 Raspbian-10+deb10u2+rpt1
+2024-01-28T12:16:10.610167Z [HoneyPotSSHTransport,4,27.93.25.111] SSH client hassh fingerprint: ec7378c1a92f5a8dde7e8b7a1ddf33d1
+2024-01-28T12:16:10.780465Z [cowrie.ssh.factory.CowrieSSHFactory] New connection: 27.93.25.111:52102 (172.31.5.68:2222) [session: a9ffcecc6796]
+2024-01-28T12:16:10.907878Z [HoneyPotSSHTransport,5,27.93.25.111] Remote SSH version: SSH-2.0-OpenSSH_7.9p1 Raspbian-10+deb10u2+rpt1
+2024-01-28T12:16:11.034873Z [HoneyPotSSHTransport,5,27.93.25.111] SSH client hassh fingerprint: ec7378c1a92f5a8dde7e8b7a1ddf33d1
+2024-01-28T12:16:11.348744Z [HoneyPotSSHTransport,4,27.93.25.111] first time for 27.93.25.111, need: 2
+2024-01-28T12:16:11.348910Z [HoneyPotSSHTransport,4,27.93.25.111] login attempt: 1
+2024-01-28T12:16:11.374224Z [HoneyPotSSHTransport,4,27.93.25.111] login attempt [b'pi'/b'raspberry'] failed
+2024-01-28T12:16:11.783079Z [HoneyPotSSHTransport,5,27.93.25.111] login attempt: 2
+2024-01-28T12:16:11.808742Z [HoneyPotSSHTransport,5,27.93.25.111] login attempt [b'pi'/b'raspberryraspberry993311'] succeeded
+2024-01-28T12:16:11.810070Z [HoneyPotSSHTransport,5,27.93.25.111] Initialized emulated server as architecture: linux-x64-lsb
+2024-01-28T12:16:12.065199Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,5,27.93.25.111] request_env: LANG=ja_JP.UTF-8
+2024-01-28T12:16:12.087112Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,5,27.93.25.111] CMD: scp -t /tmp/awI12Q36
+2024-01-28T12:16:12.087619Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,5,27.93.25.111] Command found: scp -t /tmp/awI12Q36
+2024-01-28T12:16:12.221227Z [HoneyPotSSHTransport,5,27.93.25.111] Saved stdin contents with SHA-256 1b82ac2aca7cd9b3b1d352dbb024a1ae736579e23860b353be95f5e19d160d51 to var/lib/cowrie/downloads/1b82ac2aca7cd9b3b1d352dbb024a1ae736579e23860b353be95f5e19d160d51
+2024-01-28T12:16:12.221918Z [HoneyPotSSHTransport,5,27.93.25.111] Closing TTY Log: var/lib/cowrie/tty/baf5cf2891256f8986321820a454e86b0182750ad4729f9cb0eeaad6cd5ecc32 after 0 seconds
+2024-01-28T12:16:12.349805Z [HoneyPotSSHTransport,5,27.93.25.111] Got remote error, code 11 reason: b'disconnected by user'
+2024-01-28T12:16:12.350111Z [HoneyPotSSHTransport,5,27.93.25.111] avatar pi logging out
+2024-01-28T12:16:12.350297Z [HoneyPotSSHTransport,5,27.93.25.111] Connection lost after 1 seconds
+2024-01-28T12:16:12.498430Z [cowrie.ssh.factory.CowrieSSHFactory] New connection: 27.93.25.111:52146 (172.31.5.68:2222) [session: 6c83f979e0b5]
+2024-01-28T12:16:12.506038Z [HoneyPotSSHTransport,4,27.93.25.111] Connection lost after 2 seconds
+2024-01-28T12:16:12.625908Z [HoneyPotSSHTransport,6,27.93.25.111] Remote SSH version: SSH-2.0-OpenSSH_7.9p1 Raspbian-10+deb10u2+rpt1
+2024-01-28T12:16:12.752690Z [HoneyPotSSHTransport,6,27.93.25.111] SSH client hassh fingerprint: ec7378c1a92f5a8dde7e8b7a1ddf33d1
+2024-01-28T12:16:13.492141Z [HoneyPotSSHTransport,6,27.93.25.111] Found cached: b'pi':b'raspberryraspberry993311'
+2024-01-28T12:16:13.516946Z [HoneyPotSSHTransport,6,27.93.25.111] login attempt [b'pi'/b'raspberryraspberry993311'] succeeded
+2024-01-28T12:16:13.518043Z [HoneyPotSSHTransport,6,27.93.25.111] Initialized emulated server as architecture: linux-x64-lsb
+2024-01-28T12:16:13.772647Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,6,27.93.25.111] request_env: LANG=ja_JP.UTF-8
+2024-01-28T12:16:13.825708Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,6,27.93.25.111] CMD: cd /tmp && chmod +x awI12Q36 && bash -c ./awI12Q36
+2024-01-28T12:16:13.826247Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,6,27.93.25.111] Command found: cd /tmp
+2024-01-28T12:16:13.826404Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,6,27.93.25.111] Command found: chmod +x awI12Q36
+2024-01-28T12:16:13.827163Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,6,27.93.25.111] Command found: bash -c ./awI12Q36
+2024-01-28T12:16:13.827282Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,6,27.93.25.111] CMD: ./awI12Q36
+2024-01-28T12:16:13.827825Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,6,27.93.25.111] Command not found: ./awI12Q36
+2024-01-28T12:16:13.829224Z [HoneyPotSSHTransport,6,27.93.25.111] Closing TTY Log: var/lib/cowrie/tty/c3d6ff05917787e2c8a7219924460ad04da4b0f23f18998bc79466ac4ee529e0 after 0 seconds
+2024-01-28T12:16:13.956827Z [HoneyPotSSHTransport,6,27.93.25.111] Got remote error, code 11 reason: b'disconnected by user'
+2024-01-28T12:16:13.957154Z [HoneyPotSSHTransport,6,27.93.25.111] avatar pi logging out
+2024-01-28T12:16:13.957344Z [HoneyPotSSHTransport,6,27.93.25.111] Connection lost after 1 seconds
+2024-01-28T13:19:46.122775Z [cowrie.ssh.factory.CowrieSSHFactory] New connection: 111.216.194.148:52912 (172.31.5.68:2222) [session: 617df930d4a6]
+2024-01-28T13:19:46.250065Z [HoneyPotSSHTransport,0,111.216.194.148] Remote SSH version: SSH-2.0-OpenSSH_7.9p1 Raspbian-10+deb10u2+rpt1
+2024-01-28T13:19:46.368998Z [HoneyPotSSHTransport,0,111.216.194.148] SSH client hassh fingerprint: ec7378c1a92f5a8dde7e8b7a1ddf33d1
+2024-01-28T13:19:46.451708Z [cowrie.ssh.factory.CowrieSSHFactory] New connection: 111.216.194.148:52922 (172.31.5.68:2222) [session: c0a95962c75a]
+2024-01-28T13:19:46.571616Z [HoneyPotSSHTransport,1,111.216.194.148] Remote SSH version: SSH-2.0-OpenSSH_7.9p1 Raspbian-10+deb10u2+rpt1
+2024-01-28T13:19:46.695106Z [HoneyPotSSHTransport,1,111.216.194.148] SSH client hassh fingerprint: ec7378c1a92f5a8dde7e8b7a1ddf33d1
+2024-01-28T13:19:47.065853Z [HoneyPotSSHTransport,0,111.216.194.148] first time for 111.216.194.148, need: 5
+2024-01-28T13:19:47.065976Z [HoneyPotSSHTransport,0,111.216.194.148] login attempt: 1
+2024-01-28T13:19:47.090616Z [HoneyPotSSHTransport,0,111.216.194.148] login attempt [b'pi'/b'raspberry'] failed
+2024-01-28T13:19:47.389616Z [HoneyPotSSHTransport,1,111.216.194.148] Found cached: b'pi':b'raspberryraspberry993311'
+2024-01-28T13:19:47.414448Z [HoneyPotSSHTransport,1,111.216.194.148] login attempt [b'pi'/b'raspberryraspberry993311'] succeeded
+2024-01-28T13:19:47.415581Z [HoneyPotSSHTransport,1,111.216.194.148] Initialized emulated server as architecture: linux-x64-lsb
+2024-01-28T13:19:47.654478Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,1,111.216.194.148] request_env: LANG=zh_CN.UTF-8
+2024-01-28T13:19:47.708726Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,1,111.216.194.148] CMD: scp -t /tmp/z5owII0b
+2024-01-28T13:19:47.709263Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,1,111.216.194.148] Command found: scp -t /tmp/z5owII0b
+2024-01-28T13:19:47.850472Z [HoneyPotSSHTransport,1,111.216.194.148] Saved stdin contents with SHA-256 b9e33cd433b4c78c80e6233e829f5b57b64940e83ea8733978300becc3f5a23f to var/lib/cowrie/downloads/b9e33cd433b4c78c80e6233e829f5b57b64940e83ea8733978300becc3f5a23f
+2024-01-28T13:19:47.851179Z [HoneyPotSSHTransport,1,111.216.194.148] Closing TTY Log: var/lib/cowrie/tty/f2939a8539fce7246e1af34322df5d5b7443d6a06edd9ea55606c2df6a9800fc after 0 seconds
+2024-01-28T13:19:47.970498Z [HoneyPotSSHTransport,1,111.216.194.148] Got remote error, code 11 reason: b'disconnected by user'
+2024-01-28T13:19:47.970838Z [HoneyPotSSHTransport,1,111.216.194.148] avatar pi logging out
+2024-01-28T13:19:47.971018Z [HoneyPotSSHTransport,1,111.216.194.148] Connection lost after 1 seconds
+2024-01-28T13:19:48.145386Z [cowrie.ssh.factory.CowrieSSHFactory] New connection: 111.216.194.148:52964 (172.31.5.68:2222) [session: 9a98fb146784]
+2024-01-28T13:19:48.214327Z [HoneyPotSSHTransport,0,111.216.194.148] Connection lost after 2 seconds
+2024-01-28T13:19:48.259126Z [HoneyPotSSHTransport,2,111.216.194.148] Remote SSH version: SSH-2.0-OpenSSH_7.9p1 Raspbian-10+deb10u2+rpt1
+2024-01-28T13:19:48.371374Z [HoneyPotSSHTransport,2,111.216.194.148] SSH client hassh fingerprint: ec7378c1a92f5a8dde7e8b7a1ddf33d1
+2024-01-28T13:19:49.033947Z [HoneyPotSSHTransport,2,111.216.194.148] Found cached: b'pi':b'raspberryraspberry993311'
+2024-01-28T13:19:49.058415Z [HoneyPotSSHTransport,2,111.216.194.148] login attempt [b'pi'/b'raspberryraspberry993311'] succeeded
+2024-01-28T13:19:49.059472Z [HoneyPotSSHTransport,2,111.216.194.148] Initialized emulated server as architecture: linux-x64-lsb
+2024-01-28T13:19:49.285279Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,2,111.216.194.148] request_env: LANG=zh_CN.UTF-8
+2024-01-28T13:19:49.309659Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,2,111.216.194.148] CMD: cd /tmp && chmod +x z5owII0b && bash -c ./z5owII0b
+2024-01-28T13:19:49.310160Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,2,111.216.194.148] Command found: cd /tmp
+2024-01-28T13:19:49.310321Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,2,111.216.194.148] Command found: chmod +x z5owII0b
+2024-01-28T13:19:49.311052Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,2,111.216.194.148] Command found: bash -c ./z5owII0b
+2024-01-28T13:19:49.311220Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,2,111.216.194.148] CMD: ./z5owII0b
+2024-01-28T13:19:49.311734Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,2,111.216.194.148] Command not found: ./z5owII0b
+2024-01-28T13:19:49.313121Z [HoneyPotSSHTransport,2,111.216.194.148] Closing TTY Log: var/lib/cowrie/tty/c79ff1a5ff7a2817e4dd1e483a1472637473da695822b6624831f22a2352c556 after 0 seconds
+2024-01-28T13:19:49.426487Z [HoneyPotSSHTransport,2,111.216.194.148] Got remote error, code 11 reason: b'disconnected by user'
+2024-01-28T13:19:49.426812Z [HoneyPotSSHTransport,2,111.216.194.148] avatar pi logging out
+2024-01-28T13:19:49.426989Z [HoneyPotSSHTransport,2,111.216.194.148] Connection lost after 1 seconds
