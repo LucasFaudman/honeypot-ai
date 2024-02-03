@@ -22,7 +22,7 @@ def pprint_str(*args, **kwargs):
     for arg in args:
         if isinstance(arg, (set, SetReprOrderedSet)):
             arg = list(arg)
-    
+
     # pprint to StringIO and return the string
     output_buffer = StringIO()
     kwargs["stream"] = output_buffer
@@ -34,18 +34,23 @@ def print_box(string, title="", fill_char="#", width=None, max_width=120):
     """Prints string in a box"""
     if not width:
         width = len(max(string.split("\n") + [title], key=len)) + 4
+    
     width = min(width, max_width)
+    border = fill_char * width
+    spacer = fill_char + " " * (width-2) + fill_char
 
     if title:
-        print(fill_char * width)
+        print(border)
         print(f"{fill_char} {title.center(width-4)} {fill_char}")
     
-    print(fill_char * width)
+    print(border)
+    print(spacer)
     for line in string.split("\n"):
         while line:
             print(f"{fill_char} {line[:width-4].ljust(width-4)} {fill_char}")
-            line = line[width-4:]
-    print(fill_char * width)
+            line = line[width-4:]    
+    print(spacer)
+    print(border)
     
     
 def run_command_with_shlex(command, args, subprocess_kwargs={"shell": True}):

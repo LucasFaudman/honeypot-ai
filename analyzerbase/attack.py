@@ -399,10 +399,8 @@ class Attack(SmartAttrObject, CachedPropertyObject, PostprocessableObject):
 
     def print_attrs(self, *attrs):
         """Prints self then attributes of self"""
-        # print(f"\n{self}")
-        print()
+        print(f"\n\n{self}")
         for attr in attrs:
-            print(self)
             print_box(pprint_str(getattr(self, attr)), title=attr)
         print()
 
