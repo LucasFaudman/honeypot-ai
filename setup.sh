@@ -144,7 +144,7 @@ if [ "$OPENAI" == "y" ]; then
     printf "\nWhat is your OpenAI API Key? (Get from https://platform.openai.com/api-keys)\n"
     read -p "Enter OPENAI_API_KEY: " OPENAI_API_KEY 
     [ -z "$OPENAI_API_KEY" ] && printf "\nNo OpenAI API Key provided. You must add your API key to config.json before using OpenAI.\n" \
-    || printf "\nOpenAI API Key will be added to config.json.\n" && OPENAI_KEY_ARG="--openai-api-key  $OPENAI_API_KEY"
+    || printf "\nOpenAI API Key will be added to config.json.\n" && OPENAI_API_KEY_ARG="--openai-api-key  $OPENAI_API_KEY"
 fi
 
 printf "\n"

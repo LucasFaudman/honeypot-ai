@@ -490,7 +490,7 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         
 
     def interactive_chat_about_attack(self, attack):
-        print(f"\nEntering Chat Mode.\nAsk the AI assistant custom questions about:\n{attack}")
+        print(f"\nEntering Chat Mode...\nAsk the AI assistant custom questions about:\n{attack}")
         question_run_logs = {}
         question_to_ask = {}
 
