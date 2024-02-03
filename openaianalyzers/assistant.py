@@ -502,14 +502,19 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
 
         choice = ""
         quit_strings = ("q", "quit", "exit", "exit()")
-        while choice.lower() not in quit_strings:
-            msg = "\nCurrent questions:\n" 
+        while choice not in quit_strings:
+            msg = f"AI Interactive Chat\n{attack}\n"
+            msg += "\nCurrent questions:\n" 
             msg += pprint_str(question_to_ask)
-            msg += "\nChoices:\n e) Enter a question (adds to current questions)"
-            msg += "\n u) Upload multiline question from file (adds to current questions)"
-            msg += "\n a) Ask questions (asks all questions in current questions)"
-            msg += "\n c) Clear questions (clears current questions)"
-            msg += "\n\nEnter choice (e, u, a, c OR q to exit): "
+            msg += "\nChoices:"
+            msg += "\n a) Ask questions"
+            msg += "\n e) Enter a question"
+            msg += "\n u) Upload multiline question from file"
+            msg += "\n c) Clear questions"
+            msg += f"\n m) Change OpenAI model. (Current model: {self.model})"
+            msg += "\n p) Print attack attributes"
+            msg += "\n q) Quit and continue main"
+            msg += "\n\nEnter choice (a, e, u, c, m, p OR q): "
             choice = input(msg)
             choice = choice.lower().strip()[0] if choice else ""
 
@@ -538,7 +543,17 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
             
             elif choice == "c":
                 question_to_ask = {}
+
+            elif choice == "p":
+                # Get valid attack attributes to pprint
+                attrs = set(input("Enter attack attribute to pprint: ").split()) & set(dir(attack))
+                attack.print_attrs(attrs)
             
+            elif choice == "m":
+                new_model = input("Enter new OpenAI model: ")
+                if new_model:
+                    self.set_model(new_model)
+                    
             elif choice not in quit_strings:
                 print("\nInvalid choice. Try again.")
                 sleep(1)

@@ -27,6 +27,10 @@ class OpenAIAnalyzerBase:
             self.db_path.mkdir(exist_ok=True, parents=True)
 
 
+    def set_model(self, model):
+        self.model = model
+        print(f"Changed OpenAI model to {self.model}")
+    
 
     def _try_openai(self, getter_fn, extractor_fn=lambda x: x, **kwargs):
         """
