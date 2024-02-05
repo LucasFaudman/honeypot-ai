@@ -356,7 +356,7 @@ class AttackMarkdownWriter(MarkdownWriterBase):
 
             mw_md = f"{bold('Standardized')} Sha256 HASH: {code(standardized_shasum)}\n\n"
             mw_md += f"{bold('Sample Below')} Sha256 HASH: {code(mwobj0.shasum)}"
-            mw_md += codeblock(mwobj0.text, malware_language)
+            mw_md += codeblock(remove_null_bytes(mwobj0.text), malware_language)
 
             if len(mwobj_list) > 1:
                 mw_md += f"{len(mwobj_list) - 1} more samples with the same {bold('Standardized')} Sha256 HASH were found:\n"
