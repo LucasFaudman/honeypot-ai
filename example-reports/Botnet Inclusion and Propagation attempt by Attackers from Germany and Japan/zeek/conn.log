@@ -1,0 +1,39 @@
+#separator \x09
+#set_separator	,
+#empty_field	(empty)
+#unset_field	-
+#path	conn
+#open	2023-12-07-01-38-59
+#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	proto	service	duration	orig_bytes	resp_bytes	conn_state	local_orig	local_resp	missed_bytes	history	orig_pkts	orig_ip_bytes	resp_pkts	resp_ip_bytes	tunnel_parents
+#types	time	string	addr	port	addr	port	enum	string	interval	count	count	string	bool	bool	count	string	count	count	count	count	set[string]
+1701946336.598590	CmMj7Y1TLuJ5YCKDWl	93.223.169.159	60702	172.31.5.68	22	tcp	-	0.156259	0	0	RSTO	F	T	0	ShR	2	84	1	44	-
+1701946346.628028	CTCt4bY4cLQCcH5Si	93.223.169.159	47114	172.31.5.68	22	tcp	ssh	2.577254	1904	1327	SF	F	T	0	ShAdDaFf	15	2692	14	2063	-
+1701946346.650165	CnN1Ae1hMulVtjCKi6	93.223.169.159	47118	172.31.5.68	22	tcp	ssh	2.616529	1904	1327	SF	F	T	0	ShAdDaFf	15	2692	14	2063	-
+#separator \x09
+#set_separator	,
+#empty_field	(empty)
+#unset_field	-
+#path	conn
+#open	2024-01-26-13-38-52
+#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	proto	service	duration	orig_bytes	resp_bytes	conn_state	local_orig	local_resp	missed_bytes	history	orig_pkts	orig_ip_bytes	resp_pkts	resp_ip_bytes	tunnel_parents
+#types	time	string	addr	port	addr	port	enum	string	interval	count	count	string	bool	bool	count	string	count	count	count	count	set[string]
+1706306371.528530	C06KgE3PnupO2F8u27	93.223.169.159	49808	172.31.5.68	22	tcp	-	1.169289	0	0	RSTO	F	T	0	ShR	2	84	2	88	-
+1706306382.838838	Cz65Bp3E9Yx7GOGZf8	93.223.169.159	46970	172.31.5.68	22	tcp	ssh	2.022031	7472	2623	SF	F	T	0	ShAdDaFf	24	8728	24	3879	-
+1706306382.824208	CQi9zfVW7vj47v0A9	93.223.169.159	46966	172.31.5.68	22	tcp	ssh	2.498452	1904	1327	SF	F	T	0	ShAdDaFf	15	2692	14	2063	-
+1706306384.908091	CkS27i1cg6LfTwb3Oi	93.223.169.159	47004	172.31.5.68	22	tcp	ssh	1.850447	2656	1935	SF	F	T	0	ShAdDaFTf	20	3704	18	2891	-
+#separator \x09
+#set_separator	,
+#empty_field	(empty)
+#unset_field	-
+#path	conn
+#open	2024-01-28-01-38-53
+#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	proto	service	duration	orig_bytes	resp_bytes	conn_state	local_orig	local_resp	missed_bytes	history	orig_pkts	orig_ip_bytes	resp_pkts	resp_ip_bytes	tunnel_parents
+#types	time	string	addr	port	addr	port	enum	string	interval	count	count	string	bool	bool	count	string	count	count	count	count	set[string]
+1706444158.350606	C5rS7g4QnQp42gbcGd	27.93.25.111	50916	172.31.5.68	22	tcp	-	1.138814	0	0	RSTO	F	T	0	ShR	2	84	2	88	-
+1706444170.652851	CKKbJDBalq1TZbmF6	27.93.25.111	52102	172.31.5.68	22	tcp	ssh	1.697188	7568	2623	SF	F	T	0	ShAdDaFf	24	8824	21	3723	-
+1706444170.223827	CMy02v1pudNB2CRKZ7	27.93.25.111	52094	172.31.5.68	22	tcp	ssh	2.282035	1904	1327	SF	F	T	0	ShAdDaFf	15	2692	14	2063	-
+1706444172.370948	CHGw7y4ZZUIK7GA6De	27.93.25.111	52146	172.31.5.68	22	tcp	ssh	1.586112	2656	1935	SF	F	T	0	ShAdDaFf	20	3704	17	2827	-
+1706447975.560882	CYkNc83gU5wuP2Slq2	111.216.194.148	49512	172.31.5.68	22	tcp	-	0.112083	0	0	RSTO	F	T	0	ShR	2	84	1	44	-
+1706447986.332534	CLMsKD2iQhsMaDU1nk	111.216.194.148	52922	172.31.5.68	22	tcp	ssh	1.642975	7472	2623	SF	F	T	0	ShAdDafF	23	8676	23	3827	-
+1706447986.003158	CT4tTu4hPvKdx6ZkLe	111.216.194.148	52912	172.31.5.68	22	tcp	ssh	2.210949	1904	1327	SF	F	T	0	ShAdDaFf	15	2692	14	2063	-
+1706447988.032650	C1Z4MD4DurN46YY8Ra	111.216.194.148	52964	172.31.5.68	22	tcp	ssh	1.394085	2656	1935	SF	F	T	0	ShAdDaFf	20	3704	17	2827	-

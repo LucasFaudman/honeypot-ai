@@ -1,0 +1,10 @@
+
+Raw Commands:
+scp -t /tmp/BUwTrLEj
+cd /tmp && chmod +x BUwTrLEj && bash -c ./BUwTrLEj
+./BUwTrLEj
+
+Split Commands:
+scp -t /tmp/BUwTrLEj
+cd /tmp && chmod +x BUwTrLEj && bash -c ./BUwTrLEj
+./BUwTrLEj
