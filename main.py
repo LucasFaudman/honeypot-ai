@@ -669,7 +669,7 @@ def main(test_args=None):
 
     
     # Hidden option to update README.md with config_parser and default_config
-    if "README" in args.only_attacks:
+    if args.only_attacks and "README" in args.only_attacks:
         DocsMarkdownWriter(
             filepath="README.md", 
             mode="w+", 
