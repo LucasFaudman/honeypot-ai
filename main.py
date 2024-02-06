@@ -441,7 +441,7 @@ def main(test_args=None):
     if not args.load_from_logs and not args.load_from_attacks_dir:
         if args.organize_attacks:
             print("Argument --organize-attacks used without --load-from-logs or --load-from-attacks-dir. Defaulting to --load-from-logs")
-            args.load_attacks_from_logs = True
+            args.load_from_logs = True
         elif args.only_attacks:
             print("Argument --only-attacks used without --load-from-logs or --load-from-attacks-dir. Defaulting to --load-from-attacks-dir")
             args.load_from_attacks_dir = True
