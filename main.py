@@ -464,7 +464,9 @@ def main(test_args=None):
             max_workers=config["LOAD_ATTACKS_MAX_WORKERS"],
         ))
 
-    if not ATTACKS:
+
+    # Check if Attacks were loaded and exit if not unless writing README
+    if not ATTACKS and "README" not in args.only_attacks:
         print("No attacks loaded. Exiting.")
         exit(1)
 
@@ -666,8 +668,8 @@ def main(test_args=None):
             attack.print_attrs(*args.print_attrs)
 
     
-    # Hidden option to update README.md with config_parser and default_config when --write-reports and --only-attacks "README" flags are set
-    if args.only_attacks == ["README"] and args.write_reports:
+    # Hidden option to update README.md with config_parser and default_config
+    if "README" in args.only_attacks:
         DocsMarkdownWriter(
             filepath="README.md", 
             mode="w+", 
