@@ -154,6 +154,7 @@ if [ "$SELENIUM" == "y" ]; then
     python3 "$HONEYPOT_AI_PATH/setup/getchromedriver.py" "$RESOURCES_PATH" --skip-headless
     unzip "$RESOURCES_PATH"/*.zip -d "$RESOURCES_PATH"
     CHROMEDRIVER_PATH=$(find "$RESOURCES_PATH" -type f -name 'chromedriver' -print -quit)
+    WEBDRIVER_PATH_ARG="--webdriver-path $CHROMEDRIVER_PATH"
 else
     printf "\nSkipping download of Chromedriver.\n"
     printf "\nSetting USE_IPANALYZER to False in config.json. Edit config.json or use --ip-analyzer -u to change this.\n"
@@ -164,7 +165,7 @@ printf "\nRunning main.py to setup config.json. (Ignore no loading method warnin
 
 python3 "$HONEYPOT_AI_PATH/main.py" -u \
     --logs-path $LOGS_PATH --attacks-path $ATTACKS_PATH --reports-path $REPORTS_PATH --db-path $DB_PATH \
-    --resources-path $RESOURCES_PATH --webdriver-path $CHROMEDRIVER_PATH \
+    --resources-path $RESOURCES_PATH  $WEBDRIVER_PATH_ARG\
     --honeypot-external-ip $HONEYPOT_EXTERNAL_IP --honeypot-internal-ip $HONEYPOT_INTERNAL_IP --user-ip $USER_IP \
     $USE_OPENAI_ARG $OPENAI_API_KEY_ARG $IP_ANALYZER_ARG
 
