@@ -296,7 +296,10 @@ class Session(SmartAttrObject, CachedPropertyObject):
     
     def __lt__(self, other):
         return self.start_time < other.start_time
-
+    
+    def __hash__(self):
+        return hash(self.session_id)
+    
     def __str__(self) -> str:
         return ''.join([
             f"Session {self.session_id} "

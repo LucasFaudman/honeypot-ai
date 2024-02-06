@@ -400,7 +400,7 @@ class LogProcessor:
                 merged = False
                 for value in getattr(attack, attr):
                     if value not in value_to_regexes:
-                        value_to_regexes[value] = [compiled_regex for compiled_regex in compiled_regexes if compiled_regex.match(value)]
+                        value_to_regexes[value] = [compiled_regex for compiled_regex in compiled_regexes if compiled_regex.search(value)]
 
                     for compiled_regex in value_to_regexes[value]:
                         if not attack_sigs[attr][compiled_regex]:
