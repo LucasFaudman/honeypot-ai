@@ -62,7 +62,7 @@ class OSINTAnalyzerBase:
 
     def get_output_template(self, sharing_link="", default_results: Union[dict,None]=None, default_error=""):
         """Returns empty output template with sharing_link, results, and error"""
-        default_results = default_results or {}
+        default_results = default_results if default_results is not None else {}
         return {"sharing_link": sharing_link, 
                 "results": default_results, 
                 "error": default_error}

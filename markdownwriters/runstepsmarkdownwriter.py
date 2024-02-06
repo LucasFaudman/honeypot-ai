@@ -39,11 +39,25 @@ class RunStepsMarkdownWriter(MarkdownWriterBase):
                 question_md += f"{bold('Step ID:')} {code(step['id'])}\n"
 
                 for tool_call in step["step_details"]["tool_calls"]:
-                    question_md += f"\n{bold('Function called:')} {code(tool_call['function']['name'])}\n"
-                    arguments = json.loads(tool_call["function"]["arguments"])
-                    output = json.loads(tool_call["function"]["output"])
-                    question_md += table(["Argument", "Value"], [(code(arg), code(value)) for arg, value in arguments.items()])
-                    question_md += table(["Output", "Value"], [(code(arg), code(value)) for arg, value in output.items()])
+                    if tool_call.get("function"):
+                        question_md += f"\n{bold('Function called:')} {code(tool_call['function']['name'])}\n"
+                        arguments = json.loads(tool_call["function"]["arguments"])
+                        output = json.loads(tool_call["function"]["output"])
+                        question_md += table(["Argument", "Value"], [(code(arg), code(value)) for arg, value in arguments.items()])
+                        question_md += table(["Output", "Value"], [(code(arg), code(value)) for arg, value in output.items()])
+                    elif tool_call.get("code_interpreter"):
+                        question_md += f"\n{bold('AI Used: Code Interpreter')}\n"
+                        question_md += h4("Input Code:")
+                        question_md += codeblock(tool_call["code_interpreter"]["input"], "python")
+                        question_md += h4("Outputs:")
+                        for output_dict in tool_call["code_interpreter"]["outputs"]:
+                            for key, output in output_dict.items():
+                                if key == "type":
+                                    continue
+                                question_md += codeblock(output, "python")
+                    else:
+                        question_md += f"{bold('No function or code interpreter called')}\n"
+
                     question_md += "\n"
     
         question_md += collapseable_section(run_log["answer"], "Answer", 3)

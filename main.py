@@ -61,6 +61,7 @@ DEFAULT_CONFIG = {
     'MERGE_REGEX_MALWARE': [], # Regexes to match in malware of attacks that should be merged
     "MERGE_REGEX_HTTP_REQUESTS": [
         r'GET /shell\?cd\+/tmp',
+        r'//\d+\.\d+\.\d+\.\d+:\d+/TomcatBypass/Command'
 
     ], # Regexes to match in HTTP requests of attacks that should be merged
 
@@ -465,8 +466,8 @@ def main(test_args=None):
         ))
 
 
-    # Check if Attacks were loaded and exit if not unless writing README
-    if not ATTACKS and "README" not in args.only_attacks:
+    # Check if Attacks were loaded and exit if not unless
+    if not ATTACKS:
         print("No attacks loaded. Exiting.")
         exit(1)
 
@@ -579,9 +580,9 @@ def main(test_args=None):
                 print("No questions asked. Skipping writing chat run steps markdown")
                 continue
             
-            question_keys = list(attack.question_run_logs.keys())
+            question_keys = sorted(attack.question_run_logs.keys(), key=lambda k: (int(k.split("_")[-1]), k) if k.split("_")[-1].isdigit() else (0, k))
             file_prefix = f"{question_keys[0]}-{question_keys[-1]}" if len(question_keys) > 1 else question_keys[0]
-            chat_run_steps_filepath = attack.attack_dir / "ai-chat" / f"{file_prefix}run-steps.md"
+            chat_run_steps_filepath = attack.attack_dir / "ai-chat" / f"{file_prefix}-run-steps.md"
             
             print(f"Writing chat markdown run steps for attack {attack.attack_id} to {chat_run_steps_filepath}")
             RUN_STEPS_MARKDOWN_WRITER = RunStepsMarkdownWriter(

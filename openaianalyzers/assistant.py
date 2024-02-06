@@ -131,15 +131,25 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         """Add content to therad as user message"""
 
         role = "user"
-        message = self.client.beta.threads.messages.create(
-            thread_id=thread_id,
-            content=content,
-            role=role
-            
-            )
-        return message
-    
+        try:
+            message = self.client.beta.threads.messages.create(
+                thread_id=thread_id,
+                content=content,
+                role=role
+                )
+            return message
 
+        except BadRequestError as e:
+            print(e.message)
+            active_run_id = next((msg_part for msg_part in e.message.split() if "run_" in msg_part), None)
+            if active_run_id:
+                print(f"Canceling {active_run_id}")
+                canceled_run = self.client.beta.threads.runs.cancel(run_id=active_run_id, thread_id=thread_id)
+                
+                return self.add_message_to_thread(content, thread_id)
+
+        
+    
     def wait_for_response(self, thread_id, run_id, attack, sleep_interval=5, **kwargs):
         """
         Waits for a response and handles status updates. 
@@ -184,8 +194,12 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
 
             print(f'\nAI called tool: {tool_name}\nwith args: {arguments}')
             # Get tool output with _do_tool_call
-            tool_output = self._do_tool_call(tool_name, arguments, attack, **kwargs)
-            
+            try:
+                tool_output = self._do_tool_call(tool_name, arguments, attack, **kwargs)
+            except Exception as e:
+                tool_output = {"error": f"Error getting tool output: {e}. Try again with different arguments."}
+                print(f"ERROR: {tool_output['error']}")
+
             print(f'\nSubmitting tool output: {tool_output}')
             
             # Format tool output and add to tool_outputs list
@@ -403,9 +417,9 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         if self.use_code_interpreter:
             tools.append({"type": "code_interpreter"})
             system_prompt += ''.join([
-            "Use the code_interpreter tool to enhance your analysis. ",
+            "Use Python when needed to enhance your analysis. ",
             "For example if you find an encoded string in the http_requests, commands, or malware, "
-            "you should use the code_interpreter tool to decode it, then analyze the decoded result in context "
+            "you should write and execute code to decode it, then analyze the decoded result in context "
             "when answering questions."
             ])
 
@@ -493,12 +507,20 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         print(f"\nEntering honeypot-ai Chat Mode...")
         question_run_logs = {}
         question_to_ask = {}
+        
+        question_num = 0
+        for qfile in (attack.attack_dir / "ai-chat").glob("question_*.json"):
+            with qfile.open() as f:
+                question_run_logs[qfile.name.rsplit(".", 1)[0]] = json.loads(f.read())
+            question_num  = max(int(qfile.name.split("_")[1].replace(".json", "")), question_num)
+        
+        question_num += 1
 
-        question_num = max(
-            [int(qfile.name.split("_")[1].replace(".json", ""))
-             for qfile in (attack.attack_dir / "ai-chat").glob("question_*.json")]
-            + [0]
-        ) + 1  # Start at 1 or highest question number +1 if previous chats
+        # question_num = max(
+        #     [int(qfile.name.split("_")[1].replace(".json", ""))
+        #      for qfile in (attack.attack_dir / "ai-chat").glob("question_*.json")]
+        #     + [0]
+        # ) + 1  # Start at 1 or highest question number +1 if previous chats
 
         choice = ""
         quit_strings = ("q", "quit", "exit", "exit()")
@@ -547,9 +569,9 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
                 msg += "\n\nEnter choice (1,2,3): "
                 
                 q_choice = input(msg)
-                q_choice = choice.lower().strip()[0] if q_choice else ""
+                q_choice = q_choice.lower().strip()[0] if q_choice else "DEFAULT_RUN"
                 
-                if q_choice == "1" or q_choice == "":
+                if q_choice == "1" or q_choice == "DEFAULT_RUN":
                     question_run_logs.update(self.answer_attack_questions(question_to_ask, attack, interactive_chat=True))
                     question_to_ask = {}
                 elif q_choice == "3":
@@ -557,7 +579,7 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
                     print("Questions cleared.")
                     sleep(1)
 
-            elif choice == "3mM":
+            elif choice in "3mM":
                 new_model = input("Enter new OpenAI model: ")
                 if new_model:
                     self.set_model(new_model)

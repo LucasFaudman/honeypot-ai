@@ -1,7 +1,7 @@
 from analyzerbase import *
 from .tools import TOOLS
 
-from openai import OpenAI, OpenAIError
+from openai import OpenAI, OpenAIError, BadRequestError
 from tiktoken import get_encoding, encoding_for_model
 from ast import literal_eval as ast_literal_eval
 
