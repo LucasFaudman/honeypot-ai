@@ -17,12 +17,12 @@ printf "\nHoneypot AI Path: $HONEYPOT_AI_PATH\n"
 printf "\nCurrent Path: $CURRENT_PATH\n"
 
 # Setup venv and install requirements
-if [ -d "$HONEYPOT_AI_PATH/honeypot-ai-venv" ]; then
+if [ -d "$HONEYPOT_AI_PATH/venv" ]; then
     printf "\nVenv already exists. Skipping venv setup.\n"
 else
     printf "\nSetting up venv"
-    python3 -m venv "$HONEYPOT_AI_PATH/honeypot-ai-venv"
-    source "$HONEYPOT_AI_PATH/honeypot-ai-venv/bin/activate"
+    python3 -m venv "$HONEYPOT_AI_PATH/venv"
+    source "$HONEYPOT_AI_PATH/venv/bin/activate"
     pip3 install -r "$HONEYPOT_AI_PATH/setup/requirements.txt"
     printf "\nVenv setup complete\n"
 fi
@@ -172,7 +172,7 @@ python3 "$HONEYPOT_AI_PATH/main.py" -u \
 
 printf "\nConfiguring $HONEYPOT_AI_PATH/run.sh.\n"
 echo "#!/bin/bash
-source $HONEYPOT_AI_PATH/honeypot-ai-venv/bin/activate
+source $HONEYPOT_AI_PATH/venv/bin/activate
 python3 $HONEYPOT_AI_PATH/main.py \$@
 deactivate
 " > "$HONEYPOT_AI_PATH/run.sh" 
