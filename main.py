@@ -327,7 +327,7 @@ def main(test_args=None):
     
     # Parse args
     parser = config_arg_parser()
-    args = parser.parse_args(args=test_args)
+    args = parser.parse_args(args=test_args.split() if test_args else None)
     
     # Set initial config to copy of default config
     config = DEFAULT_CONFIG.copy()
@@ -436,22 +436,36 @@ def main(test_args=None):
     )
 
 
+    # Handle Missing Attack Loading Method
+    if not args.load_from_logs and not args.load_from_attacks_dir:
+        if args.organize_attacks:
+            print("Argument --organize-attacks used without --load-from-logs or --load-from-attacks-dir. Defaulting to --load-from-logs")
+            args.load_attacks_from_logs = True
+        elif args.only_attacks:
+            print("Argument --only-attacks used without --load-from-logs or --load-from-attacks-dir. Defaulting to --load-from-attacks-dir")
+            args.load_from_attacks_dir = True
+        else:
+            print("No attack loading method specified. Use --load-from-logs OR --load-from-attacks-dir flags to specify how to load attacks.")
+            exit(1)
+    
+    ATTACKS = OrderedDict()
     # Load Attacks with LogProcessor
     if args.load_from_logs:
         print(f"Loading attacks from logs directory at {config['LOGS_PATH']}")
-        ATTACKS = LOG_PROCESSOR.load_attacks_from_logs()
+        ATTACKS.update(LOG_PROCESSOR.load_attacks_from_logs())
 
-    elif args.load_from_attacks_dir:
+    if args.load_from_attacks_dir:
         print(f"Loading attacks from attacks directory at {config['ATTACKS_PATH']}")
-        ATTACKS = LOG_PROCESSOR.load_attacks_from_attacks_dir(
+        ATTACKS.update(LOG_PROCESSOR.load_attacks_from_attacks_dir(
             attacks_dir=config["ATTACKS_PATH"],
             only_attacks=args.only_attacks,
             skip_attacks=args.skip_attacks,
             max_ips_per_attack=args.max_ips_per_attack,
             max_workers=config["LOAD_ATTACKS_MAX_WORKERS"],
-        )
-    else:
-        print("No attack loading method specified. Use (-lfl/--load-from-logs) OR (-lfa/--load-from-attacks-dir)")
+        ))
+
+    if not ATTACKS:
+        print("No attacks loaded. Exiting.")
         exit(1)
 
 

@@ -82,14 +82,14 @@ class AttackMarkdownWriter(MarkdownWriterBase):
             src_port_summary = f" Min: {min(counts['src_ports'])}, Max: {max(counts['src_ports'])}"
 
         summary = [
-            f"This attack was carried out by a {code(len(attack.source_ips))} unique source IP address(es): {src_ip_summary}",
-            f"A total of {code(len(attack.sessions))} sessions were logged. {code(len(attack.login_sessions))} sessions were successful logins.",
+            f"This attack was carried out by a {code(attack.num_source_ips)} unique source IP address(es): {src_ip_summary}",
+            f"A total of {code(attack.num_sessions)} sessions were logged. {code(attack.num_login_sessions)} sessions were successful logins.",
             f"{code(sum(counts['login_pairs'].values()))} login attempts were made. {code(sum(counts['successful_login_pairs'].values()))} were successful.",
             f"{code(len(counts['login_pairs']))} unique username/password pairs were attempted. {code(len(counts['successful_login_pairs']))} were successful.",
             f"{code(len(counts['dst_ports']))} unique destination ports were targeted: {', '.join([code(port) for port in counts['dst_ports']])}",
             f"{code(len(counts['src_ports']))} unique source ports were used: {src_port_summary}",
-            f"{code(len(attack.commands))} commands were input in total. {code(len(counts['cmdlog_ips']))} IP(s) and {code(len(counts['cmdlog_urls']))} URL(s) were found in the commands",
-            f"{code(len(attack.malware))} unique malware samples were downloaded. {code(len(counts['malware_ips']))} IP(s) and {code(len(counts['malware_urls']))} URL(s) were found in the malware samples",
+            f"{code(attack.num_commands)} commands were input in total. {code(len(counts['cmdlog_ips']))} IP(s) and {code(len(counts['cmdlog_urls']))} URL(s) were found in the commands",
+            f"{code(attack.num_malware)} unique malware samples were downloaded. {code(len(counts['malware_ips']))} IP(s) and {code(len(counts['malware_urls']))} URL(s) were found in the malware samples",
             f"This attacks was recorded in {code(len(log_types))} log types: " + md_join(
                 log_types, code, ', '),
             f"A total of {code(log_counts['all']['_lines'])} log events were logged in {code(len(log_names))} log files: " + md_join(
@@ -99,7 +99,7 @@ class AttackMarkdownWriter(MarkdownWriterBase):
         summary_long = [
             f"This attack was carried out by a {code(attack.num_source_ips)} unique {bold('source IP')} address(es):",
             attack.source_ips[:15]
-            + ([f"(and {code(len(attack.uniq_src_ips)-15)} more)"]
+            + ([f"(and {code(attack.num_uniq_src_ips-15)} more)"]
                if len(uniq_src_ips) > 15 else []),
 
             f"{code(attack.num_uniq_src_ports)} unique {bold('source ports')} were used:",
@@ -107,7 +107,7 @@ class AttackMarkdownWriter(MarkdownWriterBase):
                for port, count in attack.counts["src_ports"].items()
                ]
              ]
-            + ([f"(and {code(len(attack.uniq_src_ports)-15)} more)"]
+            + ([f"(and {code(attack.num_uniq_src_ports-15)} more)"]
                if len(uniq_src_ips) > 15 else []),
 
             f"{code(attack.num_uniq_dst_ports)} unique {bold('destination ports')} were targeted:",
@@ -127,12 +127,12 @@ class AttackMarkdownWriter(MarkdownWriterBase):
 
             f"{code(attack.num_login_pairs)} unique username/password pairs were attempted. {code(attack.num_successful_login_pairs)} were successful.",
 
-            f"{code(len(attack.commands))} commands were input in total. "
+            f"{code(attack.num_commands)} commands were input in total. "
             f"{code(attack.num_cmdlog_ips)} IP(s) and {code(attack.num_cmdlog_urls)} URL(s) were found in the commands",
 
 
-            f"{code(len(attack.malware))} unique malware samples were downloaded. ",
-            f"{code(attack.num_malware_ips)} IP(s) and {code(attack.num_malware_urls)} URL(s) were found in the malware samples",
+            f"{code(attack.num_malware)} unique malware samples were downloaded. ",
+            f"{code(attack.num_uniq_malware_ips)} unique IP(s) and {code(attack.num_uniq_malware_urls)} unique URL(s) were found in the malware samples",
 
 
             f"This attacks was recorded in {code(attack.num_log_types)} log types: ",
@@ -162,10 +162,14 @@ class AttackMarkdownWriter(MarkdownWriterBase):
         ip = 'all'
         log_table_data = [(log_type, log_counts[ip][log_type]["_lines"])
                           for log_type in log_types]
-        logs_md += table(log_table_headers, log_table_data)
+        logs_md += table(log_table_headers, log_table_data) + "\n"
 
         if "cowrie.log" in log_types:
             logs_md = self.add_cowrie_logs(
+                logs_md, attack, ip="all", n_lines=None)
+            
+        if "zeek.log" in log_types:
+            logs_md = self.add_zeek_logs(
                 logs_md, attack, ip="all", n_lines=None)
 
         if "web.json" in log_types:
@@ -176,7 +180,6 @@ class AttackMarkdownWriter(MarkdownWriterBase):
             logs_md = self.add_dshield_logs(
                 logs_md, attack, ip="all", n_lines=None)
 
-        # TODO ADD ZEEK + OTHER LOGS
 
         md += collapseable_section(logs_md, "Relevant Logs, File or Email", 1)
         return md
@@ -186,11 +189,10 @@ class AttackMarkdownWriter(MarkdownWriterBase):
         md += h2("DShield Logs")
         # TODO ADD Log Descriptions
         md += f"Total DShield logs: {code(attack.log_counts[ip]['dshield.log']['_lines'])}\n"
-        md += h4(f"The {code(len(attack.sessions))} sessions in this attack were logged as connection in the following DShield firewall logs:")
+        md += h4(f"The {code(attack.num_sessions)} sessions in this attack were logged as connection in the following DShield firewall logs:")
 
         md += f"Here is a sample of the {'first ' + code(n_lines) if n_lines else 'log'} lines:\n"
-        md += codeblock(attack.get_log_lines(ip,
-                        "dshield.log", n_lines), "log")
+        md += codeblock(attack.get_log_lines(log_filter="dshield.log", n_lines=n_lines), "log")
         
         return md
 
@@ -199,10 +201,23 @@ class AttackMarkdownWriter(MarkdownWriterBase):
         md += h2("Web Logs")
         # TODO ADD Log Descriptions
         md += f"Total Web logs: {code(attack.log_counts[ip]['web.json']['_lines'])}\n"
-        md += h4(f"The {code(len(attack.sessions))} sessions in this attack were logged as connection in the following Web logs:")
+        md += h4(f"The {code(attack.num_http_sessions)} sessions in this attack were logged as connection in the following Web logs:")
         md += f"Here is a sample of the {'first ' + code(n_lines) if n_lines else 'log'} lines:\n"
-        md += codeblock(attack.get_log_lines(ip, "web.json", n_lines), 'json')
+        md += codeblock(attack.get_log_lines(log_filter="web.json", n_lines=n_lines), 'json')
         
+        return md
+    
+
+    def add_zeek_logs(self, md, attack: Attack, ip="all", n_lines=None):        
+        md += h2("Zeek Logs")
+        md += f"Total Zeek logs: {code(attack.log_counts[ip]['zeek.log']['_lines'])}\n"
+        md += h4(f"The {code(attack.num_zeek_sessions)} Zeek sessions in this attack were logged in the following Zeek logs:")
+        md += unordered_list(attack.zeek_log_types, style_fn=code)
+        for zeek_log_type in attack.zeek_log_types:
+            zeek_log_md = f"Here is a sample of the {'first ' + code(n_lines) if n_lines else 'log'} lines:\n"
+            zeek_log_md += codeblock(attack.get_log_lines(log_filter=f"zeek.{zeek_log_type}", n_lines=n_lines), 'log')
+            md += collapseable_section(zeek_log_md, f"Zeek {zeek_log_type} Logs", 3)
+
         return md
     
 
@@ -229,14 +244,16 @@ class AttackMarkdownWriter(MarkdownWriterBase):
                 session_filter = first_command_session.session_id
                 codeblock_lang = 'json'
 
-            log_lines = attack.get_log_lines(
-                first_command_session.src_ip, f"cowrie{ext}", session_filter,  n_lines)
+            log_lines = attack.get_log_lines(log_filter=f"cowrie{ext}", line_filter=session_filter, n_lines=n_lines)
             codeblock_md = codeblock(log_lines, codeblock_lang)
 
             md += collapseable_section(
                 codeblock_md, f"Cowrie {ext} Logs for {first_command_session.session_id}", 3)
             
         return md
+    
+
+
 
 
     def add_ssh_analysis(self, md, attack: Attack):

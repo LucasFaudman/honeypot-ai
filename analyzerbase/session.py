@@ -48,6 +48,8 @@ class Session(SmartAttrObject, CachedPropertyObject):
         self.events = [event]
         self.http_request_events = []
         self._http_requests = []
+        self.zeek_events = []
+
 
 
     def process_events(self):
@@ -153,6 +155,7 @@ class Session(SmartAttrObject, CachedPropertyObject):
         """Adds Zeek event to session.events"""
         if event["eventid"] == "zeek.http.log.event":
             self.add_http_request(event)
+        self.zeek_events.append(event)
 
     
     # NOTE: Not an @eventhandler because called from add_zeek_event which already handles event 

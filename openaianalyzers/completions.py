@@ -29,16 +29,22 @@ class OpenAICompletionsAnalyzer(OpenAIAnalyzerBase):
         message_hash = sha256hex(str(messages))
         db_file = self.db_path / f"{message_hash}.json"
         
+        result = {}
         if not is_retry and db_file.exists():
-            print(f"Reading {message_hash} from db")
-            with open(db_file) as f:
-                result = json.load(f)["result"]
-                # quickfix to avoid json.loads error from string data in db
-                if isinstance(result, str):
-                    result = json.loads(result)
-                return None, result
-        else:
+            try:
+                print(f"Reading {message_hash} from db")
+                with open(db_file) as f:
+                    result = json.load(f)["result"]
+                    # quickfix to avoid json.loads error from string data in db
+                    if isinstance(result, str):
+                        result = json.loads(result)
+                    return None, result
+            except Exception as e:
+                print(f"Error reading {message_hash} from db: {e}")
+                db_file.unlink()
+            
 
+        if not result:
             response, result = self.openai_get_completion(
                 model=self.model,
                 messages=messages,

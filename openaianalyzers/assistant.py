@@ -487,10 +487,10 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
             print(f"\n Done with: {question}\nAnswer: {answer}")
 
         return question_run_logs
-        
+
 
     def interactive_chat_about_attack(self, attack):
-        print(f"\nEntering Chat Mode...\nAsk the AI assistant custom questions about:\n{attack}")
+        print(f"\nWelcome to honeypot-ai Chat Mode...\nAsk the AI assistant custom questions about:\n{attack}")
         question_run_logs = {}
         question_to_ask = {}
 
@@ -507,25 +507,23 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
             msg += "\nCurrent questions:\n" 
             msg += pprint_str(question_to_ask)
             msg += "\nChoices:"
-            msg += "\n a) Ask questions"
-            msg += "\n e) Enter a question"
-            msg += "\n u) Upload multiline question from file"
-            msg += "\n c) Clear questions"
-            msg += f"\n m) Change OpenAI model. (Current model: {self.model})"
-            msg += "\n p) Print attack attributes"
-            msg += "\n q) Quit and continue main"
-            msg += "\n\nEnter choice (a, e, u, c, m, p OR q): "
+            msg += "\n (1) Ask a question"
+            msg += "\n (2) Ask a multiline question from file"
+            msg += f"\n (3) Change OpenAI model. (Current model: {self.model})"
+            msg += "\n (4) Print attack attributes"
+            msg += "\n (q) Quit and continue main"
+            msg += "\n\nEnter choice (1,2,3,4 OR q): "
             choice = input(msg)
             choice = choice.lower().strip()[0] if choice else ""
 
-            if choice == "e":
+            if choice == "1":
                 question = input("Enter question: ")
                 question_key = f"question_{question_num}"
                 question_key = input(f"Enter question key or leave empty to use '{question_key}' : ").replace(' ', '_').replace('/', '_') or question_key
                 question_to_ask[question_key] = question
                 question_num += 1
             
-            elif choice == "u":
+            elif choice == "2":
                 question_file = input("Enter question file path: ")
                 question_key = f"question_{question_num}"
                 question_key = input(f"Enter question key or leave empty to use '{question_key}' : ").replace(' ', '_').replace('/', '_') or question_key
@@ -537,24 +535,35 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
                     question_to_ask[question_key] = f.read()
                     question_num += 1
                     
-            elif choice == "a":
-                question_run_logs.update(self.answer_attack_questions(question_to_ask, attack, interactive_chat=True))
-                question_to_ask = {}
-            
-            elif choice == "c":
-                question_to_ask = {}
-                print("Questions cleared.")
-                sleep(1)
+            if choice == "1" or choice == "2":
+                msg = "\nYour Questions:\n"
+                msg += pprint_str(question_to_ask)
+                msg += "\nChoices:"
+                msg += "\n (1) Send/Ask questions"
+                msg += "\n (2) Add another question"
+                msg += "\n (3) Clear questions"
+                msg += "\n\nEnter choice (1,2,3): "
+                
+                choice = input(msg)
+                choice = choice.lower().strip()[0] if choice else ""
+                
+                if choice == "1" or choice == "":
+                    question_run_logs.update(self.answer_attack_questions(question_to_ask, attack, interactive_chat=True))
+                    question_to_ask = {}
+                elif choice == "3":
+                    question_to_ask = {}
+                    print("Questions cleared.")
+                    sleep(1)
 
-            elif choice == "p":
-                # Get valid attack attributes to pprint
-                attrs = [attr for attr in input("Enter attack attributes to pprint: ").split() if hasattr(attack, attr)]
-                attack.print_attrs(*attrs)
-            
-            elif choice == "m":
+            elif choice == "3":
                 new_model = input("Enter new OpenAI model: ")
                 if new_model:
                     self.set_model(new_model)
+
+            elif choice == "4":
+                # Get valid attack attributes to pprint
+                attrs = [attr for attr in input("Enter attack attributes to pprint: ").split() if hasattr(attack, attr)]
+                attack.print_attrs(*attrs)
                     
             elif choice not in quit_strings:
                 print("\nInvalid choice. Try again.")
@@ -562,4 +571,24 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         
         
         return question_run_logs
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

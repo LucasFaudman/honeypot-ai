@@ -66,7 +66,7 @@ class AttackDirReader:
 
         return [log_path for log_path in self.log_paths[attack.attack_id].get(ip, ()) 
                 if (log_type == "all" or log_type in log_path.parent.name + log_path.name) 
-                and (ext == "all" or log_path.suffix == ext)
+                and (ext == "all" or log_path.name.endswith(ext))
                 ]
     
 
@@ -102,7 +102,7 @@ class AttackDirReader:
                     log_counts[ip][log_filter]["_files"] += 1
 
                     with log_path.open("rb") as f:
-                        log_counts[ip][log_filter][log_path.name] = len(f.readlines())
+                        log_counts[ip][log_filter][log_path.name] = sum(1 for line in f if not line.startswith(b"#"))
                         log_counts[ip][log_filter]["_lines"] += log_counts[ip][log_filter][log_path.name]
                         
 
@@ -117,31 +117,41 @@ class AttackDirReader:
         return log_counts
     
 
-    def get_attack_log_lines(self, attack, ip, log_filter, line_filter=None, n_lines=None):
+    def get_attack_log_lines(self, attack, log_filter, line_filter=None, n_lines=None):
         """Attack Postprocessor function for reading logs from attack directory"""
 
-        log_type, ext = log_filter.rsplit(".", 1)
-        ext = "." + ext
+        log_type, ext = log_filter.split(".", 1)
         
-
-        log_paths = attack.get_log_paths(ip, log_type, ext)
+        log_paths = self.get_attack_log_paths(attack, "all", log_type, ext)
         if not log_paths:
             return f"No {log_filter} logs found"
-
-
+        
+        # Make list of line filter bytes that must be found in returned lines
+        if line_filter is None:
+            line_filters = []
+        elif isinstance(line_filter, (tuple, set)):
+            line_filters = list(line_filter)
+        else:
+            line_filters = [line_filter,]
+        for i, line_filter in enumerate(line_filters):
+            if isinstance(line_filter, str):
+                line_filters[i] = line_filter.encode()
+        
         match_lines = []
+        done_reading = False
         for log_path in log_paths:
             with log_path.open("rb") as f:
-                    
                 for line in f:
+                    # Break loop to prevent reading more lines than necessary
                     if n_lines and n_lines > 0 and len(match_lines) >= n_lines:
+                        done_reading = True
                         break
                     
-                    if line_filter is None or line_filter in line.decode():
+                    if all(line_filter in line for line_filter in line_filters):
                         match_lines.append(line)
 
             # Break loop to prevent reading more files than necessary            
-            if n_lines and n_lines > 0 and len(match_lines) >= n_lines:
+            if done_reading:
                 break
                         
 

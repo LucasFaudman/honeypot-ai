@@ -140,6 +140,16 @@ class LogProcessor:
                 
                 # Wait for all futures to complete
                 executor.shutdown(wait=True)
+
+            
+            # Update all Session Malware class vars with the vals from the main thread
+            for source_ip in all_source_ips.values():
+                for session in source_ip.sessions.values():
+                    session.STANDARDIZE_REGEX_COMMANDS = Session.STANDARDIZE_REGEX_COMMANDS
+                    session.STANDARDIZE_REGEX_HTTP_REQUESTS = Session.STANDARDIZE_REGEX_HTTP_REQUESTS
+                    for malware in session.malware:
+                        malware.MALWARE_DOWNLOADS_PATH = Malware.MALWARE_DOWNLOADS_PATH
+                        malware.STANDARDIZE_REGEX_MALWARE = Malware.STANDARDIZE_REGEX_MALWARE
             
             # Update main thread self.source_ips with all_source_ips after all processes are complete
             self.source_ips.update(all_source_ips)
@@ -223,7 +233,7 @@ class LogProcessor:
         self.benign_ips = []
         
         self.all_attack_ids_by_type = {"malware_hash": OrderedSet(()), "cmdlog_hash": OrderedSet(()), "httplog_hash": OrderedSet(())}
-        for source_ip in sorted(self.source_ips.values(), key=lambda source_ip: source_ip.first_seen):
+        for source_ip in sorted(self.source_ips.values(), key=lambda source_ip: source_ip.first_seen or datetime.now()):
             ip = source_ip.ip
             src_ip_attack_ids_by_type = defaultdict(OrderedSet)
 

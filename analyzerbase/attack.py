@@ -148,6 +148,12 @@ class Attack(SmartAttrObject, CachedPropertyObject, PostprocessableObject):
 
 
     @cachedproperty
+    def zeek_sessions(self):
+        """Returns list of all Session objects in Attack that have Zeek events """
+        return [session for session in self.sessions if session.zeek_events]
+
+
+    @cachedproperty
     def start_time(self):
         """Returns earliest start_time of all Session objects in Attack as datetime.datetime object"""
         return min([session.start_time for session in self.sessions])
@@ -360,7 +366,11 @@ class Attack(SmartAttrObject, CachedPropertyObject, PostprocessableObject):
         """Returns list of log types present in Attack"""
         return [log_name for log_name in self.log_counts[ip] if log_name != "_lines" and log_name != "_files"]
 
-
+    
+    @cachedproperty
+    def zeek_log_types(self, ip="all"):
+        return [log_name for log_name in self.log_counts[ip].get("zeek.log", {}) if log_name != "_lines" and log_name != "_files"]
+    
 
     def update_ipdata(self, ipdata):
         """Updates self.ipdata with ipdata"""
@@ -401,7 +411,10 @@ class Attack(SmartAttrObject, CachedPropertyObject, PostprocessableObject):
         """Prints self then attributes of self"""
         print(f"\n\n{self}")
         for attr in attrs:
-            print_box(pprint_str(getattr(self, attr)), title=attr)
+            val = getattr(self, attr)
+            if isinstance(val, datetime):
+                val = val.strftime("%Y-%m-%d %H:%M:%S")
+            print_box(pprint_str(val), title=attr)
         print()
 
 
