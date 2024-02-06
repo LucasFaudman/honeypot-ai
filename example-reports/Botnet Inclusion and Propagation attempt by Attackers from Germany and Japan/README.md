@@ -8,15 +8,15 @@
 
 
 - This attack was carried out by a `3` unique source IP address(es): `93.223.169.159`, `27.93.25.111`, `111.216.194.148`
-- A total of `9` sessions were logged. `6` sessions were successful logins.
+- A total of `24` sessions were logged. `6` sessions were successful logins.
 - `9` login attempts were made. `6` were successful.
 - `2` unique username/password pairs were attempted. `2` were successful.
-- `1` unique destination ports were targeted: `2222`
-- `9` unique source ports were used: `46966`, `46970`, `47004`, `52094`, `52102`, `52146`, `52912`, `52922`, `52964`
+- `2` unique destination ports were targeted: `22`, `2222`
+- `15` unique source ports were used: `60702`, `47114`, `47118`, `49808`, `46966`, `46970`, `47004`, `50916`, `52094`, `52102`, `52146`, `49512`, `52912`, `52922`, `52964`
 - `3` commands were input in total. `0` IP(s) and `0` URL(s) were found in the commands
 - `3` unique malware samples were downloaded. `0` IP(s) and `0` URL(s) were found in the malware samples
-- This attacks was recorded in `3` log types: `cowrie.log`, `cowrie.json`, `zeek.log`
-- A total of `266` log events were logged in `6` log files: `cowrie.2024-01-26.json`, `cowrie.2024-01-28.log`, `cowrie.2024-01-26.log`, `cowrie.2024-01-28.json`, `conn.log`, `ssh.log`
+- This attacks was recorded in `4` log types: `cowrie.log`, `cowrie.json`, `dshield.log`, `zeek.log`
+- A total of `226` log events were logged in `7` log files: `cowrie.2024-01-26.json`, `cowrie.2024-01-28.log`, `cowrie.2024-01-26.log`, `cowrie.2024-01-28.json`, `dshield.log`, `conn.log`, `ssh.log`
 
 </details>
 
@@ -56,53 +56,69 @@ The attackers demonstrated a clear intent to gain control of systems for malicio
 
 
 - This attack was carried out by a `3` unique **source IP** address(es):
-	- `SourceIP 93.223.169.159 Sessions: 3, Successful Logins: 2, Commands: 3, Downloads 1, `
-	- `SourceIP 27.93.25.111 Sessions: 3, Successful Logins: 2, Commands: 3, Downloads 1, `
-	- `SourceIP 111.216.194.148 Sessions: 3, Successful Logins: 2, Commands: 3, Downloads 1, `
+	- `SourceIP 93.223.169.159 Sessions: 10, Successful Logins: 2, Commands: 3, Downloads 1, Zeek Events: 14, `
+	- `SourceIP 27.93.25.111 Sessions: 7, Successful Logins: 2, Commands: 3, Downloads 1, Zeek Events: 8, `
+	- `SourceIP 111.216.194.148 Sessions: 7, Successful Logins: 2, Commands: 3, Downloads 1, Zeek Events: 8, `
 
-- `9` unique **source ports** were used:
-	- `Src Port: 46966 Used 1 times`
-	- `Src Port: 46970 Used 1 times`
-	- `Src Port: 47004 Used 1 times`
-	- `Src Port: 52094 Used 1 times`
-	- `Src Port: 52102 Used 1 times`
-	- `Src Port: 52146 Used 1 times`
-	- `Src Port: 52912 Used 1 times`
-	- `Src Port: 52922 Used 1 times`
-	- `Src Port: 52964 Used 1 times`
+- `15` unique **source ports** were used:
+	- `Src Port: 60702 Used 1 times`
+	- `Src Port: 47114 Used 1 times`
+	- `Src Port: 47118 Used 1 times`
+	- `Src Port: 49808 Used 1 times`
+	- `Src Port: 46966 Used 2 times`
+	- `Src Port: 46970 Used 2 times`
+	- `Src Port: 47004 Used 2 times`
+	- `Src Port: 50916 Used 1 times`
+	- `Src Port: 52094 Used 2 times`
+	- `Src Port: 52102 Used 2 times`
+	- `Src Port: 52146 Used 2 times`
+	- `Src Port: 49512 Used 1 times`
+	- `Src Port: 52912 Used 2 times`
+	- `Src Port: 52922 Used 2 times`
+	- `Src Port: 52964 Used 2 times`
 
-- `1` unique **destination ports** were targeted:
+- `2` unique **destination ports** were targeted:
+	- `Dst Port: `22` Used `15` times`
 	- `Dst Port: `2222` Used `9` times`
 
-- A total of `9` sessions were logged:
+- A total of `24` sessions were logged:
+	- `Session CmMj7Y1TLuJ5YCKDWl CONN 93.223.169.159:60702 -> 172.31.5.68:22 Duration: 0.00s`
+	- `Session CTCt4bY4cLQCcH5Si SSH 93.223.169.159:47114 -> 172.31.5.68:22 Duration: 0.00s`
+	- `Session CnN1Ae1hMulVtjCKi6 SSH 93.223.169.159:47118 -> 172.31.5.68:22 Duration: 0.00s`
+	- `Session C06KgE3PnupO2F8u27 CONN 93.223.169.159:49808 -> 172.31.5.68:22 Duration: 0.00s`
+	- `Session CQi9zfVW7vj47v0A9 SSH 93.223.169.159:46966 -> 172.31.5.68:22 Duration: 0.00s`
+	- `Session Cz65Bp3E9Yx7GOGZf8 SSH 93.223.169.159:46970 -> 172.31.5.68:22 Duration: 0.00s`
+	- `Session CkS27i1cg6LfTwb3Oi SSH 93.223.169.159:47004 -> 172.31.5.68:22 Duration: 0.00s`
 	- `Session 76647820c016 SSH 93.223.169.159:46966 -> 172.31.5.68:2222 Duration: 0.35s`
 	- `Session fa6fb05e952d SSH 93.223.169.159:46970 -> 172.31.5.68:2222 Login: pi:raspberry Commands: 1, Malware: 1, Duration: 0.87s`
 	- `Session 3383f6a6a93c SSH 93.223.169.159:47004 -> 172.31.5.68:2222 Login: pi:raspberry Commands: 2, Duration: 0.70s`
-	- `Session b183188057b3 SSH 27.93.25.111:52094 -> 172.31.5.68:2222 Duration: 0.15s`
-	- `Session a9ffcecc6796 SSH 27.93.25.111:52102 -> 172.31.5.68:2222 Login: pi:raspberryraspberry993311 Commands: 1, Malware: 1, Duration: 0.57s`
-	- `Session 6c83f979e0b5 SSH 27.93.25.111:52146 -> 172.31.5.68:2222 Login: pi:raspberryraspberry993311 Commands: 2, Duration: 0.46s`
-	- `Session 617df930d4a6 SSH 111.216.194.148:52912 -> 172.31.5.68:2222 Duration: 0.09s`
-	- `Session c0a95962c75a SSH 111.216.194.148:52922 -> 172.31.5.68:2222 Login: pi:raspberryraspberry993311 Commands: 1, Malware: 1, Duration: 0.52s`
-	- `Session 9a98fb146784 SSH 111.216.194.148:52964 -> 172.31.5.68:2222 Login: pi:raspberryraspberry993311 Commands: 2, Duration: 0.28s`
+	- `Session C5rS7g4QnQp42gbcGd CONN 27.93.25.111:50916 -> 172.31.5.68:22 Duration: 0.00s`
+	- `Session CMy02v1pudNB2CRKZ7 SSH 27.93.25.111:52094 -> 172.31.5.68:22 Duration: 0.00s`
+	- `Session CKKbJDBalq1TZbmF6 SSH 27.93.25.111:52102 -> 172.31.5.68:22 Duration: 0.00s`
+	- `Session CHGw7y4ZZUIK7GA6De SSH 27.93.25.111:52146 -> 172.31.5.68:22 Duration: 0.00s`
+	- `Session CYkNc83gU5wuP2Slq2 CONN 111.216.194.148:49512 -> 172.31.5.68:22 Duration: 0.00s`
+	- `(and `9` more)`
 
 - `6` were **successful logins**, 
-- `3` were **failed logins**, 
+- `18` were **failed logins**, 
 - `6` had commands, 
 - `3` had malware.
 - `9` unique username/password pairs were attempted. `6` were successful.
 - `3` commands were input in total. `0` IP(s) and `0` URL(s) were found in the commands
 - `3` unique malware samples were downloaded. 
-- `0` IP(s) and `0` URL(s) were found in the malware samples
-- This attacks was recorded in `3` log types: 
+- `0` unique IP(s) and `0` unique URL(s) were found in the malware samples
+- This attacks was recorded in `4` log types: 
 	- `cowrie.log`
 	- `cowrie.json`
+	- `dshield.log`
 	- `zeek.log`
 
-- A total of `266` log events were logged in `6` log files: 
+- A total of `226` log events were logged in `7` log files: 
 	- `cowrie.2024-01-26.json`
 	- `cowrie.2024-01-28.log`
 	- `cowrie.2024-01-26.log`
 	- `cowrie.2024-01-28.json`
+	- `dshield.log`
 	- `conn.log`
 	- `ssh.log`
 
@@ -202,9 +218,9 @@ The attackers demonstrated a clear intent to gain control of systems for malicio
 <h1>Time and Date of Activity</h1>
 </summary>
 
-First activity logged: `2024-01-26 21:59:42.976396`
-* First session: `76647820c016`
-* `Session 76647820c016 SSH 93.223.169.159:46966 -> 172.31.5.68:2222 Duration: 0.35s`
+First activity logged: `2023-12-07 02:52:16.598590`
+* First session: `CmMj7Y1TLuJ5YCKDWl`
+* `Session CmMj7Y1TLuJ5YCKDWl CONN 93.223.169.159:60702 -> 172.31.5.68:22 Duration: 0.00s`
 
 Last activity logged: `2024-01-28 13:19:49.426989`
 * Last session: `9a98fb146784`
@@ -213,7 +229,7 @@ Last activity logged: `2024-01-28 13:19:49.426989`
 
 | Session ID | IP | Src Port | Dst Port | Start Time | End Time | Duration |
 | --- | --- | --- | --- | --- | --- | --- |
-| `76647820c016` | `93.223.169.159` | `46966` | `2222` | `2024-01-26 21:59:42.976396` | `2024-01-26 21:59:45.322853` | `0.346457` |
+| `CmMj7Y1TLuJ5YCKDWl` | `93.223.169.159` | `60702` | `22` | `2023-12-07 02:52:16.598590` | `2023-12-07 02:52:16.598590` | `0.0` |
 | `9a98fb146784` | `111.216.194.148` | `52964` | `2222` | `2024-01-28 13:19:48.145386` | `2024-01-28 13:19:49.426989` | `0.281603` |
 
 The following sessions were involved in the attack:
@@ -300,9 +316,24 @@ It appears that multiple login attempts occurred with varying degrees of success
 
 | Session ID | IP | Src Port | Dst Port | Start Time | End Time | Duration |
 | --- | --- | --- | --- | --- | --- | --- |
+| `CmMj7Y1TLuJ5YCKDWl` | `93.223.169.159` | `60702` | `22` | `2023-12-07 02:52:16.598590` | `2023-12-07 02:52:16.598590` | `0.0` |
+| `CTCt4bY4cLQCcH5Si` | `93.223.169.159` | `47114` | `22` | `2023-12-07 02:52:26.628028` | `2023-12-07 02:52:26.628028` | `0.0` |
+| `CnN1Ae1hMulVtjCKi6` | `93.223.169.159` | `47118` | `22` | `2023-12-07 02:52:26.650165` | `2023-12-07 02:52:26.650165` | `0.0` |
+| `C06KgE3PnupO2F8u27` | `93.223.169.159` | `49808` | `22` | `2024-01-26 13:59:31.528530` | `2024-01-26 13:59:31.528530` | `0.0` |
+| `CQi9zfVW7vj47v0A9` | `93.223.169.159` | `46966` | `22` | `2024-01-26 13:59:42.824208` | `2024-01-26 13:59:42.824208` | `0.0` |
+| `Cz65Bp3E9Yx7GOGZf8` | `93.223.169.159` | `46970` | `22` | `2024-01-26 13:59:42.838838` | `2024-01-26 13:59:42.838838` | `0.0` |
+| `CkS27i1cg6LfTwb3Oi` | `93.223.169.159` | `47004` | `22` | `2024-01-26 13:59:44.908091` | `2024-01-26 13:59:44.908091` | `0.0` |
 | `76647820c016` | `93.223.169.159` | `46966` | `2222` | `2024-01-26 21:59:42.976396` | `2024-01-26 21:59:45.322853` | `0.346457` |
 | `fa6fb05e952d` | `93.223.169.159` | `46970` | `2222` | `2024-01-26 21:59:42.991117` | `2024-01-26 21:59:44.861131` | `0.870014` |
 | `3383f6a6a93c` | `93.223.169.159` | `47004` | `2222` | `2024-01-26 21:59:45.060791` | `2024-01-26 21:59:46.758792` | `0.698001` |
+| `C5rS7g4QnQp42gbcGd` | `27.93.25.111` | `50916` | `22` | `2024-01-28 04:15:58.350606` | `2024-01-28 04:15:58.350606` | `0.0` |
+| `CMy02v1pudNB2CRKZ7` | `27.93.25.111` | `52094` | `22` | `2024-01-28 04:16:10.223827` | `2024-01-28 04:16:10.223827` | `0.0` |
+| `CKKbJDBalq1TZbmF6` | `27.93.25.111` | `52102` | `22` | `2024-01-28 04:16:10.652851` | `2024-01-28 04:16:10.652851` | `0.0` |
+| `CHGw7y4ZZUIK7GA6De` | `27.93.25.111` | `52146` | `22` | `2024-01-28 04:16:12.370948` | `2024-01-28 04:16:12.370948` | `0.0` |
+| `CYkNc83gU5wuP2Slq2` | `111.216.194.148` | `49512` | `22` | `2024-01-28 05:19:35.560882` | `2024-01-28 05:19:35.560882` | `0.0` |
+| `CT4tTu4hPvKdx6ZkLe` | `111.216.194.148` | `52912` | `22` | `2024-01-28 05:19:46.003158` | `2024-01-28 05:19:46.003158` | `0.0` |
+| `CLMsKD2iQhsMaDU1nk` | `111.216.194.148` | `52922` | `22` | `2024-01-28 05:19:46.332534` | `2024-01-28 05:19:46.332534` | `0.0` |
+| `C1Z4MD4DurN46YY8Ra` | `111.216.194.148` | `52964` | `22` | `2024-01-28 05:19:48.032650` | `2024-01-28 05:19:48.032650` | `0.0` |
 | `b183188057b3` | `27.93.25.111` | `52094` | `2222` | `2024-01-28 12:16:10.353211` | `2024-01-28 12:16:12.506038` | `0.152827` |
 | `a9ffcecc6796` | `27.93.25.111` | `52102` | `2222` | `2024-01-28 12:16:10.780465` | `2024-01-28 12:16:12.350297` | `0.569832` |
 | `6c83f979e0b5` | `27.93.25.111` | `52146` | `2222` | `2024-01-28 12:16:12.498430` | `2024-01-28 12:16:13.957344` | `0.458914` |
@@ -332,7 +363,9 @@ It appears that multiple login attempts occurred with varying degrees of success
 | --- | --- |
 | cowrie.log | 114 |
 | cowrie.json | 78 |
-| zeek.log | 74 |
+| dshield.log | 8 |
+| zeek.log | 26 |
+
 
 ## Cowrie .log Logs
 Total Cowrie logs: `114`
@@ -346,9 +379,44 @@ This sample shows the Cowrie `.log` Logs for session_id `fa6fb05e952d` the first
 </summary>
 
 
-```verilog
-No cowrie.log logs found
-```
+````verilog
+2024-01-26T21:59:43.128845Z [HoneyPotSSHTransport,2,93.223.169.159] Remote SSH version: SSH-2.0-OpenSSH_7.9p1 Raspbian-10+deb10u2+rpt1
+2024-01-26T21:59:43.143579Z [HoneyPotSSHTransport,3,93.223.169.159] Remote SSH version: SSH-2.0-OpenSSH_7.9p1 Raspbian-10+deb10u2+rpt1
+2024-01-26T21:59:43.279812Z [HoneyPotSSHTransport,2,93.223.169.159] SSH client hassh fingerprint: ec7378c1a92f5a8dde7e8b7a1ddf33d1
+2024-01-26T21:59:43.294672Z [HoneyPotSSHTransport,3,93.223.169.159] SSH client hassh fingerprint: ec7378c1a92f5a8dde7e8b7a1ddf33d1
+2024-01-26T21:59:44.143800Z [HoneyPotSSHTransport,2,93.223.169.159] first time for 93.223.169.159, need: 2
+2024-01-26T21:59:44.143913Z [HoneyPotSSHTransport,2,93.223.169.159] login attempt: 1
+2024-01-26T21:59:44.167581Z [HoneyPotSSHTransport,2,93.223.169.159] login attempt [b'pi'/b'raspberryraspberry993311'] failed
+2024-01-26T21:59:44.173153Z [HoneyPotSSHTransport,3,93.223.169.159] login attempt: 2
+2024-01-26T21:59:44.196064Z [HoneyPotSSHTransport,3,93.223.169.159] login attempt [b'pi'/b'raspberry'] succeeded
+2024-01-26T21:59:44.197054Z [HoneyPotSSHTransport,3,93.223.169.159] Initialized emulated server as architecture: linux-x64-lsb
+2024-01-26T21:59:44.502846Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,3,93.223.169.159] request_env: LANG=C.UTF-8
+2024-01-26T21:59:44.547035Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,3,93.223.169.159] CMD: scp -t /tmp/BUwTrLEj
+2024-01-26T21:59:44.547491Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,3,93.223.169.159] Command found: scp -t /tmp/BUwTrLEj
+2024-01-26T21:59:44.707056Z [HoneyPotSSHTransport,3,93.223.169.159] Saved stdin contents with SHA-256 10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c to var/lib/cowrie/downloads/10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c
+2024-01-26T21:59:44.707777Z [HoneyPotSSHTransport,3,93.223.169.159] Closing TTY Log: var/lib/cowrie/tty/7afa002f37e51bce8fd91baf31c86d4bd0b26ea29e2e80cbf121e582be4f1fda after 0 seconds
+2024-01-26T21:59:44.860646Z [HoneyPotSSHTransport,3,93.223.169.159] Got remote error, code 11 reason: b'disconnected by user'
+2024-01-26T21:59:44.860940Z [HoneyPotSSHTransport,3,93.223.169.159] avatar pi logging out
+2024-01-26T21:59:44.861131Z [HoneyPotSSHTransport,3,93.223.169.159] Connection lost after 1 seconds
+2024-01-26T21:59:45.218386Z [HoneyPotSSHTransport,4,93.223.169.159] Remote SSH version: SSH-2.0-OpenSSH_7.9p1 Raspbian-10+deb10u2+rpt1
+2024-01-26T21:59:45.322853Z [HoneyPotSSHTransport,2,93.223.169.159] Connection lost after 2 seconds
+2024-01-26T21:59:45.368695Z [HoneyPotSSHTransport,4,93.223.169.159] SSH client hassh fingerprint: ec7378c1a92f5a8dde7e8b7a1ddf33d1
+2024-01-26T21:59:46.220650Z [HoneyPotSSHTransport,4,93.223.169.159] Found cached: b'pi':b'raspberry'
+2024-01-26T21:59:46.243290Z [HoneyPotSSHTransport,4,93.223.169.159] login attempt [b'pi'/b'raspberry'] succeeded
+2024-01-26T21:59:46.244385Z [HoneyPotSSHTransport,4,93.223.169.159] Initialized emulated server as architecture: linux-x64-lsb
+2024-01-26T21:59:46.548004Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,4,93.223.169.159] request_env: LANG=C.UTF-8
+2024-01-26T21:59:46.602451Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,4,93.223.169.159] CMD: cd /tmp && chmod +x BUwTrLEj && bash -c ./BUwTrLEj
+2024-01-26T21:59:46.602994Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,4,93.223.169.159] Command found: cd /tmp
+2024-01-26T21:59:46.603127Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,4,93.223.169.159] Command found: chmod +x BUwTrLEj
+2024-01-26T21:59:46.603800Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,4,93.223.169.159] Command found: bash -c ./BUwTrLEj
+2024-01-26T21:59:46.603931Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,4,93.223.169.159] CMD: ./BUwTrLEj
+2024-01-26T21:59:46.604476Z [SSHChannel session (0) on SSHService b'ssh-connection' on HoneyPotSSHTransport,4,93.223.169.159] Command not found: ./BUwTrLEj
+2024-01-26T21:59:46.606461Z [HoneyPotSSHTransport,4,93.223.169.159] Closing TTY Log: var/lib/cowrie/tty/6a4a318ba9a7822ec4a6a8d729b43b01e9033316c7b8a1d13c03d5dd4f5e8531 after 0 seconds
+2024-01-26T21:59:46.758286Z [HoneyPotSSHTransport,4,93.223.169.159] Got remote error, code 11 reason: b'disconnected by user'
+2024-01-26T21:59:46.758617Z [HoneyPotSSHTransport,4,93.223.169.159] avatar pi logging out
+2024-01-26T21:59:46.758792Z [HoneyPotSSHTransport,4,93.223.169.159] Connection lost after 1 seconds
+
+````
 
 </details>
 
@@ -367,14 +435,157 @@ This sample shows the Cowrie `.json` Logs for session_id `fa6fb05e952d` the firs
 </summary>
 
 
-```json
-No cowrie.json logs found
-```
+````json
+{"eventid":"cowrie.session.connect","src_ip":"93.223.169.159","src_port":46970,"dst_ip":"172.31.5.68","dst_port":2222,"session":"fa6fb05e952d","protocol":"ssh","message":"New connection: 93.223.169.159:46970 (172.31.5.68:2222) [session: fa6fb05e952d]","sensor":"","timestamp":"2024-01-26T21:59:42.991117Z"}
+{"eventid":"cowrie.client.version","version":"SSH-2.0-OpenSSH_7.9p1 Raspbian-10+deb10u2+rpt1","message":"Remote SSH version: SSH-2.0-OpenSSH_7.9p1 Raspbian-10+deb10u2+rpt1","sensor":"","timestamp":"2024-01-26T21:59:43.143579Z","src_ip":"93.223.169.159","session":"fa6fb05e952d"}
+{"eventid":"cowrie.client.kex","hassh":"ec7378c1a92f5a8dde7e8b7a1ddf33d1","hasshAlgorithms":"curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group14-sha256,diffie-hellman-group14-sha1,ext-info-c;chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com;umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512,hmac-sha1;none,zlib@openssh.com,zlib","kexAlgs":["curve25519-sha256","curve25519-sha256@libssh.org","ecdh-sha2-nistp256","ecdh-sha2-nistp384","ecdh-sha2-nistp521","diffie-hellman-group-exchange-sha256","diffie-hellman-group16-sha512","diffie-hellman-group18-sha512","diffie-hellman-group14-sha256","diffie-hellman-group14-sha1","ext-info-c"],"keyAlgs":["ecdsa-sha2-nistp256-cert-v01@openssh.com","ecdsa-sha2-nistp384-cert-v01@openssh.com","ecdsa-sha2-nistp521-cert-v01@openssh.com","ssh-ed25519-cert-v01@openssh.com","rsa-sha2-512-cert-v01@openssh.com","rsa-sha2-256-cert-v01@openssh.com","ssh-rsa-cert-v01@openssh.com","ecdsa-sha2-nistp256","ecdsa-sha2-nistp384","ecdsa-sha2-nistp521","ssh-ed25519","rsa-sha2-512","rsa-sha2-256","ssh-rsa"],"encCS":["chacha20-poly1305@openssh.com","aes128-ctr","aes192-ctr","aes256-ctr","aes128-gcm@openssh.com","aes256-gcm@openssh.com"],"macCS":["umac-64-etm@openssh.com","umac-128-etm@openssh.com","hmac-sha2-256-etm@openssh.com","hmac-sha2-512-etm@openssh.com","hmac-sha1-etm@openssh.com","umac-64@openssh.com","umac-128@openssh.com","hmac-sha2-256","hmac-sha2-512","hmac-sha1"],"compCS":["none","zlib@openssh.com","zlib"],"langCS":[""],"message":"SSH client hassh fingerprint: ec7378c1a92f5a8dde7e8b7a1ddf33d1","sensor":"","timestamp":"2024-01-26T21:59:43.294672Z","src_ip":"93.223.169.159","session":"fa6fb05e952d"}
+{"eventid":"cowrie.login.success","username":"pi","password":"raspberry","message":"login attempt [pi/raspberry] succeeded","sensor":"","timestamp":"2024-01-26T21:59:44.196064Z","src_ip":"93.223.169.159","session":"fa6fb05e952d"}
+{"eventid":"cowrie.client.var","name":"LANG","value":"C.UTF-8","message":"request_env: LANG=C.UTF-8","sensor":"","timestamp":"2024-01-26T21:59:44.502846Z","src_ip":"93.223.169.159","session":"fa6fb05e952d"}
+{"eventid":"cowrie.session.params","arch":"linux-x64-lsb","message":[],"sensor":"","timestamp":"2024-01-26T21:59:44.546463Z","src_ip":"93.223.169.159","session":"fa6fb05e952d"}
+{"eventid":"cowrie.command.input","input":"scp -t /tmp/BUwTrLEj","message":"CMD: scp -t /tmp/BUwTrLEj","sensor":"","timestamp":"2024-01-26T21:59:44.547035Z","src_ip":"93.223.169.159","session":"fa6fb05e952d"}
+{"eventid":"cowrie.session.file_download","duplicate":false,"outfile":"var/lib/cowrie/downloads/10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c","shasum":"10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c","destfile":"","message":"Saved stdin contents with SHA-256 10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c to var/lib/cowrie/downloads/10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c","sensor":"","timestamp":"2024-01-26T21:59:44.707056Z","src_ip":"93.223.169.159","session":"fa6fb05e952d"}
+{"eventid":"cowrie.log.closed","ttylog":"var/lib/cowrie/tty/7afa002f37e51bce8fd91baf31c86d4bd0b26ea29e2e80cbf121e582be4f1fda","size":10,"shasum":"7afa002f37e51bce8fd91baf31c86d4bd0b26ea29e2e80cbf121e582be4f1fda","duplicate":false,"duration":0.16217541694641113,"message":"Closing TTY Log: var/lib/cowrie/tty/7afa002f37e51bce8fd91baf31c86d4bd0b26ea29e2e80cbf121e582be4f1fda after 0 seconds","sensor":"","timestamp":"2024-01-26T21:59:44.707777Z","src_ip":"93.223.169.159","session":"fa6fb05e952d"}
+{"eventid":"cowrie.session.closed","duration":1.8694260120391846,"message":"Connection lost after 1 seconds","sensor":"","timestamp":"2024-01-26T21:59:44.861131Z","src_ip":"93.223.169.159","session":"fa6fb05e952d"}
+
+````
 
 </details>
 
 ---
 
+
+## Zeek Logs
+Total Zeek logs: `26`
+
+#### The `15` Zeek sessions in this attack were logged in the following Zeek logs:
+
+* `conn.log`
+* `ssh.log`
+
+
+<details>
+<summary>
+<h3>Zeek conn.log Logs</h3>
+</summary>
+
+Here is a sample of the log lines:
+
+````log
+#separator \x09
+#set_separator	,
+#empty_field	(empty)
+#unset_field	-
+#path	conn
+#open	2023-12-07-01-38-59
+#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	proto	service	duration	orig_bytes	resp_bytes	conn_state	local_orig	local_resp	missed_bytes	history	orig_pkts	orig_ip_bytes	resp_pkts	resp_ip_bytes	tunnel_parents
+#types	time	string	addr	port	addr	port	enum	string	interval	count	count	string	bool	bool	count	string	count	count	count	count	set[string]
+1701946336.598590	CmMj7Y1TLuJ5YCKDWl	93.223.169.159	60702	172.31.5.68	22	tcp	-	0.156259	0	0	RSTO	F	T	0	ShR	2	84	1	44	-
+1701946346.628028	CTCt4bY4cLQCcH5Si	93.223.169.159	47114	172.31.5.68	22	tcp	ssh	2.577254	1904	1327	SF	F	T	0	ShAdDaFf	15	2692	14	2063	-
+1701946346.650165	CnN1Ae1hMulVtjCKi6	93.223.169.159	47118	172.31.5.68	22	tcp	ssh	2.616529	1904	1327	SF	F	T	0	ShAdDaFf	15	2692	14	2063	-
+#separator \x09
+#set_separator	,
+#empty_field	(empty)
+#unset_field	-
+#path	conn
+#open	2024-01-26-13-38-52
+#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	proto	service	duration	orig_bytes	resp_bytes	conn_state	local_orig	local_resp	missed_bytes	history	orig_pkts	orig_ip_bytes	resp_pkts	resp_ip_bytes	tunnel_parents
+#types	time	string	addr	port	addr	port	enum	string	interval	count	count	string	bool	bool	count	string	count	count	count	count	set[string]
+1706306371.528530	C06KgE3PnupO2F8u27	93.223.169.159	49808	172.31.5.68	22	tcp	-	1.169289	0	0	RSTO	F	T	0	ShR	2	84	2	88	-
+1706306382.838838	Cz65Bp3E9Yx7GOGZf8	93.223.169.159	46970	172.31.5.68	22	tcp	ssh	2.022031	7472	2623	SF	F	T	0	ShAdDaFf	24	8728	24	3879	-
+1706306382.824208	CQi9zfVW7vj47v0A9	93.223.169.159	46966	172.31.5.68	22	tcp	ssh	2.498452	1904	1327	SF	F	T	0	ShAdDaFf	15	2692	14	2063	-
+1706306384.908091	CkS27i1cg6LfTwb3Oi	93.223.169.159	47004	172.31.5.68	22	tcp	ssh	1.850447	2656	1935	SF	F	T	0	ShAdDaFTf	20	3704	18	2891	-
+#separator \x09
+#set_separator	,
+#empty_field	(empty)
+#unset_field	-
+#path	conn
+#open	2024-01-28-01-38-53
+#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	proto	service	duration	orig_bytes	resp_bytes	conn_state	local_orig	local_resp	missed_bytes	history	orig_pkts	orig_ip_bytes	resp_pkts	resp_ip_bytes	tunnel_parents
+#types	time	string	addr	port	addr	port	enum	string	interval	count	count	string	bool	bool	count	string	count	count	count	count	set[string]
+1706444158.350606	C5rS7g4QnQp42gbcGd	27.93.25.111	50916	172.31.5.68	22	tcp	-	1.138814	0	0	RSTO	F	T	0	ShR	2	84	2	88	-
+1706444170.652851	CKKbJDBalq1TZbmF6	27.93.25.111	52102	172.31.5.68	22	tcp	ssh	1.697188	7568	2623	SF	F	T	0	ShAdDaFf	24	8824	21	3723	-
+1706444170.223827	CMy02v1pudNB2CRKZ7	27.93.25.111	52094	172.31.5.68	22	tcp	ssh	2.282035	1904	1327	SF	F	T	0	ShAdDaFf	15	2692	14	2063	-
+1706444172.370948	CHGw7y4ZZUIK7GA6De	27.93.25.111	52146	172.31.5.68	22	tcp	ssh	1.586112	2656	1935	SF	F	T	0	ShAdDaFf	20	3704	17	2827	-
+1706447975.560882	CYkNc83gU5wuP2Slq2	111.216.194.148	49512	172.31.5.68	22	tcp	-	0.112083	0	0	RSTO	F	T	0	ShR	2	84	1	44	-
+1706447986.332534	CLMsKD2iQhsMaDU1nk	111.216.194.148	52922	172.31.5.68	22	tcp	ssh	1.642975	7472	2623	SF	F	T	0	ShAdDafF	23	8676	23	3827	-
+1706447986.003158	CT4tTu4hPvKdx6ZkLe	111.216.194.148	52912	172.31.5.68	22	tcp	ssh	2.210949	1904	1327	SF	F	T	0	ShAdDaFf	15	2692	14	2063	-
+1706447988.032650	C1Z4MD4DurN46YY8Ra	111.216.194.148	52964	172.31.5.68	22	tcp	ssh	1.394085	2656	1935	SF	F	T	0	ShAdDaFf	20	3704	17	2827	-
+
+````
+
+</details>
+
+---
+
+
+<details>
+<summary>
+<h3>Zeek ssh.log Logs</h3>
+</summary>
+
+Here is a sample of the log lines:
+
+````log
+#separator \x09
+#set_separator	,
+#empty_field	(empty)
+#unset_field	-
+#path	ssh
+#open	2023-12-07-01-39-09
+#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	version	auth_success	auth_attempts	direction	client	server	cipher_alg	mac_alg	compression_alg	kex_alg	host_key_alg	host_key
+#types	time	string	addr	port	addr	port	count	bool	count	enum	string	string	string	string	string	string	string	string
+1701946346.786420	CTCt4bY4cLQCcH5Si	93.223.169.159	47114	172.31.5.68	22	2	F	1	INBOUND	SSH-2.0-OpenSSH_7.9p1 Raspbian-10+deb10u2+rpt1	SSH-2.0-OpenSSH_6.0p1 Debian-4+deb7u2	aes128-ctr	hmac-sha2-512	none	curve25519-sha256	ecdsa-sha2-nistp256	31:e0:5e:5b:22:e7:18:24:e7:84:2a:78:4f:67:8c:eb
+1701946346.808449	CnN1Ae1hMulVtjCKi6	93.223.169.159	47118	172.31.5.68	22	2	F	1	INBOUND	SSH-2.0-OpenSSH_7.9p1 Raspbian-10+deb10u2+rpt1	SSH-2.0-OpenSSH_6.0p1 Debian-4+deb7u2	aes128-ctr	hmac-sha2-512	none	curve25519-sha256	ecdsa-sha2-nistp256	31:e0:5e:5b:22:e7:18:24:e7:84:2a:78:4f:67:8c:eb
+#separator \x09
+#set_separator	,
+#empty_field	(empty)
+#unset_field	-
+#path	ssh
+#open	2024-01-26-13-40-51
+#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	version	auth_success	auth_attempts	direction	client	server	cipher_alg	mac_alg	compression_alg	kex_alg	host_key_alg	host_key
+#types	time	string	addr	port	addr	port	count	bool	count	enum	string	string	string	string	string	string	string	string
+1706306382.991759	Cz65Bp3E9Yx7GOGZf8	93.223.169.159	46970	172.31.5.68	22	2	T	1	INBOUND	SSH-2.0-OpenSSH_7.9p1 Raspbian-10+deb10u2+rpt1	SSH-2.0-OpenSSH_6.0p1 Debian-4+deb7u2	aes128-ctr	hmac-sha2-512	none	curve25519-sha256	ecdsa-sha2-nistp256	31:e0:5e:5b:22:e7:18:24:e7:84:2a:78:4f:67:8c:eb
+1706306385.061664	CkS27i1cg6LfTwb3Oi	93.223.169.159	47004	172.31.5.68	22	2	T	1	INBOUND	SSH-2.0-OpenSSH_7.9p1 Raspbian-10+deb10u2+rpt1	SSH-2.0-OpenSSH_6.0p1 Debian-4+deb7u2	aes128-ctr	hmac-sha2-512	none	curve25519-sha256	ecdsa-sha2-nistp256	31:e0:5e:5b:22:e7:18:24:e7:84:2a:78:4f:67:8c:eb
+1706306382.977494	CQi9zfVW7vj47v0A9	93.223.169.159	46966	172.31.5.68	22	2	F	1	INBOUND	SSH-2.0-OpenSSH_7.9p1 Raspbian-10+deb10u2+rpt1	SSH-2.0-OpenSSH_6.0p1 Debian-4+deb7u2	aes128-ctr	hmac-sha2-512	none	curve25519-sha256	ecdsa-sha2-nistp256	31:e0:5e:5b:22:e7:18:24:e7:84:2a:78:4f:67:8c:eb
+#separator \x09
+#set_separator	,
+#empty_field	(empty)
+#unset_field	-
+#path	ssh
+#open	2024-01-28-01-48-18
+#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	version	auth_success	auth_attempts	direction	client	server	cipher_alg	mac_alg	compression_alg	kex_alg	host_key_alg	host_key
+#types	time	string	addr	port	addr	port	count	bool	count	enum	string	string	string	string	string	string	string	string
+1706444170.781162	CKKbJDBalq1TZbmF6	27.93.25.111	52102	172.31.5.68	22	2	T	1	INBOUND	SSH-2.0-OpenSSH_7.9p1 Raspbian-10+deb10u2+rpt1	SSH-2.0-OpenSSH_6.0p1 Debian-4+deb7u2	aes128-ctr	hmac-sha2-512	none	curve25519-sha256	ecdsa-sha2-nistp256	31:e0:5e:5b:22:e7:18:24:e7:84:2a:78:4f:67:8c:eb
+1706444172.499201	CHGw7y4ZZUIK7GA6De	27.93.25.111	52146	172.31.5.68	22	2	T	1	INBOUND	SSH-2.0-OpenSSH_7.9p1 Raspbian-10+deb10u2+rpt1	SSH-2.0-OpenSSH_6.0p1 Debian-4+deb7u2	aes128-ctr	hmac-sha2-512	none	curve25519-sha256	ecdsa-sha2-nistp256	31:e0:5e:5b:22:e7:18:24:e7:84:2a:78:4f:67:8c:eb
+1706444170.353967	CMy02v1pudNB2CRKZ7	27.93.25.111	52094	172.31.5.68	22	2	F	1	INBOUND	SSH-2.0-OpenSSH_7.9p1 Raspbian-10+deb10u2+rpt1	SSH-2.0-OpenSSH_6.0p1 Debian-4+deb7u2	aes128-ctr	hmac-sha2-512	none	curve25519-sha256	ecdsa-sha2-nistp256	31:e0:5e:5b:22:e7:18:24:e7:84:2a:78:4f:67:8c:eb
+1706447986.452423	CLMsKD2iQhsMaDU1nk	111.216.194.148	52922	172.31.5.68	22	2	T	1	INBOUND	SSH-2.0-OpenSSH_7.9p1 Raspbian-10+deb10u2+rpt1	SSH-2.0-OpenSSH_6.0p1 Debian-4+deb7u2	aes128-ctr	hmac-sha2-512	none	curve25519-sha256	ecdsa-sha2-nistp256	31:e0:5e:5b:22:e7:18:24:e7:84:2a:78:4f:67:8c:eb
+1706447988.146040	C1Z4MD4DurN46YY8Ra	111.216.194.148	52964	172.31.5.68	22	2	T	1	INBOUND	SSH-2.0-OpenSSH_7.9p1 Raspbian-10+deb10u2+rpt1	SSH-2.0-OpenSSH_6.0p1 Debian-4+deb7u2	aes128-ctr	hmac-sha2-512	none	curve25519-sha256	ecdsa-sha2-nistp256	31:e0:5e:5b:22:e7:18:24:e7:84:2a:78:4f:67:8c:eb
+1706447986.123797	CT4tTu4hPvKdx6ZkLe	111.216.194.148	52912	172.31.5.68	22	2	F	1	INBOUND	SSH-2.0-OpenSSH_7.9p1 Raspbian-10+deb10u2+rpt1	SSH-2.0-OpenSSH_6.0p1 Debian-4+deb7u2	aes128-ctr	hmac-sha2-512	none	curve25519-sha256	ecdsa-sha2-nistp256	31:e0:5e:5b:22:e7:18:24:e7:84:2a:78:4f:67:8c:eb
+
+````
+
+</details>
+
+---
+
+
+## DShield Logs
+Total DShield logs: `8`
+
+#### The `24` sessions in this attack were logged as connection in the following DShield firewall logs:
+Here is a sample of the log lines:
+
+````log
+1706444158 BigDshield kernel:[81448.170206]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=27.93.25.111 DST=172.31.5.68 LEN=44 TOS=0x00 PREC=0x00 TTL=244 ID=54321 PROTO=TCP SPT=50916 DPT=22 WINDOW=65535 RES=0x00 SYN URGP=0 
+1706444170 BigDshield kernel:[81460.043473]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=27.93.25.111 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=54 ID=44317 DF PROTO=TCP SPT=52094 DPT=22 WINDOW=64240 RES=0x00 SYN URGP=0 
+1706444170 BigDshield kernel:[81460.472489]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=27.93.25.111 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=54 ID=9396 DF PROTO=TCP SPT=52102 DPT=22 WINDOW=64240 RES=0x00 SYN URGP=0 
+1706444172 BigDshield kernel:[81462.190592]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=27.93.25.111 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=54 ID=62100 DF PROTO=TCP SPT=52146 DPT=22 WINDOW=64240 RES=0x00 SYN URGP=0 
+1706447975 BigDshield kernel:[85265.394404]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=111.216.194.148 DST=172.31.5.68 LEN=44 TOS=0x00 PREC=0x00 TTL=239 ID=54321 PROTO=TCP SPT=49512 DPT=22 WINDOW=65535 RES=0x00 SYN URGP=0 
+1706447986 BigDshield kernel:[85275.836719]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=111.216.194.148 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=48 ID=23298 DF PROTO=TCP SPT=52912 DPT=22 WINDOW=64240 RES=0x00 SYN URGP=0 
+1706447986 BigDshield kernel:[85276.166092]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=111.216.194.148 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=48 ID=50936 DF PROTO=TCP SPT=52922 DPT=22 WINDOW=64240 RES=0x00 SYN URGP=0 
+1706447988 BigDshield kernel:[85277.866215]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=111.216.194.148 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=48 ID=47819 DF PROTO=TCP SPT=52964 DPT=22 WINDOW=64240 RES=0x00 SYN URGP=0 
+
+````
 
 </details>
 
@@ -415,14 +626,14 @@ The attack involved the following IP addresses and ports:
 <h3>Top 3 Source Ips</h3>
 </summary>
 
-Total Source IPs: `9`
+Total Source IPs: `24`
 Unique: `3`
 
 | Source IP | Times Seen |
 | --- | --- |
-| `93.223.169.159` | `3` |
-| `27.93.25.111` | `3` |
-| `111.216.194.148` | `3` |
+| `93.223.169.159` | `10` |
+| `27.93.25.111` | `7` |
+| `111.216.194.148` | `7` |
 
 </details>
 
@@ -434,12 +645,12 @@ Unique: `3`
 <h3>Top 1 Destination Ips</h3>
 </summary>
 
-Total Destination IPs: `9`
+Total Destination IPs: `24`
 Unique: `1`
 
 | Destination IP | Times Seen |
 | --- | --- |
-| `172.31.5.68` | `9` |
+| `172.31.5.68` | `24` |
 
 </details>
 
@@ -448,23 +659,24 @@ Unique: `1`
 
 <details>
 <summary>
-<h3>Top 9 Source Ports</h3>
+<h3>Top 10 Source Ports</h3>
 </summary>
 
-Total Source Ports: `9`
-Unique: `9`
+Total Source Ports: `24`
+Unique: `15`
 
 | Source Port | Times Seen |
 | --- | --- |
-| `46966` | `1` |
-| `46970` | `1` |
-| `47004` | `1` |
-| `52094` | `1` |
-| `52102` | `1` |
-| `52146` | `1` |
-| `52912` | `1` |
-| `52922` | `1` |
-| `52964` | `1` |
+| `46966` | `2` |
+| `46970` | `2` |
+| `47004` | `2` |
+| `52094` | `2` |
+| `52102` | `2` |
+| `52146` | `2` |
+| `52912` | `2` |
+| `52922` | `2` |
+| `52964` | `2` |
+| `60702` | `1` |
 
 </details>
 
@@ -473,14 +685,15 @@ Unique: `9`
 
 <details>
 <summary>
-<h3>Top 1 Destination Ports</h3>
+<h3>Top 2 Destination Ports</h3>
 </summary>
 
-Total Destination Ports: `9`
-Unique: `1`
+Total Destination Ports: `24`
+Unique: `2`
 
 | Destination Port | Times Seen |
 | --- | --- |
+| `22` | `15` |
 | `2222` | `9` |
 
 </details>
@@ -516,19 +729,19 @@ The use of the `/tmp` directory is typical in attacks as it is a world-writable 
 The attacker entered the following `3` inputs on the honeypot system:
 
 **Input 1:**
-```bash
+````bash
 scp -t /tmp/BUwTrLEj
-```
+````
 
 **Input 2:**
-```bash
+````bash
 cd /tmp && chmod +x BUwTrLEj && bash -c ./BUwTrLEj
-```
+````
 
 **Input 3:**
-```bash
+````bash
 ./BUwTrLEj
-```
+````
 
 </details>
 
@@ -542,17 +755,17 @@ cd /tmp && chmod +x BUwTrLEj && bash -c ./BUwTrLEj
 
 The following `3` commands were executed on the honeypot system:
 
-```bash
+````bash
 scp -t /tmp/BUwTrLEj
-```
+````
 0The attacker attempts to **copy a file to the remote system** using `scp` with the `-t` flag indicating that the file is being transferred to the specified directory `/tmp/BUwTrLEj`
-```bash
+````bash
 cd /tmp && chmod +x BUwTrLEj && bash -c ./BUwTrLEj
-```
+````
 1After the file is transferred, the attacker **changes directory to `/tmp`**, makes the file `BUwTrLEj` **executable with `chmod +x`**, and then **executes the file** using `bash -c ./BUwTrLEj`
-```bash
+````bash
 ./BUwTrLEj
-```
+````
 2The attacker directly **executes the `BUwTrLEj` file** again with `./BUwTrLEj`, possibly as a fallback if the previous execution attempt did not work or to run the file with different permissions
 </details>
 
@@ -637,7 +850,7 @@ This attack downloaded `3` raw malware samples which can be standardized into `1
 **Standardized** Sha256 HASH: `f7bbaf20a0b5d98b0e333ae777118fd19a1c26ff47c5fd063e4c1933dc0b22fc`
 
 **Sample Below** Sha256 HASH: `10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c`
-```bash
+````bash
 C0755 4745 0X6mZEHu
 #!/bin/bash
 
@@ -803,7 +1016,7 @@ fi
 
 
 
-```
+````
 2 more samples with the same **Standardized** Sha256 HASH were found:
 
 * `1b82ac2aca7cd9b3b1d352dbb024a1ae736579e23860b353be95f5e19d160d51`
@@ -824,7 +1037,7 @@ Standardized Malware Sample 0/1 Sha256 HASH: f7bbaf20a0b5d98b0e333ae777118fd19a1
 </summary>
 
 
-```bash
+````bash
 # This script is a Bash script generally used for malicious activities such as
 # establishing persistence, killing processes, modifying system configurations,
 # and spreading itself to other systems.
@@ -888,7 +1101,7 @@ fi
 # Null character at the end of the script
 
 
-```
+````
 
 </details>
 
@@ -1244,9 +1457,9 @@ The data from CyberGordon corroborates the findings from other sources, indicati
 
 | IP Addresss | Alerts High \| Med \| Low | [E1] IPinfo | [E2] AbuseIPDB | [E7] Google DNS | [E11] DShield/ISC | [E12] AlienVault OTX | [E17] Pulsedive | [E23] Offline Feeds | [E24] BlackList DE | [E26] MetaDefender | [E33] GreyNoise | [E34] IPdata.co |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 27.93.25.111 | `6` \| `3` \| `2` | <details>`Geo: Kure, Hiroshima, JP. Network: AS2516 KDDI CORPORATION. Hostname: kd027093025111.ppp-bb.dion.ne.jp. `<summary>`low`</summary></details> | <details>`Hostname(s): KD027093025111.ppp-bb.dion.ne.jp. ISP: KDDI Corporation. Usage: None. Risk 100%. 1060 report(s) by 373 user(s), last on 03 February 2024  `<summary>`high`</summary></details> | <details>`Current DNS PTR record(s): KD027093025111.ppp-bb.dion.ne.jp. `<summary>`low`</summary></details> | <details>`Found in 17 report(s) listing 4 target(s), last on 2 Feb 2024 `<summary>`high`</summary></details> | <details>`Found in 16 pulse-feed(s) `<summary>`medium`</summary></details> | <details>`Risk: none. Last seen on 1 Feb 2024. Found in threat list(s): SSH Brute Force. Found in feed list(s): Blocklist.de Blocklist, Dictionary SSH Attacks, Brute Force Hosts. Opened service(s): HTTP, SSH. `<summary>`medium`</summary></details> | <details>`Found in Duggy Tuxy - EU Botnets/Zombies/Scanners `<summary>`medium`</summary></details> | <details>`Found in 64 attack(s) and 29 report(s) `<summary>`high`</summary></details> | <details>`Found in 3 sources: webroot.com (high risk), dataplane.org (bruteforce, scanner), blocklist.de (scanner) `<summary>`high`</summary></details> | <details>`Last report on 03 February 2024 as malicious and scanning the Internet in the last 3 months. `<summary>`high`</summary></details> | <details>`Geo: Hiroshima, Hirosima (Hiroshima), Japan. Network: AS2516, KDDI Corporation, business. Security risk(s): malicious/attacker activity, abuse/bot activity. Blocklist(s): Anti-attacks.com, Charles Haley, DataPlane.org, Interserver.net, James Brine. `<summary>`high`</summary></details> |
-| 111.216.194.148 | `6` \| `3` \| `2` | <details>`Geo: Urayasu, Tokyo, JP. Network: AS2527 Sony Network Communications Inc.. Hostname: fp6fd8c294.ap.nuro.jp. `<summary>`low`</summary></details> | <details>`Hostname(s): fp6fd8c294.ap.nuro.jp. ISP: Sony Network Communications Inc.. Usage: None. Risk 100%. 449 report(s) by 208 user(s), last on 03 February 2024  `<summary>`high`</summary></details> | <details>`Current DNS PTR record(s): fp6fd8c294.ap.nuro.jp. `<summary>`low`</summary></details> | <details>`Found in 11 report(s) listing 4 target(s), last on 2 Feb 2024 `<summary>`high`</summary></details> | <details>`Found in 7 pulse-feed(s) `<summary>`medium`</summary></details> | <details>`Risk: low. Last seen on 2 Feb 2024. Found in feed list(s): Blocklist.de Blocklist, Brute Force Hosts. Opened service(s): HTTPS, NETBIOS, RDP, SSH. `<summary>`medium`</summary></details> | <details>`Found in IPsum (3+ blocklists) `<summary>`medium`</summary></details> | <details>`Found in 27 attack(s) and 16 report(s) `<summary>`high`</summary></details> | <details>`Found in 3 sources: webroot.com (high risk), dataplane.org (bruteforce, scanner), blocklist.de (scanner) `<summary>`high`</summary></details> | <details>`Last report on 03 February 2024 as malicious and scanning the Internet in the last 3 months. `<summary>`high`</summary></details> | <details>`Geo: Yokohama, Kanagawa, Japan. Network: AS2527, Sony Network Communications Inc, business. Security risk(s): malicious/attacker activity, abuse/bot activity. Blocklist(s): Anti-attacks.com, DataPlane.org, James Brine. `<summary>`high`</summary></details> |
-| 93.223.169.159 | `6` \| `2` \| `2` | <details>`Geo: Frankfurt am Main, Hesse, DE. Network: AS3320 Deutsche Telekom AG. Hostname: p5ddfa99f.dip0.t-ipconnect.de. `<summary>`low`</summary></details> | <details>`Hostname(s): p5ddfa99f.dip0.t-ipconnect.de. ISP: Deutsche Telekom AG. Usage: None. Risk 100%. 492 report(s) by 213 user(s), last on 03 February 2024  `<summary>`high`</summary></details> | <details>`Current DNS PTR record(s): p5ddfa99f.dip0.t-ipconnect.de. `<summary>`low`</summary></details> | <details>`Found in 11 report(s) listing 2 target(s), last on 1 Feb 2024 `<summary>`high`</summary></details> | <details>`Found in 6 pulse-feed(s) `<summary>`medium`</summary></details> | <details>`Risk: none. Last seen on 1 Feb 2024. Found in threat list(s): SSH Brute Force. Found in feed list(s): Blocklist.de Blocklist, Dictionary SSH Attacks, Brute Force Hosts. `<summary>`medium`</summary></details> | None | <details>`Found in 28 attack(s) and 22 report(s) `<summary>`high`</summary></details> | <details>`Found in 3 sources: webroot.com (high risk), dataplane.org (bruteforce, scanner), blocklist.de (scanner) `<summary>`high`</summary></details> | <details>`Last report on 03 February 2024 as malicious and scanning the Internet in the last 3 months. `<summary>`high`</summary></details> | <details>`Geo: Frankfurt am Main, Hessen, Germany. Network: AS3320, Deutsche Telekom Ag, business. Security risk(s): malicious/attacker activity, abuse/bot activity. Blocklist(s): Charles Haley, DataPlane.org, James Brine, Scriptz Team. `<summary>`high`</summary></details> |
+| 27.93.25.111 | `6` \| `3` \| `2` | <details>`Geo: Kure, Hiroshima, JP. Network: AS2516 KDDI CORPORATION. Hostname: kd027093025111.ppp-bb.dion.ne.jp. `<summary>`low`</summary></details> | <details>`Hostname(s): KD027093025111.ppp-bb.dion.ne.jp. ISP: KDDI Corporation. Usage: None. Risk 100%. 1053 report(s) by 376 user(s), last on 06 February 2024  `<summary>`high`</summary></details> | <details>`Current DNS PTR record(s): KD027093025111.ppp-bb.dion.ne.jp. `<summary>`low`</summary></details> | <details>`Found in 17 report(s) listing 4 target(s), last on 4 Feb 2024 `<summary>`high`</summary></details> | <details>`Found in 16 pulse-feed(s) `<summary>`medium`</summary></details> | <details>`Risk: none. Last seen on 1 Feb 2024. Found in threat list(s): SSH Brute Force. Found in feed list(s): Blocklist.de Blocklist, Dictionary SSH Attacks, Brute Force Hosts. Opened service(s): HTTP, SSH. `<summary>`medium`</summary></details> | <details>`Found in Duggy Tuxy - EU Botnets/Zombies/Scanners `<summary>`medium`</summary></details> | <details>`Found in 64 attack(s) and 29 report(s) `<summary>`high`</summary></details> | <details>`Found in 3 sources: webroot.com (high risk), dataplane.org (bruteforce, scanner), blocklist.de (scanner) `<summary>`high`</summary></details> | <details>`Last report on 06 February 2024 as malicious and scanning the Internet in the last 3 months. `<summary>`high`</summary></details> | <details>`Geo: Hiroshima, Hirosima (Hiroshima), Japan. Network: AS2516, KDDI Corporation, business. Security risk(s): malicious/attacker activity, abuse/bot activity. Blocklist(s): Anti-attacks.com, Charles Haley, DataPlane.org, Interserver.net, James Brine. `<summary>`high`</summary></details> |
+| 111.216.194.148 | `6` \| `3` \| `2` | <details>`Geo: Urayasu, Tokyo, JP. Network: AS2527 Sony Network Communications Inc.. Hostname: fp6fd8c294.ap.nuro.jp. `<summary>`low`</summary></details> | <details>`Hostname(s): fp6fd8c294.ap.nuro.jp. ISP: Sony Network Communications Inc.. Usage: None. Risk 100%. 460 report(s) by 210 user(s), last on 06 February 2024  `<summary>`high`</summary></details> | <details>`Current DNS PTR record(s): fp6fd8c294.ap.nuro.jp. `<summary>`low`</summary></details> | <details>`Found in 11 report(s) listing 4 target(s), last on 5 Feb 2024 `<summary>`high`</summary></details> | <details>`Found in 7 pulse-feed(s) `<summary>`medium`</summary></details> | <details>`Risk: low. Last seen on 2 Feb 2024. Found in feed list(s): Blocklist.de Blocklist, Brute Force Hosts. Opened service(s): HTTPS, NETBIOS, RDP, SSH. `<summary>`medium`</summary></details> | <details>`Found in Duggy Tuxy - EU Botnets/Zombies/Scanners `<summary>`medium`</summary></details> | <details>`Found in 28 attack(s) and 17 report(s) `<summary>`high`</summary></details> | <details>`Found in 3 sources: webroot.com (high risk), dataplane.org (bruteforce, scanner), blocklist.de (scanner) `<summary>`high`</summary></details> | <details>`Last report on 05 February 2024 as malicious and scanning the Internet in the last 3 months. `<summary>`high`</summary></details> | <details>`Geo: Yokohama, Kanagawa, Japan. Network: AS2527, Sony Network Communications Inc, business. Security risk(s): malicious/attacker activity, abuse/bot activity. Blocklist(s): Anti-attacks.com, DataPlane.org, James Brine. `<summary>`high`</summary></details> |
+| 93.223.169.159 | `6` \| `2` \| `2` | <details>`Geo: Frankfurt am Main, Hesse, DE. Network: AS3320 Deutsche Telekom AG. Hostname: p5ddfa99f.dip0.t-ipconnect.de. `<summary>`low`</summary></details> | <details>`Hostname(s): p5ddfa99f.dip0.t-ipconnect.de. ISP: Deutsche Telekom AG. Usage: None. Risk 100%. 502 report(s) by 216 user(s), last on 06 February 2024  `<summary>`high`</summary></details> | <details>`Current DNS PTR record(s): p5ddfa99f.dip0.t-ipconnect.de. `<summary>`low`</summary></details> | <details>`Found in 11 report(s) listing 2 target(s), last on 5 Feb 2024 `<summary>`high`</summary></details> | <details>`Found in 6 pulse-feed(s) `<summary>`medium`</summary></details> | <details>`Risk: none. Last seen on 1 Feb 2024. Found in threat list(s): SSH Brute Force. Found in feed list(s): Blocklist.de Blocklist, Dictionary SSH Attacks, Brute Force Hosts. `<summary>`medium`</summary></details> | None | <details>`Found in 28 attack(s) and 22 report(s) `<summary>`high`</summary></details> | <details>`Found in 3 sources: webroot.com (high risk), dataplane.org (bruteforce, scanner), blocklist.de (scanner) `<summary>`high`</summary></details> | <details>`Last report on 06 February 2024 as malicious and scanning the Internet in the last 3 months. `<summary>`high`</summary></details> | <details>`Geo: Frankfurt am Main, Hessen, Germany. Network: AS3320, Deutsche Telekom Ag, business. Security risk(s): malicious/attacker activity, abuse/bot activity. Blocklist(s): Charles Haley, DataPlane.org, James Brine, Scriptz Team. `<summary>`high`</summary></details> |
 
 ### CyberGordon Results
 
@@ -1256,16 +1469,16 @@ The data from CyberGordon corroborates the findings from other sources, indicati
 </summary>
 
 
-### Cybergordon results for: 93.223.169.159 [https://cybergordon.com/r/8e5afc2c-5af8-443e-a888-6111a77da92d](https://cybergordon.com/r/8e5afc2c-5af8-443e-a888-6111a77da92d)
+### Cybergordon results for: 93.223.169.159 [https://cybergordon.com/r/43e35943-363e-4e67-ad32-282de49517c7](https://cybergordon.com/r/43e35943-363e-4e67-ad32-282de49517c7)
 
 | Engine | Results | Url |
 | --- | --- | --- |
 | [E34] IPdata.co | Geo: Frankfurt am Main, Hessen, Germany. Network: AS3320, Deutsche Telekom Ag, business. Security risk(s): malicious/attacker activity, abuse/bot activity. Blocklist(s): Charles Haley, DataPlane.org, James Brine, Scriptz Team.  | https://ipdata.co |
+| [E11] DShield/ISC | Found in 11 report(s) listing 2 target(s), last on 5 Feb 2024  | https://isc.sans.edu/ipinfo.html?ip=93.223.169.159 |
+| [E2] AbuseIPDB | Hostname(s): p5ddfa99f.dip0.t-ipconnect.de. ISP: Deutsche Telekom AG. Usage: None. Risk 100%. 502 report(s) by 216 user(s), last on 06 February 2024   | https://www.abuseipdb.com/check/93.223.169.159 |
 | [E26] MetaDefender | Found in 3 sources: webroot.com (high risk), dataplane.org (bruteforce, scanner), blocklist.de (scanner)  | https://metadefender.opswat.com |
-| [E2] AbuseIPDB | Hostname(s): p5ddfa99f.dip0.t-ipconnect.de. ISP: Deutsche Telekom AG. Usage: None. Risk 100%. 492 report(s) by 213 user(s), last on 03 February 2024   | https://www.abuseipdb.com/check/93.223.169.159 |
-| [E33] GreyNoise | Last report on 03 February 2024 as malicious and scanning the Internet in the last 3 months.  | https://viz.greynoise.io/ip/93.223.169.159 |
+| [E33] GreyNoise | Last report on 06 February 2024 as malicious and scanning the Internet in the last 3 months.  | https://viz.greynoise.io/ip/93.223.169.159 |
 | [E24] BlackList DE | Found in 28 attack(s) and 22 report(s)  | https://www.blocklist.de/en/search.html?ip=93.223.169.159 |
-| [E11] DShield/ISC | Found in 11 report(s) listing 2 target(s), last on 1 Feb 2024  | https://isc.sans.edu/ipinfo.html?ip=93.223.169.159 |
 | [E17] Pulsedive | Risk: none. Last seen on 1 Feb 2024. Found in threat list(s): SSH Brute Force. Found in feed list(s): Blocklist.de Blocklist, Dictionary SSH Attacks, Brute Force Hosts.  | https://pulsedive.com/browse |
 | [E12] AlienVault OTX | Found in 6 pulse-feed(s)  | https://otx.alienvault.com/indicator/ip/93.223.169.159 |
 | [E1] IPinfo | Geo: Frankfurt am Main, Hesse, DE. Network: AS3320 Deutsche Telekom AG. Hostname: p5ddfa99f.dip0.t-ipconnect.de.  | https://ipinfo.io/93.223.169.159 |
@@ -1282,16 +1495,16 @@ The data from CyberGordon corroborates the findings from other sources, indicati
 </summary>
 
 
-### Cybergordon results for: 27.93.25.111 [https://cybergordon.com/r/230e5129-8452-4434-aed1-703056011df7](https://cybergordon.com/r/230e5129-8452-4434-aed1-703056011df7)
+### Cybergordon results for: 27.93.25.111 [https://cybergordon.com/r/2e3cc9e0-58be-4975-933d-148dce5210e8](https://cybergordon.com/r/2e3cc9e0-58be-4975-933d-148dce5210e8)
 
 | Engine | Results | Url |
 | --- | --- | --- |
-| [E33] GreyNoise | Last report on 03 February 2024 as malicious and scanning the Internet in the last 3 months.  | https://viz.greynoise.io/ip/27.93.25.111 |
+| [E33] GreyNoise | Last report on 06 February 2024 as malicious and scanning the Internet in the last 3 months.  | https://viz.greynoise.io/ip/27.93.25.111 |
 | [E34] IPdata.co | Geo: Hiroshima, Hirosima (Hiroshima), Japan. Network: AS2516, KDDI Corporation, business. Security risk(s): malicious/attacker activity, abuse/bot activity. Blocklist(s): Anti-attacks.com, Charles Haley, DataPlane.org, Interserver.net, James Brine.  | https://ipdata.co |
-| [E11] DShield/ISC | Found in 17 report(s) listing 4 target(s), last on 2 Feb 2024  | https://isc.sans.edu/ipinfo.html?ip=27.93.25.111 |
 | [E26] MetaDefender | Found in 3 sources: webroot.com (high risk), dataplane.org (bruteforce, scanner), blocklist.de (scanner)  | https://metadefender.opswat.com |
+| [E11] DShield/ISC | Found in 17 report(s) listing 4 target(s), last on 4 Feb 2024  | https://isc.sans.edu/ipinfo.html?ip=27.93.25.111 |
 | [E24] BlackList DE | Found in 64 attack(s) and 29 report(s)  | https://www.blocklist.de/en/search.html?ip=27.93.25.111 |
-| [E2] AbuseIPDB | Hostname(s): KD027093025111.ppp-bb.dion.ne.jp. ISP: KDDI Corporation. Usage: None. Risk 100%. 1060 report(s) by 373 user(s), last on 03 February 2024   | https://www.abuseipdb.com/check/27.93.25.111 |
+| [E2] AbuseIPDB | Hostname(s): KD027093025111.ppp-bb.dion.ne.jp. ISP: KDDI Corporation. Usage: None. Risk 100%. 1053 report(s) by 376 user(s), last on 06 February 2024   | https://www.abuseipdb.com/check/27.93.25.111 |
 | [E17] Pulsedive | Risk: none. Last seen on 1 Feb 2024. Found in threat list(s): SSH Brute Force. Found in feed list(s): Blocklist.de Blocklist, Dictionary SSH Attacks, Brute Force Hosts. Opened service(s): HTTP, SSH.  | https://pulsedive.com/browse |
 | [E12] AlienVault OTX | Found in 16 pulse-feed(s)  | https://otx.alienvault.com/indicator/ip/27.93.25.111 |
 | [E23] Offline Feeds | Found in Duggy Tuxy - EU Botnets/Zombies/Scanners  | / |
@@ -1309,19 +1522,19 @@ The data from CyberGordon corroborates the findings from other sources, indicati
 </summary>
 
 
-### Cybergordon results for: 111.216.194.148 [https://cybergordon.com/r/518a78e4-590b-4f58-9607-e8b679ab0108](https://cybergordon.com/r/518a78e4-590b-4f58-9607-e8b679ab0108)
+### Cybergordon results for: 111.216.194.148 [https://cybergordon.com/r/6b5c7729-f6d9-40f4-8a46-2fe3f5076e35](https://cybergordon.com/r/6b5c7729-f6d9-40f4-8a46-2fe3f5076e35)
 
 | Engine | Results | Url |
 | --- | --- | --- |
-| [E33] GreyNoise | Last report on 03 February 2024 as malicious and scanning the Internet in the last 3 months.  | https://viz.greynoise.io/ip/111.216.194.148 |
-| [E34] IPdata.co | Geo: Yokohama, Kanagawa, Japan. Network: AS2527, Sony Network Communications Inc, business. Security risk(s): malicious/attacker activity, abuse/bot activity. Blocklist(s): Anti-attacks.com, DataPlane.org, James Brine.  | https://ipdata.co |
 | [E26] MetaDefender | Found in 3 sources: webroot.com (high risk), dataplane.org (bruteforce, scanner), blocklist.de (scanner)  | https://metadefender.opswat.com |
-| [E2] AbuseIPDB | Hostname(s): fp6fd8c294.ap.nuro.jp. ISP: Sony Network Communications Inc.. Usage: None. Risk 100%. 449 report(s) by 208 user(s), last on 03 February 2024   | https://www.abuseipdb.com/check/111.216.194.148 |
-| [E24] BlackList DE | Found in 27 attack(s) and 16 report(s)  | https://www.blocklist.de/en/search.html?ip=111.216.194.148 |
-| [E11] DShield/ISC | Found in 11 report(s) listing 4 target(s), last on 2 Feb 2024  | https://isc.sans.edu/ipinfo.html?ip=111.216.194.148 |
+| [E34] IPdata.co | Geo: Yokohama, Kanagawa, Japan. Network: AS2527, Sony Network Communications Inc, business. Security risk(s): malicious/attacker activity, abuse/bot activity. Blocklist(s): Anti-attacks.com, DataPlane.org, James Brine.  | https://ipdata.co |
+| [E2] AbuseIPDB | Hostname(s): fp6fd8c294.ap.nuro.jp. ISP: Sony Network Communications Inc.. Usage: None. Risk 100%. 460 report(s) by 210 user(s), last on 06 February 2024   | https://www.abuseipdb.com/check/111.216.194.148 |
+| [E11] DShield/ISC | Found in 11 report(s) listing 4 target(s), last on 5 Feb 2024  | https://isc.sans.edu/ipinfo.html?ip=111.216.194.148 |
+| [E24] BlackList DE | Found in 28 attack(s) and 17 report(s)  | https://www.blocklist.de/en/search.html?ip=111.216.194.148 |
+| [E33] GreyNoise | Last report on 05 February 2024 as malicious and scanning the Internet in the last 3 months.  | https://viz.greynoise.io/ip/111.216.194.148 |
 | [E17] Pulsedive | Risk: low. Last seen on 2 Feb 2024. Found in feed list(s): Blocklist.de Blocklist, Brute Force Hosts. Opened service(s): HTTPS, NETBIOS, RDP, SSH.  | https://pulsedive.com/browse |
+| [E23] Offline Feeds | Found in Duggy Tuxy - EU Botnets/Zombies/Scanners  | / |
 | [E12] AlienVault OTX | Found in 7 pulse-feed(s)  | https://otx.alienvault.com/indicator/ip/111.216.194.148 |
-| [E23] Offline Feeds | Found in IPsum (3+ blocklists)  | / |
 | [E1] IPinfo | Geo: Urayasu, Tokyo, JP. Network: AS2527 Sony Network Communications Inc.. Hostname: fp6fd8c294.ap.nuro.jp.  | https://ipinfo.io/111.216.194.148 |
 | [E7] Google DNS | Current DNS PTR record(s): fp6fd8c294.ap.nuro.jp.  | https://dns.google/query?name=148.194.216.111.in-addr.arpa&type=PTR |
 
@@ -1381,6 +1594,7 @@ The Shodan data implies that the attackers may be utilizing compromised devices 
 - The most common **Organization** was `Deutsche Telekom AG`, which was seen `1` times.
 - The most common **ISP** was `Deutsche Telekom AG`, which was seen `1` times.
 - The most common **ASN** was `AS3320`, which was seen `1` times.
+- The most common **Operating System** was `ASUSWRT`, which was seen `1` times.
 - The IP address with the **most open ports** was `111.216.194.148` with `5` open ports.
 
 | IP Addresss | # Open Ports | 22 | 80 | 445 | 3389 | 8089 | 8443 | 9876 |
@@ -1626,6 +1840,25 @@ Unique: `3`
 ---
 
 
+
+
+<details>
+<summary>
+<h4>Top 1 Operating Systems</h4>
+</summary>
+
+Total Operating Systems: `1`
+Unique: `1`
+
+| Operating System | Times Seen |
+| --- | --- |
+| `ASUSWRT` | `1` |
+
+</details>
+
+---
+
+
 ### Shodan Results
 
 <details>
@@ -1644,7 +1877,7 @@ Unique: `3`
 
 | Port | Protocol | Service | Update Time |
 | --- | --- | --- | --- |
-| 8089 | tcp | unknown | 2024-01-15T18:20:36.850447 |
+| 8089 | tcp | unknown | 2024-02-05T22:12:28.312349 |
 
 #### Port 8089 (tcp): unknown
 
@@ -1654,10 +1887,10 @@ Unique: `3`
 </summary>
 
 
-```
+````
 HTTP/1.1 404 Not Found
 Content-Length: 0
-```
+````
 
 </details>
 
@@ -1701,7 +1934,7 @@ Content-Length: 0
 </summary>
 
 
-```
+````
 SSH-2.0-OpenSSH_7.9p1 Raspbian-10+deb10u2+rpt1
 Key type: ssh-rsa
 Key: AAAAB3NzaC1yc2EAAAADAQABAAABAQDkntix42PTKLWMIj/zHVWFGq9d7EQf/JYwARd6+cTLiaaM
@@ -1753,7 +1986,7 @@ MAC Algorithms:
 Compression Algorithms:
 	none
 	zlib@openssh.com
-```
+````
 
 </details>
 
@@ -1780,7 +2013,7 @@ Compression Algorithms:
 </summary>
 
 
-```
+````
 HTTP/1.1 200 OK
 Date: Fri, 02 Feb 2024 09:54:38 GMT
 Server: Apache/2.4.38 (Raspbian)
@@ -1791,7 +2024,7 @@ Pragma: no-cache
 Vary: Accept-Encoding
 Content-Length: 6706
 Content-Type: text/html; charset=UTF-8
-```
+````
 
 </details>
 
@@ -1824,10 +2057,10 @@ Content-Type: text/html; charset=UTF-8
 
 ### Shodan results for: 111.216.194.148 [https://www.shodan.io/host/111.216.194.148](https://www.shodan.io/host/111.216.194.148)
 
-| Hostnames | Domains | Country | City | Organization | ISP | ASN |
-| --- | --- | --- | --- | --- | --- | --- |
+| Hostnames | Domains | Country | City | Organization | ISP | ASN | Operating System |
+| --- | --- | --- | --- | --- | --- | --- | --- |
 | dcpiont.asuscomm.com
-fp6fd8c294.ap.nuro.jp | asuscomm.com nuro.jp | Japan | Urayasu | So-net Service | Sony Network Communications Inc. | AS2527 |
+fp6fd8c294.ap.nuro.jp | asuscomm.com nuro.jp | Japan | Urayasu | So-net Service | Sony Network Communications Inc. | AS2527 | ASUSWRT |
 
 #### Open Ports
 
@@ -1836,8 +2069,8 @@ fp6fd8c294.ap.nuro.jp | asuscomm.com nuro.jp | Japan | Urayasu | So-net Service
 | 22 | tcp | OpenSSH7.9p1 Raspbian-10+deb10u2+rpt1 | 2024-02-02T11:01:51.144146 |
 | 445 | tcp | unknown | 2024-02-02T14:03:36.190075 |
 | 3389 | tcp | Remote Desktop Protocol | 2024-01-31T22:27:09.669382 |
-| 8443 | tcp | ASUS Wireless Router RT-AX86U | 2024-01-31T19:23:21.569104 |
-| 9876 | tcp | unknown | 2024-01-17T12:28:35.650189 |
+| 8443 | tcp | ASUS Wireless Router RT-AX86U | 2024-02-05T05:05:22.810229 |
+| 9876 | tcp | unknown | 2024-02-04T18:36:30.324132 |
 
 #### Port 22 (tcp): OpenSSH7.9p1 Raspbian-10+deb10u2+rpt1
 
@@ -1847,7 +2080,7 @@ fp6fd8c294.ap.nuro.jp | asuscomm.com nuro.jp | Japan | Urayasu | So-net Service
 </summary>
 
 
-```
+````
 SSH-2.0-OpenSSH_7.9p1 Raspbian-10+deb10u2+rpt1
 Key type: ssh-rsa
 Key: AAAAB3NzaC1yc2EAAAADAQABAAABAQCfMqEmIC6zeFJS0mkfoMTgNUyXKEWlnyCYB12XFzBaHoK1
@@ -1899,7 +2132,7 @@ MAC Algorithms:
 Compression Algorithms:
 	none
 	zlib@openssh.com
-```
+````
 
 </details>
 
@@ -1926,12 +2159,12 @@ Compression Algorithms:
 </summary>
 
 
-```
+````
 SMB Status:
   Authentication: enabled
   SMB Version: 2
   Capabilities: raw-mode
-```
+````
 
 </details>
 
@@ -1953,7 +2186,7 @@ SMB Status:
 </summary>
 
 
-```
+````
 Remote Desktop Protocol
 \x03\x00\x00\x13\x0e\xd0\x00\x00\x124\x00\x02\x1f\x08\x00\x02\x00\x00\x00
 Remote Desktop Protocol NTLM Info:
@@ -1964,7 +2197,7 @@ Remote Desktop Protocol NTLM Info:
   NetBIOS Computer Name: BASENP20-045
   DNS Domain Name: BASENP20-045
   FQDN: BASENP20-045
-```
+````
 
 </details>
 
@@ -1991,15 +2224,15 @@ Remote Desktop Protocol NTLM Info:
 </summary>
 
 
-```
+````
 HTTP/1.0 200 OK
 Server: httpd/3.0
 x-frame-options: SAMEORIGIN
 x-xss-protection: 1; mode=block
-Date: Wed, 31 Jan 2024 19:18:33 GMT
+Date: Mon, 05 Feb 2024 05:05:21 GMT
 Content-Type: text/html
 Connection: close
-```
+````
 
 </details>
 
@@ -2012,7 +2245,7 @@ Connection: close
 | Server | httpd/3.0 |
 | x-frame-options | SAMEORIGIN |
 | x-xss-protection | 1; mode=block |
-| Date | Wed, 31 Jan 2024 19:18:33 GMT |
+| Date | Mon, 05 Feb 2024 05:05:21 GMT |
 | Content-Type | text/html |
 | Connection | close |
 
@@ -2024,12 +2257,12 @@ Connection: close
 </summary>
 
 
-```
+````
 HTTP/1.1 401 Unauthorized
 Www-Authenticate: Basic realm="Restricted"
-Date: Wed, 17 Jan 2024 12:26:15 GMT
+Date: Sun, 04 Feb 2024 18:34:05 GMT
 Content-Length: 0
-```
+````
 
 </details>
 
@@ -2040,7 +2273,7 @@ Content-Length: 0
 | --- | --- |
 | sig | HTTP/1.1 401 Unauthorized |
 | Www-Authenticate | Basic realm="Restricted" |
-| Date | Wed, 17 Jan 2024 12:26:15 GMT |
+| Date | Sun, 04 Feb 2024 18:34:05 GMT |
 | Content-Length | 0 |
 
 </details>
@@ -2122,14 +2355,14 @@ The ISC data indicates that all three IP addresses have been repeatedly reported
 * The IP address with the **most reports** was `27.93.25.111` with `17` reports.
 * The IP address with the **most targets** was `27.93.25.111` with `4` targets.
 * The **first report** was on `2023-09-16` from `93.223.169.159`.
-* The **most recent** was on `2024-02-02` from `27.93.25.111`.
+* The **most recent** was on `2024-02-05` from `93.223.169.159`.
 
 
 | IP Address | Total Reports | Targets | First Report | Last Report | Update Time |
 | --- | --- | --- | --- | --- | --- |
-| 27.93.25.111 | 17 | 4 | 2023-09-28 | 2024-02-02 | 2024-02-03 04:07:27 |
-| 111.216.194.148 | 11 | 4 | 2023-11-26 | 2024-02-02 | 2024-02-03 04:07:27 |
-| 93.223.169.159 | 11 | 2 | 2023-09-16 | 2024-02-01 | 2024-02-02 04:07:17 |
+| 27.93.25.111 | 17 | 4 | 2023-09-28 | 2024-02-04 | 2024-02-05 04:07:00 |
+| 111.216.194.148 | 11 | 4 | 2023-11-26 | 2024-02-05 | 2024-02-06 04:07:09 |
+| 93.223.169.159 | 11 | 2 | 2023-09-16 | 2024-02-05 | 2024-02-06 04:07:09 |
 
 <details>
 <summary>
@@ -2281,7 +2514,7 @@ Unique: `1`
 
 ### Whois data for: 93.223.169.159 [https://www.whois.com/whois/93.223.169.159](https://www.whois.com/whois/93.223.169.159)
 
-```
+````
 % This is the RIPE Database query service.
 % The objects are in RPSL format.
 %
@@ -2357,7 +2590,7 @@ last-modified:  2008-02-13T12:30:44Z
 source:         RIPE
 
 % This query was served by the RIPE Database Query Service version 1.109.1 (ABERDEEN)
-```
+````
 
 </details>
 
@@ -2372,7 +2605,7 @@ source:         RIPE
 
 ### Whois data for: 27.93.25.111 [https://www.whois.com/whois/27.93.25.111](https://www.whois.com/whois/27.93.25.111)
 
-```
+````
 % [whois.apnic.net]
 % Whois data copyright terms    http://www.apnic.net/db/dbcopyright.html
 
@@ -2443,7 +2676,7 @@ last-modified:  2011-03-24T18:17:04Z
 source:         JPNIC
 
 % This query was served by the APNIC Whois Service version 1.88.25 (WHOIS-US3)
-```
+````
 
 </details>
 
@@ -2458,7 +2691,7 @@ source:         JPNIC
 
 ### Whois data for: 111.216.194.148 [https://www.whois.com/whois/111.216.194.148](https://www.whois.com/whois/111.216.194.148)
 
-```
+````
 % [whois.apnic.net]
 % Whois data copyright terms    http://www.apnic.net/db/dbcopyright.html
 
@@ -2529,7 +2762,7 @@ last-modified:  2022-10-06T05:14:03Z
 source:         JPNIC
 
 % This query was served by the APNIC Whois Service version 1.88.25 (WHOIS-US3)
-```
+````
 
 </details>
 
