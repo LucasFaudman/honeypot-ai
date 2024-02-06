@@ -841,340 +841,196 @@ Starting honeypot-ai...
 
 Loading attacks from attacks directory at /Users/lucasfaudman/Documents/SANS/testenv/attacks
 Loading Attack: 10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c
-Processing Events from Parser 1 of 2: <loganalyzers.logparser.CowrieParser object at 0x10afccb90>
-Processing Events from Parser 2 of 2: <loganalyzers.logparser.ZeekParser object at 0x10ba4b010>
+Processing Events from Parser 1 of 2: <loganalyzers.logparser.ZeekParser object at 0x10a324dd0>
+Processing Events from Parser 2 of 2: <loganalyzers.logparser.CowrieParser object at 0x10a6a9990>
 Loaded Attack: 10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c
-(3->3) - Removed 0 attacks with ips ['216.243.47.166', '172.31.5.68', '54.67.87.80']
+(3->3) - Removed 0 attacks with ips ['98.159.37.5', '216.243.47.166', '172.31.5.68', '54.67.87.80']
 Attempting merge 18: 1b82ac2aca7cd9b3b1d352dbb024a1ae736579e23860b353be95f5e19d160d51 <- b9e33cd433b4c78c80e6233e829f5b57b64940e83ea8733978300becc3f5a23f by malware_urls
 Merged 0 attacks by out of 18 attempts (0.0000%) 
-Merge Attacks Time: 0.0030s
+Merge Attacks Time: 0.0046s
 (3->3) - Merged 0 attacks with shared attrs
 Regex merged 1b82ac2aca7cd9b3b1d352dbb024a1ae736579e23860b353be95f5e19d160d51 into 10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c on commands: re.compile('cd /tmp && chmod \+x [\w\d]+ && bash -c ./[\w\d]+')
 Regex merged b9e33cd433b4c78c80e6233e829f5b57b64940e83ea8733978300becc3f5a23f into 10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c on commands: re.compile('cd /tmp && chmod \+x [\w\d]+ && bash -c ./[\w\d]+')
 (3->1) - Merged 2 attacks with shared sig regexes
 Chatting about attack 10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c with OpenAI Assistant
 
-Entering Chat Mode...
-Ask the AI assistant custom questions about:
-Attack (mhash: 10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c), SourceIPs: 3, Sessions: 9, SSH: 9, Commands: 3, Cmdlogs: 4, Malware: 3 
-
-AI Interactive Chat
-Attack (mhash: 10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c), SourceIPs: 3, Sessions: 9, SSH: 9, Commands: 3, Cmdlogs: 4, Malware: 3 
-
-Current questions:
-{}
+Entering honeypot-ai Chat Mode...
+################################
+#                              #
+# honeypot-ai Interactive Chat #
+#                              #
+################################
+Ask the AI questions about: Attack (mhash: 10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c), SourceIPs: 3, Sessions: 24, SSH: 20, Commands: 3, Cmdlogs: 4, Malware: 3 
 
 Choices:
- a) Ask questions
- e) Enter a question
- u) Upload multiline question from file
- c) Clear questions
- m) Change OpenAI model. (Current model: gpt-4-1106-preview)
- p) Print attack attributes
- q) Quit and continue main
+ (1) Ask a question
+ (2) Ask a multiline question from file
+ (3) Change OpenAI model. (Current model: gpt-4-1106-preview)
+ (4) Print attack attributes
+ (q) Quit and continue main
 
-Enter choice (a, e, u, c, m, p OR q): e
-Enter question: What do we know about the ips and urls found in the malware?  
+Enter choice (1,2,3,4 OR q): 1
+Enter question: Are the source IPs associated with any other malware samples?
 Enter question key or leave empty to use 'question_1' : 
 
-AI Interactive Chat
-Attack (mhash: 10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c), SourceIPs: 3, Sessions: 9, SSH: 9, Commands: 3, Cmdlogs: 4, Malware: 3 
-
-Current questions:
-{'question_1': 'What do we know about the ips and urls found in the malware? '}
+Your Questions:
+{'question_1': 'Are the source IPs associated with any other malware samples?'}
 
 Choices:
- a) Ask questions
- e) Enter a question
- u) Upload multiline question from file
- c) Clear questions
- m) Change OpenAI model. (Current model: gpt-4-1106-preview)
- p) Print attack attributes
- q) Quit and continue main
+ (1) Send/Ask questions
+ (2) Add another question
+ (3) Clear questions
 
-Enter choice (a, e, u, c, m, p OR q): a
+Enter choice (1,2,3): 1
 
 
-Asking: What do we know about the ips and urls found in the malware? 
-Status: queued Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_tmBMj3fwLVPNhob8tg0fOxpo
+Asking: Are the source IPs associated with any other malware samples?
+Updated asst_R5O9vhLKONwNlqmmxbMYugLo: model, instructions
+Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_0yLB9uPXjQw0iwXhItk06lMJ
 Waiting 5 seconds for response
-Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_tmBMj3fwLVPNhob8tg0fOxpo
+Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_0yLB9uPXjQw0iwXhItk06lMJ
 Waiting 5 seconds for response
-Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_tmBMj3fwLVPNhob8tg0fOxpo
+Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_0yLB9uPXjQw0iwXhItk06lMJ
 Waiting 5 seconds for response
-Status: completed Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_tmBMj3fwLVPNhob8tg0fOxpo
-Run run_tmBMj3fwLVPNhob8tg0fOxpo completed
-Done asst_yJ9SbR6g98zbMTwfXQHmvrcH, thread_jvn8wwUTULdr6Oczn7NhtRXc, run_tmBMj3fwLVPNhob8tg0fOxpo
+Status: requires_action Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_0yLB9uPXjQw0iwXhItk06lMJ
 
- Done with: What do we know about the ips and urls found in the malware? 
-Answer: Based on the analysis conducted earlier, here's what we know about the IPs and URLs found in the malware:
+AI called tool: query_ip_data
+with args: {'ips': ['93.223.169.159'], 'sources': ['cybergordon']}
+Using saved cybergordon data ip for 93.223.169.159
 
-### Malware-Related IPs and URLs:
-- No specific URLs were associated with the malware based on the analysed attributes.
-- The malware was downloaded during sessions initiated from the following source IPs:
-  - `93.223.169.159`
-  - `27.93.25.111`
-  - `111.216.194.148`
-  
-### Analysis of Malware-related IPs:
-- The three source IPs have been linked to malicious activities across various OSINT sources. They were reported for suspicious behaviors such as SSH brute force attacks and potential involvement in coordinated botnet activities.
-- There have been reports and listings on blocklists and threat intelligence feeds such as AbuseIPDB, Shodan, ISC, CyberGordon, and others, indicating a history of malicious conduct.
-- The IPs are associated with internet service providers in Germany and Japan and exhibited patterns that suggest they are part of an attack infrastructure.
+Submitting tool output: {'93.223.169.159': {'cybergordon': {'[E34] IPdata.co': 'Geo: Frankfurt am Main, Hessen, Germany. Network: AS3320, Deutsche Telekom Ag, business. Security risk(s): malicious/attacker activity, abuse/bot activity. Blocklist(s): Charles Haley, DataPlane.org, James Brine, Scriptz Team. ', '[E11] DShield/ISC': 'Found in 11 report(s) listing 2 target(s), last on 5 Feb 2024 ', '[E2] AbuseIPDB': 'Hostname(s): p5ddfa99f.dip0.t-ipconnect.de. ISP: Deutsche Telekom AG. Usage: None. Risk 100%. 502 report(s) by 216 user(s), last on 06 February 2024  ', '[E26] MetaDefender': 'Found in 3 sources: webroot.com (high risk), dataplane.org (bruteforce, scanner), blocklist.de (scanner) ', '[E33] GreyNoise': 'Last report on 06 February 2024 as malicious and scanning the Internet in the last 3 months. ', '[E24] BlackList DE': 'Found in 28 attack(s) and 22 report(s) ', '[E17] Pulsedive': 'Risk: none. Last seen on 1 Feb 2024. Found in threat list(s): SSH Brute Force. Found in feed list(s): Blocklist.de Blocklist, Dictionary SSH Attacks, Brute Force Hosts. ', '[E12] AlienVault OTX': 'Found in 6 pulse-feed(s) '}}}
 
-### The Absence of URLs in the Malware:
-- The data obtained did not reveal any URLs embedded within the malware itself. Therefore, there are no indicators that would point towards a specific domain or web infrastructure used for command and control or further distribution of the malware.
+AI called tool: query_ip_data
+with args: {'ips': ['27.93.25.111'], 'sources': ['cybergordon']}
+Using saved cybergordon data ip for 27.93.25.111
 
-In conclusion, while there is substantive data regarding the nature and potential origins of the attacking IP addresses, there is no information within the provided malware sample related to URLs, which might correspond to command and control servers, download sites for additional payloads, or other malicious online infrastructure.
+Submitting tool output: {'27.93.25.111': {'cybergordon': {'[E33] GreyNoise': 'Last report on 06 February 2024 as malicious and scanning the Internet in the last 3 months. ', '[E34] IPdata.co': 'Geo: Hiroshima, Hirosima (Hiroshima), Japan. Network: AS2516, KDDI Corporation, business. Security risk(s): malicious/attacker activity, abuse/bot activity. Blocklist(s): Anti-attacks.com, Charles Haley, DataPlane.org, Interserver.net, James Brine. ', '[E26] MetaDefender': 'Found in 3 sources: webroot.com (high risk), dataplane.org (bruteforce, scanner), blocklist.de (scanner) ', '[E11] DShield/ISC': 'Found in 17 report(s) listing 4 target(s), last on 4 Feb 2024 ', '[E24] BlackList DE': 'Found in 64 attack(s) and 29 report(s) ', '[E2] AbuseIPDB': 'Hostname(s): KD027093025111.ppp-bb.dion.ne.jp. ISP: KDDI Corporation. Usage: None. Risk 100%. 1053 report(s) by 376 user(s), last on 06 February 2024  ', '[E17] Pulsedive': 'Risk: none. Last seen on 1 Feb 2024. Found in threat list(s): SSH Brute Force. Found in feed list(s): Blocklist.de Blocklist, Dictionary SSH Attacks, Brute Force Hosts. Opened service(s): HTTP, SSH. ', '[E12] AlienVault OTX': 'Found in 16 pulse-feed(s) ', '[E23] Offline Feeds': 'Found in Duggy Tuxy - EU Botnets/Zombies/Scanners '}}}
 
-AI Interactive Chat
-Attack (mhash: 10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c), SourceIPs: 3, Sessions: 9, SSH: 9, Commands: 3, Cmdlogs: 4, Malware: 3 
+AI called tool: query_ip_data
+with args: {'ips': ['111.216.194.148'], 'sources': ['cybergordon']}
+Using saved cybergordon data ip for 111.216.194.148
 
-Current questions:
-{}
+Submitting tool output: {'111.216.194.148': {'cybergordon': {'[E26] MetaDefender': 'Found in 3 sources: webroot.com (high risk), dataplane.org (bruteforce, scanner), blocklist.de (scanner) ', '[E34] IPdata.co': 'Geo: Yokohama, Kanagawa, Japan. Network: AS2527, Sony Network Communications Inc, business. Security risk(s): malicious/attacker activity, abuse/bot activity. Blocklist(s): Anti-attacks.com, DataPlane.org, James Brine. ', '[E2] AbuseIPDB': 'Hostname(s): fp6fd8c294.ap.nuro.jp. ISP: Sony Network Communications Inc.. Usage: None. Risk 100%. 460 report(s) by 210 user(s), last on 06 February 2024  ', '[E11] DShield/ISC': 'Found in 11 report(s) listing 4 target(s), last on 5 Feb 2024 ', '[E24] BlackList DE': 'Found in 28 attack(s) and 17 report(s) ', '[E33] GreyNoise': 'Last report on 05 February 2024 as malicious and scanning the Internet in the last 3 months. ', '[E17] Pulsedive': 'Risk: low. Last seen on 2 Feb 2024. Found in feed list(s): Blocklist.de Blocklist, Brute Force Hosts. Opened service(s): HTTPS, NETBIOS, RDP, SSH. ', '[E23] Offline Feeds': 'Found in Duggy Tuxy - EU Botnets/Zombies/Scanners ', '[E12] AlienVault OTX': 'Found in 7 pulse-feed(s) '}}}
+Status: queued Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_0yLB9uPXjQw0iwXhItk06lMJ
+Waiting 5 seconds for response
+Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_0yLB9uPXjQw0iwXhItk06lMJ
+Waiting 5 seconds for response
+Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_0yLB9uPXjQw0iwXhItk06lMJ
+Waiting 5 seconds for response
+Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_0yLB9uPXjQw0iwXhItk06lMJ
+Waiting 5 seconds for response
+Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_0yLB9uPXjQw0iwXhItk06lMJ
+Waiting 5 seconds for response
+Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_0yLB9uPXjQw0iwXhItk06lMJ
+Waiting 5 seconds for response
+Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_0yLB9uPXjQw0iwXhItk06lMJ
+Waiting 5 seconds for response
+Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_0yLB9uPXjQw0iwXhItk06lMJ
+Waiting 5 seconds for response
+Status: completed Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_0yLB9uPXjQw0iwXhItk06lMJ
+Run run_0yLB9uPXjQw0iwXhItk06lMJ completed
+Done asst_R5O9vhLKONwNlqmmxbMYugLo, thread_jvn8wwUTULdr6Oczn7NhtRXc, run_0yLB9uPXjQw0iwXhItk06lMJ
+
+ Done with: Are the source IPs associated with any other malware samples?
+Answer: The CyberGordon data does not explicitly link the source IPs to any other specific malware samples by naming them. However, these IPs have been associated with several indicators of malicious activities, including:
+
+### IP: 93.223.169.159
+- Identified as a point of origin for malicious/attacker activity and abuse/bot activity.
+- Listed on multiple blocklists, including those by Charles Haley, DataPlane.org, James Brine, and Scriptz Team.
+- Found in 28 attacks and has 22 reports on BlackList DE.
+- Recognized for SSH brute force activity on Pulsedive.
+- Recorded in 502 reports by 216 users on AbuseIPDB.
+
+### IP: 27.93.25.111
+- Reported in 64 attacks and has 29 reports on BlackList DE.
+- Categorized as part of EU Botnets/Zombies/Scanners in offline feeds.
+- High-risk status on webroot.com and blocklists such as Anti-attacks.com and Charles Haley.
+- Recorded in 1053 reports by 376 users on AbuseIPDB.
+
+### IP: 111.216.194.148
+- Found in 28 attacks and has 17 reports on BlackList DE.
+- Part of EU Botnets/Zombies/Scanners as mentioned in offline feeds.
+- High-risk status on webroot.com and listed on blocklists such as Anti-attacks.com and James Brine.
+- Recorded in 460 reports by 210 users on AbuseIPDB.
+
+While there is no direct evidence linking these IPs to other specific malware samples, their widespread association with malicious activity and various security incidents suggests they are part of broader attack campaigns and could be part of the infrastructure used to launch attacks and manage malware operations. It is not uncommon for such IPs to be multipurposed across different types of malware and various attack strategies.
+################################
+#                              #
+# honeypot-ai Interactive Chat #
+#                              #
+################################
+Ask the AI questions about: Attack (mhash: 10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c), SourceIPs: 3, Sessions: 24, SSH: 20, Commands: 3, Cmdlogs: 4, Malware: 3 
 
 Choices:
- a) Ask questions
- e) Enter a question
- u) Upload multiline question from file
- c) Clear questions
- m) Change OpenAI model. (Current model: gpt-4-1106-preview)
- p) Print attack attributes
- q) Quit and continue main
+ (1) Ask a question
+ (2) Ask a multiline question from file
+ (3) Change OpenAI model. (Current model: gpt-4-1106-preview)
+ (4) Print attack attributes
+ (q) Quit and continue main
 
-Enter choice (a, e, u, c, m, p OR q): e
-Enter question: What about hosts found in the malware source code? 
+Enter choice (1,2,3,4 OR q): 1
+Enter question: what is zmap used for in the malware?
 Enter question key or leave empty to use 'question_2' : 
 
-AI Interactive Chat
-Attack (mhash: 10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c), SourceIPs: 3, Sessions: 9, SSH: 9, Commands: 3, Cmdlogs: 4, Malware: 3 
-
-Current questions:
-{'question_2': 'What about hosts found in the malware source code?'}
+Your Questions:
+{'question_2': 'what is zmap used for in the malware?'}
 
 Choices:
- a) Ask questions
- e) Enter a question
- u) Upload multiline question from file
- c) Clear questions
- m) Change OpenAI model. (Current model: gpt-4-1106-preview)
- p) Print attack attributes
- q) Quit and continue main
+ (1) Send/Ask questions
+ (2) Add another question
+ (3) Clear questions
 
-Enter choice (a, e, u, c, m, p OR q): a
+Enter choice (1,2,3): 1
 
 
-Asking: What about hosts found in the malware source code?
-Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_Z4eTFCkmcc4LPSM8Qg2j57eI
+Asking: what is zmap used for in the malware?
+Updated asst_R5O9vhLKONwNlqmmxbMYugLo: model, instructions
+Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_ma5kmSMBQKEhpCXtOk3ZlSu8
 Waiting 5 seconds for response
-Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_Z4eTFCkmcc4LPSM8Qg2j57eI
+Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_ma5kmSMBQKEhpCXtOk3ZlSu8
 Waiting 5 seconds for response
-Status: requires_action Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_Z4eTFCkmcc4LPSM8Qg2j57eI
-
-AI called tool: get_malware_attrs
-with args: {'malware_id': '10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c', 'attrs': ['hosts']}
-
-Submitting tool output: {'hosts': {}}
-Status: queued Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_Z4eTFCkmcc4LPSM8Qg2j57eI
+Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_ma5kmSMBQKEhpCXtOk3ZlSu8
 Waiting 5 seconds for response
-Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_Z4eTFCkmcc4LPSM8Qg2j57eI
+Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_ma5kmSMBQKEhpCXtOk3ZlSu8
 Waiting 5 seconds for response
-Status: completed Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_Z4eTFCkmcc4LPSM8Qg2j57eI
-Run run_Z4eTFCkmcc4LPSM8Qg2j57eI completed
-Done asst_yJ9SbR6g98zbMTwfXQHmvrcH, thread_jvn8wwUTULdr6Oczn7NhtRXc, run_Z4eTFCkmcc4LPSM8Qg2j57eI
+Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_ma5kmSMBQKEhpCXtOk3ZlSu8
+Waiting 5 seconds for response
+Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_ma5kmSMBQKEhpCXtOk3ZlSu8
+Waiting 5 seconds for response
+Status: completed Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_ma5kmSMBQKEhpCXtOk3ZlSu8
+Run run_ma5kmSMBQKEhpCXtOk3ZlSu8 completed
+Done asst_R5O9vhLKONwNlqmmxbMYugLo, thread_jvn8wwUTULdr6Oczn7NhtRXc, run_ma5kmSMBQKEhpCXtOk3ZlSu8
 
- Done with: What about hosts found in the malware source code?
-Answer: The malware sample analyzed did not contain any embedded hosts within its source code. Therefore, there were no specific hostnames or domain names extracted from the malware that could provide additional context or leads on the network infrastructure used for command and control or further malware distribution. This lack of embedded hosts might suggest that the malware relies on other means to communicate with its operators or to spread, such as hard-coded IP addresses, external configuration files, or a decentralized approach like a peer-to-peer network.
+ Done with: what is zmap used for in the malware?
+Answer: In the malware, `zmap` is used as a fast network scanning tool specifically to identify and catalog hosts on the internet that have port 22 open, which is typically used for SSH (Secure Shell) services. The snippets of code in the malware that pertain to `zmap` use indicate the following actions:
 
-AI Interactive Chat
-Attack (mhash: 10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c), SourceIPs: 3, Sessions: 9, SSH: 9, Commands: 3, Cmdlogs: 4, Malware: 3 
+1. Scans port 22 at a vast scale to find potential SSH servers: `zmap -p 22 (...)`
 
-Current questions:
-{}
+2. Outputs the results to a file: `zmap -p 22 -o $FILE -n 100000`
+
+3. Uses the list of IPs found to attempt to replicate itself onto these new targets using `sshpass` to provide the password non-interactively and `scp` to copy the malware file: `sshpass -praspberry scp (...) && sshpass -praspberry ssh (...)`
+
+4. Executes the malware on any newly compromised machines in hopes of further propagating the infection: `cd /tmp && chmod +x $NAME && bash -c ./$NAME`
+
+The use of `zmap` in the malware is indicative of the attacker's intent to conduct a widespread search for vulnerable systems that can be compromised through SSH brute force attacks. By scanning for open SSH ports, the malware creator is aiming for lateral movement across the internet to spread the infection to as many devices as possible, potentially enlarging a botnet or creating a large pool of compromised systems for various malicious purposes.
+################################
+#                              #
+# honeypot-ai Interactive Chat #
+#                              #
+################################
+Ask the AI questions about: Attack (mhash: 10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c), SourceIPs: 3, Sessions: 24, SSH: 20, Commands: 3, Cmdlogs: 4, Malware: 3 
 
 Choices:
- a) Ask questions
- e) Enter a question
- u) Upload multiline question from file
- c) Clear questions
- m) Change OpenAI model. (Current model: gpt-4-1106-preview)
- p) Print attack attributes
- q) Quit and continue main
+ (1) Ask a question
+ (2) Ask a multiline question from file
+ (3) Change OpenAI model. (Current model: gpt-4-1106-preview)
+ (4) Print attack attributes
+ (q) Quit and continue main
 
-Enter choice (a, e, u, c, m, p OR q): e
-Enter question: look at the source code to be sure
-Enter question key or leave empty to use 'question_3' : 
-
-AI Interactive Chat
-Attack (mhash: 10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c), SourceIPs: 3, Sessions: 9, SSH: 9, Commands: 3, Cmdlogs: 4, Malware: 3 
-
-Current questions:
-{'question_3': 'look at the source code to be sure'}
-
-Choices:
- a) Ask questions
- e) Enter a question
- u) Upload multiline question from file
- c) Clear questions
- m) Change OpenAI model. (Current model: gpt-4-1106-preview)
- p) Print attack attributes
- q) Quit and continue main
-
-Enter choice (a, e, u, c, m, p OR q): a
-
-
-Asking: look at the source code to be sure
-Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_b026ZYVrywAWc1QDEqs8XhlJ
-Waiting 5 seconds for response
-Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_b026ZYVrywAWc1QDEqs8XhlJ
-Waiting 5 seconds for response
-Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_b026ZYVrywAWc1QDEqs8XhlJ
-Waiting 5 seconds for response
-Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_b026ZYVrywAWc1QDEqs8XhlJ
-Waiting 5 seconds for response
-Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_b026ZYVrywAWc1QDEqs8XhlJ
-Waiting 5 seconds for response
-Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_b026ZYVrywAWc1QDEqs8XhlJ
-Waiting 5 seconds for response
-Status: completed Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_b026ZYVrywAWc1QDEqs8XhlJ
-Run run_b026ZYVrywAWc1QDEqs8XhlJ completed
-Done asst_yJ9SbR6g98zbMTwfXQHmvrcH, thread_jvn8wwUTULdr6Oczn7NhtRXc, run_b026ZYVrywAWc1QDEqs8XhlJ
-
- Done with: look at the source code to be sure
-Answer: Certainly! Let's take a closer look at the text from the malware source code to examine if there are any hosts or domain names present.
-
-From the earlier provided snippet of the malware source code, I noticed that there were entries related to modifying the `/etc/hosts` file and several hardcoded server addresses within an IRC botnet setup. The specific line from the source code is as follows:
-
-```bash
-echo "127.0.0.1 bins.deutschland-zahlung.eu" >> /etc/hosts
-```
-
-- The domain `bins.deutschland-zahlung.eu` was being redirected to the localhost address (`127.0.0.1`), which is often a technique used to block the domain by preventing the system from reaching the actual host associated with it.
-
-As for the IRC servers, the malware code includes an array of hardcoded IRC server addresses which were part of a botnet functionality:
-
-```bash
-    arr[0]="ix1.undernet.org"
-    arr[1]="ix2.undernet.org"
-    arr[2]="Ashburn.Va.Us.UnderNet.org"
-    arr[3]="Bucharest.RO.EU.Undernet.Org"
-    arr[4]="Budapest.HU.EU.UnderNet.org"
-    arr[5]="Chicago.IL.US.Undernet.org"
-```
-
-These entries are used by the botnet component of the malware to connect to these servers for command and control communication. The inclusion of multiple server addresses likely serves as a redundancy mechanism to maintain connectivity to the C2 infrastructure even if one or more servers are unavailable.
-
-Both the redirection of the domain `bins.deutschland-zahlung.eu` to the loopback address and the hardcoded Undernet IRC server hostnames are critical in understanding the behavior and potential infrastructure of the malware.
-
-AI Interactive Chat
-Attack (mhash: 10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c), SourceIPs: 3, Sessions: 9, SSH: 9, Commands: 3, Cmdlogs: 4, Malware: 3 
-
-Current questions:
-{}
-
-Choices:
- a) Ask questions
- e) Enter a question
- u) Upload multiline question from file
- c) Clear questions
- m) Change OpenAI model. (Current model: gpt-4-1106-preview)
- p) Print attack attributes
- q) Quit and continue main
-
-Enter choice (a, e, u, c, m, p OR q): e
-Enter question: what do OSINT sources show about the C2 servers?
-Enter question key or leave empty to use 'question_4' : 
-
-AI Interactive Chat
-Attack (mhash: 10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c), SourceIPs: 3, Sessions: 9, SSH: 9, Commands: 3, Cmdlogs: 4, Malware: 3 
-
-Current questions:
-{'question_4': 'what do OSINT sources show about the C2 servers?'}
-
-Choices:
- a) Ask questions
- e) Enter a question
- u) Upload multiline question from file
- c) Clear questions
- m) Change OpenAI model. (Current model: gpt-4-1106-preview)
- p) Print attack attributes
- q) Quit and continue main
-
-Enter choice (a, e, u, c, m, p OR q): a
-
-
-Asking: what do OSINT sources show about the C2 servers?
-Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_aB5ce7XNanjB7EH4ono09N1m
-Waiting 5 seconds for response
-Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_aB5ce7XNanjB7EH4ono09N1m
-Waiting 5 seconds for response
-Status: requires_action Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_aB5ce7XNanjB7EH4ono09N1m
-
-AI called tool: query_ioc_data
-with args: {'ioc_type': 'domain', 'iocs': ['bins.deutschland-zahlung.eu'], 'sources': ['threatfox', 'urlhaus']}
-Getting data for bins.deutschland-zahlung.eu from threatfox
-Getting data for bins.deutschland-zahlung.eu from urlhaus
-
-Submitting tool output: {'bins.deutschland-zahlung.eu': {'threatfox': '', 'urlhaus': ''}}
-
-AI called tool: query_ioc_data
-with args: {'ioc_type': 'domain', 'iocs': ['ix1.undernet.org', 'ix2.undernet.org', 'Ashburn.Va.Us.UnderNet.org', 'Bucharest.RO.EU.Undernet.Org', 'Budapest.HU.EU.UnderNet.org', 'Chicago.IL.US.Undernet.org'], 'sources': ['threatfox', 'urlhaus']}
-Getting data for ix1.undernet.org from threatfox
-Getting data for ix1.undernet.org from urlhaus
-Getting data for ix2.undernet.org from threatfox
-Getting data for ix2.undernet.org from urlhaus
-Getting data for Ashburn.Va.Us.UnderNet.org from threatfox
-Getting data for Ashburn.Va.Us.UnderNet.org from urlhaus
-Getting data for Bucharest.RO.EU.Undernet.Org from threatfox
-Getting data for Bucharest.RO.EU.Undernet.Org from urlhaus
-Getting data for Budapest.HU.EU.UnderNet.org from threatfox
-Getting data for Budapest.HU.EU.UnderNet.org from urlhaus
-Getting data for Chicago.IL.US.Undernet.org from threatfox
-Getting data for Chicago.IL.US.Undernet.org from urlhaus
-
-Submitting tool output: {'ix1.undernet.org': {'threatfox': '', 'urlhaus': ''}, 'ix2.undernet.org': {'threatfox': '', 'urlhaus': ''}, 'Ashburn.Va.Us.UnderNet.org': {'threatfox': '', 'urlhaus': ''}, 'Bucharest.RO.EU.Undernet.Org': {'threatfox': '', 'urlhaus': ''}, 'Budapest.HU.EU.UnderNet.org': {'threatfox': '', 'urlhaus': ''}, 'Chicago.IL.US.Undernet.org': {'threatfox': '', 'urlhaus': ''}}
-Status: queued Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_aB5ce7XNanjB7EH4ono09N1m
-Waiting 5 seconds for response
-Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_aB5ce7XNanjB7EH4ono09N1m
-Waiting 5 seconds for response
-Status: in_progress Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_aB5ce7XNanjB7EH4ono09N1m
-Waiting 5 seconds for response
-Status: completed Thread id: thread_jvn8wwUTULdr6Oczn7NhtRXc, run_id: run_aB5ce7XNanjB7EH4ono09N1m
-Run run_aB5ce7XNanjB7EH4ono09N1m completed
-Done asst_yJ9SbR6g98zbMTwfXQHmvrcH, thread_jvn8wwUTULdr6Oczn7NhtRXc, run_aB5ce7XNanjB7EH4ono09N1m
-
- Done with: what do OSINT sources show about the C2 servers?
-Answer: The OSINT sources queried, ThreatFox and URLhaus, did not return any data for the domain `bins.deutschland-zahlung.eu` or the IRC server hostnames:
-
-- `ix1.undernet.org`
-- `ix2.undernet.org`
-- `Ashburn.Va.Us.UnderNet.org`
-- `Bucharest.RO.EU.Undernet.Org`
-- `Budapest.HU.EU.UnderNet.org`
-- `Chicago.IL.US.Undernet.org`
-
-This lack of information suggests that either these domains are not recognized as part of any known threat intelligence feeds in ThreatFox and URLhaus, or they have not been reported or cataloged in relation to malicious activities in these databases.
-
-It could be that the domain `bins.deutschland-zahlung.eu` is an internal indicator within the attacker's infrastructure or part of a less widespread campaign that hasn't been broadly detected. The Undernet IRC servers are legitimate servers likely used by the malware for command and control; their legitimate nature may explain the lack of listings in threat intelligence feeds that typically focus on malicious domains.
-
-AI Interactive Chat
-Attack (mhash: 10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c), SourceIPs: 3, Sessions: 9, SSH: 9, Commands: 3, Cmdlogs: 4, Malware: 3 
-
-Current questions:
-{}
-
-Choices:
- a) Ask questions
- e) Enter a question
- u) Upload multiline question from file
- c) Clear questions
- m) Change OpenAI model. (Current model: gpt-4-1106-preview)
- p) Print attack attributes
- q) Quit and continue main
-
-Enter choice (a, e, u, c, m, p OR q): q                              
+Enter choice (1,2,3,4 OR q): q
 Finished chatting about attack 10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c with OpenAI Assistant
-Writing chat markdown run steps for attack 10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c to /Users/lucasfaudman/Documents/SANS/testenv/attacks/10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c/ai-chat/question_1-question_4run-steps.md
-Finished writing chat markdown run steps for attack 10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c to /Users/lucasfaudman/Documents/SANS/testenv/attacks/10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c/ai-chat/question_1-question_4run-steps.md
+Writing chat markdown run steps for attack 10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c to /Users/lucasfaudman/Documents/SANS/testenv/attacks/10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c/ai-chat/question_1-question_2run-steps.md
+Finished writing chat markdown run steps for attack 10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c to /Users/lucasfaudman/Documents/SANS/testenv/attacks/10f8f2573cbb3954d3c0908af9e53daca56ab6db7c5239f92c7cf917549dea6c/ai-chat/question_1-question_2run-steps.md
 Honeypot AI Finished Successfully!
 ````
 
@@ -1259,9 +1115,9 @@ No attack loading method specified. Use (-lfl/--load-from-logs) OR (-lfa/--load-
 ### All Command Line Arguments
 
 ````bash
-usage: main.py [-h] [--list-attacks] [--print-attrs ATTACK_ATTRS [ATTACK_ATTRS ...]] [--organize-attacks] [--analyze-attacks] [--chat] [--write-reports] [--export-reports] [--interactive] [--config FILE] [--update-config]
-               [--load-from-logs] [--load-from-attacks-dir] [--only-attacks ATTACK_IDS [ATTACK_IDS ...]] [--skip-attacks ATTACK_IDS [ATTACK_IDS ...]] [--max-ips-per-attack MAX_IPS_PER_ATTACK] [--max-attacks MAX_ATTACKS]
-               [--sort-attrs SORT_ATTRS [SORT_ATTRS ...]] [--sort-order SORT_ORDER] [--load-attacks-max-workers LOAD_ATTACKS_MAX_WORKERS] [--log-types LOG_TYPES [LOG_TYPES ...]]
+usage: main.py [-h] [--list-attacks] [--print-attrs ATTACK_ATTRS [ATTACK_ATTRS ...]] [--organize-attacks] [--analyze-attacks] [--chat] [--write-reports] [--export-reports] [--interactive] [--config FILE]
+               [--update-config] [--load-from-logs] [--load-from-attacks-dir] [--only-attacks ATTACK_IDS [ATTACK_IDS ...]] [--skip-attacks ATTACK_IDS [ATTACK_IDS ...]] [--max-ips-per-attack MAX_IPS_PER_ATTACK]
+               [--max-attacks MAX_ATTACKS] [--sort-attrs SORT_ATTRS [SORT_ATTRS ...]] [--sort-order SORT_ORDER] [--load-attacks-max-workers LOAD_ATTACKS_MAX_WORKERS] [--log-types LOG_TYPES [LOG_TYPES ...]]
                [--zeek-log-types ZEEK_LOG_TYPES [ZEEK_LOG_TYPES ...]] [--zeek-log-ext ZEEK_LOG_EXT] [--zeek-keep-empty-fields | --no-zeek-keep-empty-fields] [--zeek-keep-unset-fields | --no-zeek-keep-unset-fields]
                [--attack-min-commands ATTACK_MIN_COMMANDS] [--attack-min-malware ATTACK_MIN_MALWARE] [--attack-min-successful-logins ATTACK_MIN_SUCCESSFUL_LOGINS] [--attack-min-http-requests ATTACK_MIN_HTTP_REQUESTS]
                [--attack-http-uri-regexes ATTACK_HTTP_URI_REGEXES [ATTACK_HTTP_URI_REGEXES ...]] [--attack-http-anywhere-regexes ATTACK_HTTP_ANYWHERE_REGEXES [ATTACK_HTTP_ANYWHERE_REGEXES ...]]
@@ -1276,10 +1132,10 @@ usage: main.py [-h] [--list-attacks] [--print-attrs ATTACK_ATTRS [ATTACK_ATTRS .
                [--ipanalyzer-max-errors IPANALYZER_MAX_ERRORS] [--webdriver-path WEBDRIVER_PATH] [--webdriver-type WEBDRIVER_TYPE]
                [--use-malwareanalyzer | --no-use-malwareanalyzer | --malwareanalyzer | --no-malwareanalyzer] [--malwareanalyzer-sources MALWAREANALYZER_SOURCES [MALWAREANALYZER_SOURCES ...]]
                [--malwareanalyzer-max-errors MALWAREANALYZER_MAX_ERRORS] [--malwareanalyzer-allow-downloads | --no-malwareanalyzer-allow-downloads] [--user-ips USER_IPS [USER_IPS ...]]
-               [--honeypot-external-ips HONEYPOT_EXTERNAL_IPS [HONEYPOT_EXTERNAL_IPS ...]] [--honeypot-internal-ips HONEYPOT_INTERNAL_IPS [HONEYPOT_INTERNAL_IPS ...]] [--honeypot-ports HONEYPOT_PORTS [HONEYPOT_PORTS ...]]
-               [--honeypot-software HONEYPOT_SOFTWARE [HONEYPOT_SOFTWARE ...]] [--logs-path LOGS_PATH] [--cowrie-logs-path COWRIE_LOGS_PATH] [--firewall-logs-path FIREWALL_LOGS_PATH] [--web-logs-path WEB_LOGS_PATH]
-               [--zeek-logs-path ZEEK_LOGS_PATH] [--malware-downloads-path MALWARE_DOWNLOADS_PATH] [--auth-random-path AUTH_RANDOM_PATH] [--resources-path RESOURCES_PATH] [--attacks-path ATTACKS_PATH] [--db-path DB_PATH]
-               [--ipdb-path IPDB_PATH] [--mwdb-path MWDB_PATH] [--aidb-path AIDB_PATH] [--reports-path REPORTS_PATH]
+               [--honeypot-external-ips HONEYPOT_EXTERNAL_IPS [HONEYPOT_EXTERNAL_IPS ...]] [--honeypot-internal-ips HONEYPOT_INTERNAL_IPS [HONEYPOT_INTERNAL_IPS ...]]
+               [--honeypot-ports HONEYPOT_PORTS [HONEYPOT_PORTS ...]] [--honeypot-software HONEYPOT_SOFTWARE [HONEYPOT_SOFTWARE ...]] [--logs-path LOGS_PATH] [--cowrie-logs-path COWRIE_LOGS_PATH]
+               [--firewall-logs-path FIREWALL_LOGS_PATH] [--web-logs-path WEB_LOGS_PATH] [--zeek-logs-path ZEEK_LOGS_PATH] [--malware-downloads-path MALWARE_DOWNLOADS_PATH] [--auth-random-path AUTH_RANDOM_PATH]
+               [--resources-path RESOURCES_PATH] [--attacks-path ATTACKS_PATH] [--db-path DB_PATH] [--ipdb-path IPDB_PATH] [--mwdb-path MWDB_PATH] [--aidb-path AIDB_PATH] [--reports-path REPORTS_PATH]
 
 honeypot-ai: Honeypot Log Analyzer Built on OpenAI
 
@@ -1340,7 +1196,7 @@ Log Types:
   --log-types LOG_TYPES [LOG_TYPES ...]
                         Log types to process (default: ['cowrie', 'zeek'])
   --zeek-log-types ZEEK_LOG_TYPES [ZEEK_LOG_TYPES ...]
-                        Zeek log types to process (default: ['http', 'conn'])
+                        Zeek log types to process (default: ['http'])
   --zeek-log-ext ZEEK_LOG_EXT
                         Zeek log file extension (default: .log)
   --zeek-keep-empty-fields, --no-zeek-keep-empty-fields
@@ -1462,8 +1318,8 @@ User and Honeypot Environment Settings:
   --honeypot-software HONEYPOT_SOFTWARE [HONEYPOT_SOFTWARE ...]
                         Version strings of the software running on each open port of the honeypot system(s) to inform AI for more accurate analysis. (default: ['Cowrie SSH server running OpenSSH 6.0p1 Debian 4+deb7u2
                         (protocol 2.0)', 'Cowrie Telnet server', 'Web server running Apache httpd 3.2.3 and WordPress 5.6.7', 'Cowrie SSH server running OpenSSH 6.0p1 Debian 4+deb7u2 (protocol 2.0)', 'Cowrie Telnet
-                        server', 'Cowrie Telnet server', 'Web server running Apache httpd 3.2.3 and WordPress 5.6.7', 'Web server running Apache httpd 3.2.3 and WordPress 5.6.7', 'Web server running Apache httpd 3.2.3 and
-                        WordPress 5.6.7', 'Web server running Apache httpd 3.2.3 and WordPress 5.6.7', 'Web server running Apache httpd 3.2.3 and WordPress 5.6.7'])
+                        server', 'Cowrie Telnet server', 'Web server running Apache httpd 3.2.3 and WordPress 5.6.7', 'Web server running Apache httpd 3.2.3 and WordPress 5.6.7', 'Web server running Apache httpd 3.2.3
+                        and WordPress 5.6.7', 'Web server running Apache httpd 3.2.3 and WordPress 5.6.7', 'Web server running Apache httpd 3.2.3 and WordPress 5.6.7'])
 
 Input Paths:
   Paths to input logs and files
@@ -1521,7 +1377,7 @@ Output Paths:
  'SORT_ORDER': 'desc',
  'LOAD_ATTACKS_MAX_WORKERS': 2,
  'LOG_TYPES': ['cowrie', 'zeek'],
- 'ZEEK_LOG_TYPES': ['http', 'conn'],
+ 'ZEEK_LOG_TYPES': ['http'],
  'ZEEK_LOG_EXT': '.log',
  'ZEEK_KEEP_EMPTY_FIELDS': True,
  'ZEEK_KEEP_UNSET_FIELDS': False,
