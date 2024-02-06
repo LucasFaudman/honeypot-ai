@@ -158,7 +158,7 @@ if [ "$SELENIUM" == "y" ]; then
 else
     printf "\nSkipping download of Chromedriver.\n"
     printf "\nSetting USE_IPANALYZER to False in config.json. Edit config.json or use --ip-analyzer -u to change this.\n"
-    IP_ANALYZER_ARG="--no-ip-analyzer"
+    IP_ANALYZER_ARG="--no-ipanalyzer"
 fi
 
 printf "\nRunning main.py to setup config.json. (Ignore no loading method warning)\n"
