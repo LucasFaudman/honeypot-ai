@@ -151,7 +151,7 @@ printf "\n"
 read -p "Would you like to use download Chomedriver to use with Selenium? (y/n): " SELENIUM
 [ -z "$SELENIUM" ] && SELENIUM=y
 if [ "$SELENIUM" == "y" ]; then
-    python3 "$HONEYPOT_AI_PATH/setup/getchromedriver.py" "$RESOURCES_PATH"
+    python3 "$HONEYPOT_AI_PATH/setup/getchromedriver.py" "$RESOURCES_PATH" --skip-headless
     unzip "$RESOURCES_PATH"/*.zip -d "$RESOURCES_PATH"
     CHROMEDRIVER_PATH=$(find "$RESOURCES_PATH" -type f -name 'chromedriver' -print -quit)
 else
