@@ -5,6 +5,7 @@ from hashlib import sha256
 from io import StringIO
 from urllib.parse import urlparse
 
+from shutil import get_terminal_size
 import subprocess
 import shlex
 
@@ -19,9 +20,10 @@ def sha256hex(string):
 def pprint_str(*args, **kwargs):
     """Pretty Print to StringIO and return the string"""
     # Convert SetReprOrderedSet to list so pprint can handle it
-    for arg in args:
+    args = list(args)
+    for i, arg in enumerate(args):
         if isinstance(arg, (set, SetReprOrderedSet)):
-            arg = list(arg)
+            args[i] = list(arg)
 
     # pprint to StringIO and return the string
     output_buffer = StringIO()
@@ -30,10 +32,12 @@ def pprint_str(*args, **kwargs):
     return output_buffer.getvalue()
 
 
-def print_box(string, title="", fill_char="#", width=None, max_width=120):
+def print_box(string, title="", fill_char="#", width=None, max_width=None):
     """Prints string in a box"""
     if not width:
         width = len(max(string.split("\n") + [title], key=len)) + 4
+    if not max_width:
+        max_width = get_terminal_size().columns
     
     width = min(width, max_width)
     border = fill_char * width

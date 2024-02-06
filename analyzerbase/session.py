@@ -288,6 +288,15 @@ class Session(SmartAttrObject, CachedPropertyObject):
         return self.cmdlog_hosts + self.httplog_hosts + self.malware_hosts
 
 
+    def __eq__(self, other):
+        return self.session_id == other.session_id
+
+    def __gt__(self, other):
+        return self.start_time > other.start_time
+    
+    def __lt__(self, other):
+        return self.start_time < other.start_time
+
     def __str__(self) -> str:
         return ''.join([
             f"Session {self.session_id} "

@@ -490,7 +490,7 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
 
 
     def interactive_chat_about_attack(self, attack):
-        print(f"\nWelcome to honeypot-ai Chat Mode...\nAsk the AI assistant custom questions about:\n{attack}")
+        print(f"\nEntering honeypot-ai Chat Mode...")
         question_run_logs = {}
         question_to_ask = {}
 
@@ -503,9 +503,11 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
         choice = ""
         quit_strings = ("q", "quit", "exit", "exit()")
         while choice not in quit_strings:
-            msg = f"\nAI Interactive Chat\n{attack}\n"
-            msg += "\nCurrent questions:\n" 
-            msg += pprint_str(question_to_ask)
+            print_box("honeypot-ai Interactive Chat")
+            msg = f"Ask the AI questions about: {attack}\n"
+            if question_to_ask:
+                msg += "\nCurrent questions:\n" 
+                msg += pprint_str(question_to_ask)
             msg += "\nChoices:"
             msg += "\n (1) Ask a question"
             msg += "\n (2) Ask a multiline question from file"
@@ -544,23 +546,23 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
                 msg += "\n (3) Clear questions"
                 msg += "\n\nEnter choice (1,2,3): "
                 
-                choice = input(msg)
-                choice = choice.lower().strip()[0] if choice else ""
+                q_choice = input(msg)
+                q_choice = choice.lower().strip()[0] if q_choice else ""
                 
-                if choice == "1" or choice == "":
+                if q_choice == "1" or q_choice == "":
                     question_run_logs.update(self.answer_attack_questions(question_to_ask, attack, interactive_chat=True))
                     question_to_ask = {}
-                elif choice == "3":
+                elif q_choice == "3":
                     question_to_ask = {}
                     print("Questions cleared.")
                     sleep(1)
 
-            elif choice == "3":
+            elif choice == "3mM":
                 new_model = input("Enter new OpenAI model: ")
                 if new_model:
                     self.set_model(new_model)
 
-            elif choice == "4":
+            elif choice in "4pP":
                 # Get valid attack attributes to pprint
                 attrs = [attr for attr in input("Enter attack attributes to pprint: ").split() if hasattr(attack, attr)]
                 attack.print_attrs(*attrs)

@@ -15,8 +15,8 @@
 - `15` unique source ports were used: `60702`, `47114`, `47118`, `49808`, `46966`, `46970`, `47004`, `50916`, `52094`, `52102`, `52146`, `49512`, `52912`, `52922`, `52964`
 - `3` commands were input in total. `0` IP(s) and `0` URL(s) were found in the commands
 - `3` unique malware samples were downloaded. `0` IP(s) and `0` URL(s) were found in the malware samples
-- This attacks was recorded in `4` log types: `cowrie.log`, `cowrie.json`, `dshield.log`, `zeek.log`
-- A total of `226` log events were logged in `7` log files: `cowrie.2024-01-26.json`, `cowrie.2024-01-28.log`, `cowrie.2024-01-26.log`, `cowrie.2024-01-28.json`, `dshield.log`, `conn.log`, `ssh.log`
+- This attacks was recorded in `3` log types: `cowrie.log`, `cowrie.json`, `zeek.log`
+- A total of `218` log events were logged in `6` log files: `cowrie.2024-01-26.json`, `cowrie.2024-01-28.log`, `cowrie.2024-01-26.log`, `cowrie.2024-01-28.json`, `conn.log`, `ssh.log`
 
 </details>
 
@@ -107,18 +107,16 @@ The attackers demonstrated a clear intent to gain control of systems for malicio
 - `3` commands were input in total. `0` IP(s) and `0` URL(s) were found in the commands
 - `3` unique malware samples were downloaded. 
 - `0` unique IP(s) and `0` unique URL(s) were found in the malware samples
-- This attacks was recorded in `4` log types: 
+- This attacks was recorded in `3` log types: 
 	- `cowrie.log`
 	- `cowrie.json`
-	- `dshield.log`
 	- `zeek.log`
 
-- A total of `226` log events were logged in `7` log files: 
+- A total of `218` log events were logged in `6` log files: 
 	- `cowrie.2024-01-26.json`
 	- `cowrie.2024-01-28.log`
 	- `cowrie.2024-01-26.log`
 	- `cowrie.2024-01-28.json`
-	- `dshield.log`
 	- `conn.log`
 	- `ssh.log`
 
@@ -363,7 +361,6 @@ It appears that multiple login attempts occurred with varying degrees of success
 | --- | --- |
 | cowrie.log | 114 |
 | cowrie.json | 78 |
-| dshield.log | 8 |
 | zeek.log | 26 |
 
 
@@ -568,24 +565,6 @@ Here is a sample of the log lines:
 
 ---
 
-
-## DShield Logs
-Total DShield logs: `8`
-
-#### The `24` sessions in this attack were logged as connection in the following DShield firewall logs:
-Here is a sample of the log lines:
-
-````log
-1706444158 BigDshield kernel:[81448.170206]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=27.93.25.111 DST=172.31.5.68 LEN=44 TOS=0x00 PREC=0x00 TTL=244 ID=54321 PROTO=TCP SPT=50916 DPT=22 WINDOW=65535 RES=0x00 SYN URGP=0 
-1706444170 BigDshield kernel:[81460.043473]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=27.93.25.111 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=54 ID=44317 DF PROTO=TCP SPT=52094 DPT=22 WINDOW=64240 RES=0x00 SYN URGP=0 
-1706444170 BigDshield kernel:[81460.472489]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=27.93.25.111 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=54 ID=9396 DF PROTO=TCP SPT=52102 DPT=22 WINDOW=64240 RES=0x00 SYN URGP=0 
-1706444172 BigDshield kernel:[81462.190592]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=27.93.25.111 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=54 ID=62100 DF PROTO=TCP SPT=52146 DPT=22 WINDOW=64240 RES=0x00 SYN URGP=0 
-1706447975 BigDshield kernel:[85265.394404]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=111.216.194.148 DST=172.31.5.68 LEN=44 TOS=0x00 PREC=0x00 TTL=239 ID=54321 PROTO=TCP SPT=49512 DPT=22 WINDOW=65535 RES=0x00 SYN URGP=0 
-1706447986 BigDshield kernel:[85275.836719]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=111.216.194.148 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=48 ID=23298 DF PROTO=TCP SPT=52912 DPT=22 WINDOW=64240 RES=0x00 SYN URGP=0 
-1706447986 BigDshield kernel:[85276.166092]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=111.216.194.148 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=48 ID=50936 DF PROTO=TCP SPT=52922 DPT=22 WINDOW=64240 RES=0x00 SYN URGP=0 
-1706447988 BigDshield kernel:[85277.866215]  DSHIELDINPUT IN=eth0 OUT= MAC=06:a6:67:a1:06:97:06:47:24:e8:0b:15:08:00 SRC=111.216.194.148 DST=172.31.5.68 LEN=60 TOS=0x00 PREC=0x00 TTL=48 ID=47819 DF PROTO=TCP SPT=52964 DPT=22 WINDOW=64240 RES=0x00 SYN URGP=0 
-
-````
 
 </details>
 
