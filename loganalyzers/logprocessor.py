@@ -457,7 +457,7 @@ class LogProcessor:
     def print_exceptions(self):
         print("\nExceptions:")
         for n, (event, e) in enumerate(self.exceptions):
-            print(f"{n + 1}: {event['eventid']} - {e}\n{event}")
+            print(f"{n + 1}: {event.get('eventid')} - {e}\n{event}")
 
         print(f"Total: {len(self.exceptions)}")
 
