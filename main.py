@@ -680,7 +680,7 @@ def main(test_args=None):
                 "default_config": pprint_str(DEFAULT_CONFIG, sort_dicts=False),
             }
         ).update_md()
-
+        print("Updated README.md with config_parser and default_config")
 
     print(f'Honeypot AI Finished Successfully!')
     exit(0)

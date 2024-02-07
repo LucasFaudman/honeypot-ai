@@ -1,4 +1,12 @@
 
+NOTE: This is a .md file with GitHub formatting. 
+If you are viewing this in Canvas, please click the following link to view the formatted file on GitHub: 
+https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Multi-Stage%20SSH%20Brute%20Force%20Attack%20with%20Possible%20Botnet%20Indications%20Launched%20from%20Compromised%20DigitalOcean%20Server/README.md
+Alternatively, you can download the file and view it locally in your IDE.
+All relevant logs and scripts can also be found in this repository.
+
+
+
 # Multi-Stage SSH Brute Force Attack with Possible Botnet Indications Launched from Compromised DigitalOcean Server
 
 <details>

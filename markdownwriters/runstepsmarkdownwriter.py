@@ -13,7 +13,10 @@ class RunStepsMarkdownWriter(MarkdownWriterBase):
 
     
     def add_question_run_logs(self, md, attack: Attack):
-        question_run_logs = attack.question_run_logs    
+        question_run_logs = dict(sorted(attack.question_run_logs.items(), 
+                   key=lambda item: item[1].get("data", [{"created_at": 0}])[0]["created_at"]
+        ))
+        
 
         for n, run_log in enumerate(question_run_logs.values()):
             if n == 0:
