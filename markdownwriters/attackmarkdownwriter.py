@@ -9,13 +9,9 @@ class AttackMarkdownWriter(MarkdownWriterBase):
     def prepare(self):
         attack = self.data_object
         self.md += h1(attack.answers.get("title", f"Attack: {attack.attack_id}"))
-
         self.md_editors.append(self.add_attack_summary)
-
-
         self.md_editors.append(self.add_time_and_date)
         self.md_editors.append(self.add_relevant_logs)
-
         self.md_editors.append(self.add_ip_and_port_tables)
         self.md_editors.append(self.add_ssh_analysis)
         self.md_editors.append(self.add_command_and_malware_analysis)
@@ -166,19 +162,19 @@ class AttackMarkdownWriter(MarkdownWriterBase):
 
         if "cowrie.log" in log_types:
             logs_md = self.add_cowrie_logs(
-                logs_md, attack, ip="all", n_lines=None)
+                logs_md, attack, ip="all", n_lines=50)
             
         if "zeek.log" in log_types:
             logs_md = self.add_zeek_logs(
-                logs_md, attack, ip="all", n_lines=None)
+                logs_md, attack, ip="all", n_lines=50)
 
         if "web.json" in log_types:
             logs_md = self.add_web_logs(
-                logs_md, attack, ip="all", n_lines=None)
+                logs_md, attack, ip="all", n_lines=50)
 
         if "dshield.log" in log_types:
             logs_md = self.add_dshield_logs(
-                logs_md, attack, ip="all", n_lines=None)
+                logs_md, attack, ip="all", n_lines=50)
 
 
         md += collapseable_section(logs_md, "Relevant Logs, File or Email", 1)
