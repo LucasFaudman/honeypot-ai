@@ -2,19 +2,19 @@
 # honeypot-ai
 
 #### A modular honeypot log analyzer and OSINT collector with OpenAI integration to easily create ISC style reports and interactively chat with AI about attacks. Currently supports Cowrie, DShield and Zeek logs. 
-> Built by Lucas Faudman for SANS ISC/DShield
 
 ## Attack Examples
 
 | Attack | AI Run Steps |
 | --- | --- |
-| [Log4Shell Exploitation Attempt from Poland-based IPs Seeking Unauthorized Access for Cryptojacking and Potential Botnet Propagation](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Log4Shell%20Exploitation%20Attempt%20from%20Poland-based%20IPs%20Seeking%20Unauthorized%20Access%20for%20Cryptojacking%20and%20Potential%20Botnet%20Propagation) | [run-steps.md](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Log4Shell%20Exploitation%20Attempt%20from%20Poland-based%20IPs%20Seeking%20Unauthorized%20Access%20for%20Cryptojacking%20and%20Potential%20Botnet%20Propagation/run-steps.md) |
 | [Botnet Inclusion and Propagation attempt by Attackers from Germany and Japan](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Botnet%20Inclusion%20and%20Propagation%20attempt%20by%20Attackers%20from%20Germany%20and%20Japan) | [run-steps.md](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Botnet%20Inclusion%20and%20Propagation%20attempt%20by%20Attackers%20from%20Germany%20and%20Japan/run-steps.md) |
+| [Log4Shell Exploitation Attempt from Poland-based IPs Seeking Unauthorized Access for Cryptojacking and Potential Botnet Propagation](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Log4Shell%20Exploitation%20Attempt%20from%20Poland-based%20IPs%20Seeking%20Unauthorized%20Access%20for%20Cryptojacking%20and%20Potential%20Botnet%20Propagation) | [run-steps.md](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Log4Shell%20Exploitation%20Attempt%20from%20Poland-based%20IPs%20Seeking%20Unauthorized%20Access%20for%20Cryptojacking%20and%20Potential%20Botnet%20Propagation/run-steps.md) |
 | [Unauthenticated Command Execution Attack Exploiting Vulnerable Netgear Devices from IP 178.72.69.244 for Malware Deployment](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Unauthenticated%20Command%20Execution%20Attack%20Exploiting%20Vulnerable%20Netgear%20Devices%20from%20IP%20178.72.69.244%20for%20Malware%20Deployment) | [run-steps.md](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Unauthenticated%20Command%20Execution%20Attack%20Exploiting%20Vulnerable%20Netgear%20Devices%20from%20IP%20178.72.69.244%20for%20Malware%20Deployment/run-steps.md) |
+| [Telnet Compromise and Shell Script Malware Deployment on Linux Honeypot by Organized Attacker](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Telnet%20Compromise%20and%20Shell%20Script%20Malware%20Deployment%20on%20Linux%20Honeypot%20by%20Organized%20Attacker) | [run-steps.md](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Telnet%20Compromise%20and%20Shell%20Script%20Malware%20Deployment%20on%20Linux%20Honeypot%20by%20Organized%20Attacker/run-steps.md) |
+| [Malicious IP 204.76.203.13: Unauthorized Access, Malware Deployment, and Persistence](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Malicious%20IP%20204.76.203.13%3A%20Unauthorized%20Access%2C%20Malware%20Deployment%2C%20and%20Persistence) | [run-steps.md](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Malicious%20IP%20204.76.203.13%3A%20Unauthorized%20Access%2C%20Malware%20Deployment%2C%20and%20Persistence/run-steps.md) |
 | [Multi-Stage SSH Brute Force Attack with Possible Botnet Indications Launched from Compromised DigitalOcean Server](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Multi-Stage%20SSH%20Brute%20Force%20Attack%20with%20Possible%20Botnet%20Indications%20Launched%20from%20Compromised%20DigitalOcean%20Server) | [run-steps.md](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Multi-Stage%20SSH%20Brute%20Force%20Attack%20with%20Possible%20Botnet%20Indications%20Launched%20from%20Compromised%20DigitalOcean%20Server/run-steps.md) |
 | [Multi-Vector Cyber Attack Exploiting Shellshock and Targeting Apache Tomcat via Compromised IP Addresses](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Multi-Vector%20Cyber%20Attack%20Exploiting%20Shellshock%20and%20Targeting%20Apache%20Tomcat%20via%20Compromised%20IP%20Addresses) | [run-steps.md](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Multi-Vector%20Cyber%20Attack%20Exploiting%20Shellshock%20and%20Targeting%20Apache%20Tomcat%20via%20Compromised%20IP%20Addresses/run-steps.md) |
-| [Malicious IP 204.76.203.13: Unauthorized Access, Malware Deployment, and Persistence](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Malicious%20IP%20204.76.203.13%3A%20Unauthorized%20Access%2C%20Malware%20Deployment%2C%20and%20Persistence) | [run-steps.md](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Malicious%20IP%20204.76.203.13%3A%20Unauthorized%20Access%2C%20Malware%20Deployment%2C%20and%20Persistence/run-steps.md) |
-| [Telnet Compromise and Shell Script Malware Deployment on Linux Honeypot by Organized Attacker](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Telnet%20Compromise%20and%20Shell%20Script%20Malware%20Deployment%20on%20Linux%20Honeypot%20by%20Organized%20Attacker) | [run-steps.md](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/Telnet%20Compromise%20and%20Shell%20Script%20Malware%20Deployment%20on%20Linux%20Honeypot%20by%20Organized%20Attacker/run-steps.md) |
+| [FreePBX Exploit Usage with Cryptocurrency Mining Payloads by Attacker from Amsterdam](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/FreePBX%20Exploit%20Usage%20with%20Cryptocurrency%20Mining%20Payloads%20by%20Attacker%20from%20Amsterdam) | [run-steps.md](https://github.com/LucasFaudman/honeypot-ai/blob/main/example-reports/FreePBX%20Exploit%20Usage%20with%20Cryptocurrency%20Mining%20Payloads%20by%20Attacker%20from%20Amsterdam/run-steps.md) |
 
 <details>
 <summary>
@@ -1116,11 +1116,11 @@ No attack loading method specified. Use (-lfl/--load-from-logs) OR (-lfa/--load-
 ### All Command Line Arguments
 
 ````bash
-usage: main.py [-h] [--list-attacks] [--print-attrs ATTACK_ATTRS [ATTACK_ATTRS ...]] [--organize-attacks] [--analyze-attacks] [--chat] [--write-reports] [--export-reports] [--interactive] [--config FILE] [--update-config] [--load-from-logs]
-               [--load-from-attacks-dir] [--only-attacks ATTACK_IDS [ATTACK_IDS ...]] [--skip-attacks ATTACK_IDS [ATTACK_IDS ...]] [--max-ips-per-attack MAX_IPS_PER_ATTACK] [--max-attacks MAX_ATTACKS]
-               [--sort-attrs SORT_ATTRS [SORT_ATTRS ...]] [--sort-order SORT_ORDER] [--load-attacks-max-workers LOAD_ATTACKS_MAX_WORKERS] [--log-types LOG_TYPES [LOG_TYPES ...]] [--zeek-log-types ZEEK_LOG_TYPES [ZEEK_LOG_TYPES ...]]
-               [--zeek-log-ext ZEEK_LOG_EXT] [--zeek-keep-empty-fields | --no-zeek-keep-empty-fields] [--zeek-keep-unset-fields | --no-zeek-keep-unset-fields] [--attack-min-commands ATTACK_MIN_COMMANDS]
-               [--attack-min-malware ATTACK_MIN_MALWARE] [--attack-min-successful-logins ATTACK_MIN_SUCCESSFUL_LOGINS] [--attack-min-http-requests ATTACK_MIN_HTTP_REQUESTS]
+usage: main.py [-h] [--list-attacks] [--print-attrs ATTACK_ATTRS [ATTACK_ATTRS ...]] [--organize-attacks] [--analyze-attacks] [--chat] [--write-reports] [--export-reports] [--interactive] [--config FILE] [--update-config]
+               [--load-from-logs] [--load-from-attacks-dir] [--only-attacks ATTACK_IDS [ATTACK_IDS ...]] [--skip-attacks ATTACK_IDS [ATTACK_IDS ...]] [--max-ips-per-attack MAX_IPS_PER_ATTACK] [--max-attacks MAX_ATTACKS]
+               [--sort-attrs SORT_ATTRS [SORT_ATTRS ...]] [--sort-order SORT_ORDER] [--load-attacks-max-workers LOAD_ATTACKS_MAX_WORKERS] [--log-types LOG_TYPES [LOG_TYPES ...]]
+               [--zeek-log-types ZEEK_LOG_TYPES [ZEEK_LOG_TYPES ...]] [--zeek-log-ext ZEEK_LOG_EXT] [--zeek-keep-empty-fields | --no-zeek-keep-empty-fields] [--zeek-keep-unset-fields | --no-zeek-keep-unset-fields]
+               [--attack-min-commands ATTACK_MIN_COMMANDS] [--attack-min-malware ATTACK_MIN_MALWARE] [--attack-min-successful-logins ATTACK_MIN_SUCCESSFUL_LOGINS] [--attack-min-http-requests ATTACK_MIN_HTTP_REQUESTS]
                [--attack-http-uri-regexes ATTACK_HTTP_URI_REGEXES [ATTACK_HTTP_URI_REGEXES ...]] [--attack-http-anywhere-regexes ATTACK_HTTP_ANYWHERE_REGEXES [ATTACK_HTTP_ANYWHERE_REGEXES ...]]
                [--standardize-regex-commands STANDARDIZE_REGEX_COMMANDS [STANDARDIZE_REGEX_COMMANDS ...]] [--standardize-regex-malware STANDARDIZE_REGEX_MALWARE [STANDARDIZE_REGEX_MALWARE ...]]
                [--standardize-regex-http-requests STANDARDIZE_REGEX_HTTP_REQUESTS [STANDARDIZE_REGEX_HTTP_REQUESTS ...]] [--merge-shared-attrs MERGE_SHARED_ATTRS [MERGE_SHARED_ATTRS ...]]
@@ -1131,11 +1131,12 @@ usage: main.py [-h] [--list-attacks] [--print-attrs ATTACK_ATTRS [ATTACK_ATTRS .
                [--use-openai-code-interpreter | --no-use-openai-code-interpreter | --openai-code-interpreter | --no-openai-code-interpreter] [--openai-api-key OPENAI_API_KEY] [--openai-model OPENAI_MODEL]
                [--openai-training-data-path OPENAI_TRAINING_DATA_PATH] [--use-ipanalyzer | --no-use-ipanalyzer | --ipanalyzer | --no-ipanalyzer] [--ipanalyzer-sources IPANALYZER_SOURCES [IPANALYZER_SOURCES ...]]
                [--ipanalyzer-max-errors IPANALYZER_MAX_ERRORS] [--webdriver-path WEBDRIVER_PATH] [--webdriver-type WEBDRIVER_TYPE] [--use-malwareanalyzer | --no-use-malwareanalyzer | --malwareanalyzer | --no-malwareanalyzer]
-               [--malwareanalyzer-sources MALWAREANALYZER_SOURCES [MALWAREANALYZER_SOURCES ...]] [--malwareanalyzer-max-errors MALWAREANALYZER_MAX_ERRORS] [--malwareanalyzer-allow-downloads | --no-malwareanalyzer-allow-downloads]
-               [--user-ips USER_IPS [USER_IPS ...]] [--honeypot-external-ips HONEYPOT_EXTERNAL_IPS [HONEYPOT_EXTERNAL_IPS ...]] [--honeypot-internal-ips HONEYPOT_INTERNAL_IPS [HONEYPOT_INTERNAL_IPS ...]]
-               [--honeypot-ports HONEYPOT_PORTS [HONEYPOT_PORTS ...]] [--honeypot-software HONEYPOT_SOFTWARE [HONEYPOT_SOFTWARE ...]] [--logs-path LOGS_PATH] [--cowrie-logs-path COWRIE_LOGS_PATH] [--firewall-logs-path FIREWALL_LOGS_PATH]
-               [--web-logs-path WEB_LOGS_PATH] [--zeek-logs-path ZEEK_LOGS_PATH] [--malware-downloads-path MALWARE_DOWNLOADS_PATH] [--auth-random-path AUTH_RANDOM_PATH] [--resources-path RESOURCES_PATH] [--attacks-path ATTACKS_PATH]
-               [--db-path DB_PATH] [--ipdb-path IPDB_PATH] [--mwdb-path MWDB_PATH] [--aidb-path AIDB_PATH] [--reports-path REPORTS_PATH]
+               [--malwareanalyzer-sources MALWAREANALYZER_SOURCES [MALWAREANALYZER_SOURCES ...]] [--malwareanalyzer-max-errors MALWAREANALYZER_MAX_ERRORS]
+               [--malwareanalyzer-allow-downloads | --no-malwareanalyzer-allow-downloads] [--user-ips USER_IPS [USER_IPS ...]] [--honeypot-external-ips HONEYPOT_EXTERNAL_IPS [HONEYPOT_EXTERNAL_IPS ...]]
+               [--honeypot-internal-ips HONEYPOT_INTERNAL_IPS [HONEYPOT_INTERNAL_IPS ...]] [--honeypot-ports HONEYPOT_PORTS [HONEYPOT_PORTS ...]] [--honeypot-software HONEYPOT_SOFTWARE [HONEYPOT_SOFTWARE ...]]
+               [--logs-path LOGS_PATH] [--cowrie-logs-path COWRIE_LOGS_PATH] [--firewall-logs-path FIREWALL_LOGS_PATH] [--web-logs-path WEB_LOGS_PATH] [--zeek-logs-path ZEEK_LOGS_PATH]
+               [--malware-downloads-path MALWARE_DOWNLOADS_PATH] [--auth-random-path AUTH_RANDOM_PATH] [--resources-path RESOURCES_PATH] [--attacks-path ATTACKS_PATH] [--db-path DB_PATH] [--ipdb-path IPDB_PATH]
+               [--mwdb-path MWDB_PATH] [--aidb-path AIDB_PATH] [--reports-path REPORTS_PATH]
 
 honeypot-ai: Honeypot Log Analyzer Built on OpenAI
 
@@ -1226,8 +1227,8 @@ Standardization Regexes:
   Regexes to match in commands, malware, and HTTP requests that should be standardized before hashing and comparing values. All captured groups will be replaced with X.
 
   --standardize-regex-commands STANDARDIZE_REGEX_COMMANDS [STANDARDIZE_REGEX_COMMANDS ...]
-                        Regexes to match in commands that should be standardized before hashing. All captured groups will be replaced with X before hashing. (default: ['/bin/busybox (\\w+)', '/tmp/([\\w\\d]+)', '/tmp/[\\w\\d]+ ([\\w/\\+]+)',
-                        '(\\d+\\.\\d+\\.\\d+\\.\\d+[:/]\\d+)'])
+                        Regexes to match in commands that should be standardized before hashing. All captured groups will be replaced with X before hashing. (default: ['/bin/busybox (\\w+)', '/tmp/([\\w\\d]+)',
+                        '/tmp/[\\w\\d]+ ([\\w/\\+]+)', '(\\d+\\.\\d+\\.\\d+\\.\\d+[:/]\\d+)'])
   --standardize-regex-malware STANDARDIZE_REGEX_MALWARE [STANDARDIZE_REGEX_MALWARE ...]
                         Regexes to match in malware that should be standardized before hashing. All captured groups will be replaced with X before hashing. (default: ['C0755 4745 (\\S+)'])
   --standardize-regex-http-requests STANDARDIZE_REGEX_HTTP_REQUESTS [STANDARDIZE_REGEX_HTTP_REQUESTS ...]
@@ -1239,8 +1240,8 @@ Merge Conditions:
   --merge-shared-attrs MERGE_SHARED_ATTRS [MERGE_SHARED_ATTRS ...]
                         Attributes to automatically merge attacks on when any are shared (default: ['src_ips', 'malware', 'cmdlog_ips', 'cmdlog_urls', 'malware_ips', 'malware_urls'])
   --merge-regex-commands MERGE_REGEX_COMMANDS [MERGE_REGEX_COMMANDS ...]
-                        Regexes to match in commands of attacks that should be merged (default: [">\\??A@/ ?X'8ELFX", 'cat /proc/mounts; /bin/busybox [\\w\\d]+', 'cd /tmp && chmod \\+x [\\w\\d]+ && bash -c ./[\\w\\d]+', 'cd ~; chattr -ia
-                        .ssh; lockr -ia .ssh'])
+                        Regexes to match in commands of attacks that should be merged (default: [">\\??A@/ ?X'8ELFX", 'cat /proc/mounts; /bin/busybox [\\w\\d]+', 'cd /tmp && chmod \\+x [\\w\\d]+ && bash -c ./[\\w\\d]+', 'cd
+                        ~; chattr -ia .ssh; lockr -ia .ssh'])
   --merge-regex-malware MERGE_REGEX_MALWARE [MERGE_REGEX_MALWARE ...]
                         Regexes to match in malware of attacks that should be merged (default: [])
   --merge-regex-http-requests MERGE_REGEX_HTTP_REQUESTS [MERGE_REGEX_HTTP_REQUESTS ...]
@@ -1316,10 +1317,10 @@ User and Honeypot Environment Settings:
   --honeypot-ports HONEYPOT_PORTS [HONEYPOT_PORTS ...]
                         Open ports of on honeypot system(s) to inform AI for more accurate analysis (default: [22, 23, 80, 2222, 2223, 2323, 5555, 7547, 8000, 8080, 9000])
   --honeypot-software HONEYPOT_SOFTWARE [HONEYPOT_SOFTWARE ...]
-                        Version strings of the software running on each open port of the honeypot system(s) to inform AI for more accurate analysis. (default: ['Cowrie SSH server running OpenSSH 6.0p1 Debian 4+deb7u2 (protocol 2.0)', 'Cowrie
-                        Telnet server', 'Web server running Apache httpd 3.2.3 and WordPress 5.6.7', 'Cowrie SSH server running OpenSSH 6.0p1 Debian 4+deb7u2 (protocol 2.0)', 'Cowrie Telnet server', 'Cowrie Telnet server', 'Web server running
-                        Apache httpd 3.2.3 and WordPress 5.6.7', 'Web server running Apache httpd 3.2.3 and WordPress 5.6.7', 'Web server running Apache httpd 3.2.3 and WordPress 5.6.7', 'Web server running Apache httpd 3.2.3 and WordPress
-                        5.6.7', 'Web server running Apache httpd 3.2.3 and WordPress 5.6.7'])
+                        Version strings of the software running on each open port of the honeypot system(s) to inform AI for more accurate analysis. (default: ['Cowrie SSH server running OpenSSH 6.0p1 Debian 4+deb7u2
+                        (protocol 2.0)', 'Cowrie Telnet server', 'Web server running Apache httpd 3.2.3 and WordPress 5.6.7', 'Cowrie SSH server running OpenSSH 6.0p1 Debian 4+deb7u2 (protocol 2.0)', 'Cowrie Telnet server',
+                        'Cowrie Telnet server', 'Web server running Apache httpd 3.2.3 and WordPress 5.6.7', 'Web server running Apache httpd 3.2.3 and WordPress 5.6.7', 'Web server running Apache httpd 3.2.3 and WordPress
+                        5.6.7', 'Web server running Apache httpd 3.2.3 and WordPress 5.6.7', 'Web server running Apache httpd 3.2.3 and WordPress 5.6.7'])
 
 Input Paths:
   Paths to input logs and files
