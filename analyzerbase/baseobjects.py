@@ -1,15 +1,15 @@
 from .common import *
 
+
 class SetReprOrderedSet(OrderedSet):
     """OrderedSet that prints as a normal python set {x, y} instead of a OrderedSet([x, y]) when using repr()"""
+
     def __repr__(self):
         return "{" + f"{list(self)}"[1:-1] + "}"
-    
 
     def __add__(self, other):
         self.union(other)
         return self
-        
 
 
 class SmartAttrObject(object):
@@ -37,18 +37,14 @@ class SmartAttrObject(object):
     Smart attribute access also allows for common typos/abbreviations by AI such as dropped 's', removing '_all_'.
     """
 
-    
-
     def __init__(self, uniq_fn=SetReprOrderedSet) -> None:
         super().__init__()
         self._smart_attr_access_enabled = True
-        self._uniq_fn = uniq_fn # Can be SetReprOrderedSet or set
-
+        self._uniq_fn = uniq_fn  # Can be SetReprOrderedSet or set
 
     def enable_smart_attr_access(self):
         """Enable smart attribute access"""
         self._smart_attr_access_enabled = True
-
 
     def disable_smart_attr_access(self):
         """Disable smart attribute access and return to normal attribute access for slighly better performance"""
@@ -83,8 +79,9 @@ class SmartAttrObject(object):
             else:
                 n = 1
                 modifier_fns.append(lambda x: Counter(x).most_common(n)[0][0])
-                attr = attr.replace("most_common_", "") + ("s" if not attr.endswith("s") else "")
-        
+                attr = attr.replace("most_common_", "") + \
+                    ("s" if not attr.endswith("s") else "")
+
         elif attr.startswith("first"):
             # Allow for first_<attr> and first<n>_<attr> to get the first n items
             end_slice = attr.split("_")[0].replace("first", "")
@@ -93,7 +90,8 @@ class SmartAttrObject(object):
                 attr = attr.replace(f"first{end_slice}_", "")
             else:
                 modifier_fns.append(lambda x: x[0] if x else None)
-                attr = attr.replace("first_", "") + ("s" if not attr.endswith("s") else "")
+                attr = attr.replace("first_", "") + \
+                    ("s" if not attr.endswith("s") else "")
 
         elif attr.startswith("last"):
             # Allow for last_<attr> and last<n>_<attr> to get the last n items
@@ -103,7 +101,8 @@ class SmartAttrObject(object):
                 attr = attr.replace(f"last{start_slice}_", "")
             else:
                 modifier_fns.append(lambda x: x[-1] if x else None)
-                attr = attr.replace("last_", "") + ("s" if not attr.endswith("s") else "")
+                attr = attr.replace("last_", "") + \
+                    ("s" if not attr.endswith("s") else "")
 
         if attr.endswith("_indexed"):
             modifier_fns.append(lambda x: dict(enumerate(x)))
@@ -113,9 +112,8 @@ class SmartAttrObject(object):
             if modifier_fns:
                 modifier_fns = [self._uniq_fn] + modifier_fns
             else:
-                modifier_fns.append(self._uniq_fn) # SetReprOrderedSet or set
+                modifier_fns.append(self._uniq_fn)  # SetReprOrderedSet or set
             attr = attr.replace("uniq_", "")
-
 
         # Hanndle common typos/abbreviations by AI
         _self_dir = dir(self)
@@ -130,7 +128,7 @@ class SmartAttrObject(object):
         val = super().__getattribute__(attr)
         for fn in modifier_fns:
             val = fn(val)
-        
+
         return val
 
 
@@ -138,21 +136,21 @@ class CachedProperty(property):
     """
     Descriptor for caching properties of CachedPropertyObjects
     """
+
     def __init__(self, func):
         self.func = func
         self.name = func.__name__
 
-    
     def __get__(self, instance, owner) -> Any:
         """Return the cached value of the property if it exists, otherwise calculate it and cache it"""
         # Return self if accessed from class
         if instance is None:
             return self
-        
+
         # Return cached value if the instance is frozen a the value exists in the cache
         if instance.is_frozen() and self.name in instance._cached_properties:
             return instance._cached_properties[self.name]
-        
+
         # Calculate the value when its has not yet been cached or the instance is not frozen
         value = self.func(instance)
 
@@ -177,7 +175,6 @@ class CachedPropertyObject:
         self._cached_properties = {}
         self._frozen = False
         self._caching = False
-
 
     def start_caching(self):
         """Start caching properties"""
@@ -205,11 +202,10 @@ class CachedPropertyObject:
     def is_frozen(self):
         """Return True if cached properties are frozen. Objects with frozen cached properties will not recalculate them"""
         return self._frozen
-    
+
     def is_caching(self):
         """Return True if caching is enabled. Objects with caching disabled will not cache properties"""
         return self._caching
-
 
     @staticmethod
     def freeze_all(*args):
@@ -217,7 +213,7 @@ class CachedPropertyObject:
         for arg in args:
             if isinstance(arg, CachedPropertyObject):
                 arg.freeze()
-    
+
     @staticmethod
     def unfreeze_all(*args):
         """Unfreeze all CachedPropertyObjects in args"""
@@ -231,7 +227,7 @@ class CachedPropertyObject:
         for arg in args:
             if isinstance(arg, CachedPropertyObject):
                 arg.start_caching()
-    
+
     @staticmethod
     def stop_caching_all(*args):
         """Stop caching all CachedPropertyObjects in args"""
@@ -244,8 +240,7 @@ class CachedPropertyObject:
         """Empty all caches of CachedPropertyObjects in args"""
         for arg in args:
             if isinstance(arg, CachedPropertyObject):
-                arg.empty_cache()    
-
+                arg.empty_cache()
 
 
 class PostprocessableObject(object):
@@ -254,18 +249,19 @@ class PostprocessableObject(object):
     """
 
     def __init__(self) -> None:
-        self.postprocessor_objs = [] # List of postprocessor objects to extend the object with
+        # List of postprocessor objects to extend the object with
+        self.postprocessor_objs = []
         # Dict with list of postprocessor functions added to the object for each postprocessor object
         self.postprocessor_fn_names_by_class = defaultdict(list)
 
         # Tag to identify postprocessor functions for self in a postprocessor object
-        self._postprocessor_fn_tag = f"_{self.__class__.__name__.lower()}_" 
+        self._postprocessor_fn_tag = f"_{self.__class__.__name__.lower()}_"
 
     def add_postprocessor(self, postprocessor_obj):
         """Add a postprocessor object to the postprocessors list"""
 
         self._extend_self_with_postpostprocesor_fns(postprocessor_obj)
-        
+
     def remove_postprocessor(self, postprocessor_obj):
         """Remove a postprocessor object from the postprocessors list"""
         self._remove_postprocessor_fn_from_self(postprocessor_obj)
@@ -276,7 +272,6 @@ class PostprocessableObject(object):
         for postprocessor_obj in list(self.postprocessor_objs):
             self._remove_postprocessor_fn_from_self(postprocessor_obj)
 
-
     def _extend_self_with_postpostprocesor_fns(self, postprocessor_obj):
         """
         Add postprocessor functions from a postprocessor object to self
@@ -286,11 +281,11 @@ class PostprocessableObject(object):
         Abstact example: the _postprocessor_fn_tag for a subclass named 'Foo' is '_foo_'.
         So if a postprocessor object with the class name 'Bar' has a function named 'bar_foo_fn' 
         with a first argument of type 'Foo' then the function will be added to the 'Foo' object as 'bar_fn'.
-        
+
         Bar._bar_foo_fn(bar_self, foo: Foo, *args) 
         -> foo.add_postprocessor(Bar()) 
         now foo.bar_fn(foo_self, *args) == Bar._bar_foo_fn(bar_self, foo_self, *args)
-        
+
         Context Example:
         AttackDirReader.update_attack_log_paths(self, attack, *args, **kwargs) -> Attack.update_log_paths(self, *args, **kwargs)))
         """
@@ -309,7 +304,7 @@ class PostprocessableObject(object):
             # Get the postprocessor function from the postprocessor object
             postprocesor_function = getattr(postprocessor_obj, attr)
 
-            # Add the postprocessor function to self if it is a callable function 
+            # Add the postprocessor function to self if it is a callable function
             if callable(postprocesor_function):
                 # New name is the original attribute name with the postprocessor tag replaced with an underscore
                 fn_name = attr.replace(self._postprocessor_fn_tag, "_")
@@ -318,14 +313,15 @@ class PostprocessableObject(object):
                 # Add the function to self
                 setattr(self, fn_name, fn)
                 # Add the function to the postprocessor_fn_names dict so it can be accessed by name or removed later
-                self.postprocessor_fn_names_by_class[postprocessor_class_name].append(fn_name)
+                self.postprocessor_fn_names_by_class[postprocessor_class_name].append(
+                    fn_name)
 
-                print(f"Added {fn} {fn_name} to {self} from {postprocessor_obj}")
-
+                print(
+                    f"Added {fn} {fn_name} to {self} from {postprocessor_obj}")
 
     def _remove_postprocessor_fn_from_self(self, postprocessor_obj):
         postprocessor_class_name = postprocessor_obj.__class__.__name__
-        
+
         for fn_name in self.postprocessor_fn_names_by_class[postprocessor_class_name]:
             delattr(self, fn_name)
 

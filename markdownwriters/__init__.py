@@ -9,7 +9,8 @@ class ReportMarkdownWriter(AttackMarkdownWriter, IPMarkdownWriter, DocsMarkdownW
 
     def prepare(self):
         attack = self.data_object
-        self.md += h1(attack.answers.get("title", f"Attack: {attack.attack_id}"))
+        self.md += h1(attack.answers.get("title",
+                      f"Attack: {attack.attack_id}"))
 
         self.md_editors.append(self.add_attack_summary)
         self.custom_scripts_title = "Custom Scripts Used To Generate This Report"
@@ -31,7 +32,6 @@ class ReportMarkdownWriter(AttackMarkdownWriter, IPMarkdownWriter, DocsMarkdownW
         self.md_editors.append(self.add_isc)
         self.md_editors.append(self.add_whois)
 
-
     def convert_report_md_to_txt_for_canvas(self, attack, report_filepath):
         report_filename = report_filepath.name
         txt_header = f"""
@@ -40,7 +40,6 @@ If you are viewing this in Canvas, please click the following link to view the f
 {self.GITHUB_BASE_URL}example-reports/{quote(attack.answers.get("title", f"Attack: {attack.attack_id}"))}/{report_filename}
 Alternatively, you can download the file and view it locally in your IDE.
 All relevant logs and scripts can also be found in this repository.
-""" 
-        report_filepath.with_suffix('.md.txt').write_text(txt_header + '\n\n' + self.md)
-
-        
+"""
+        report_filepath.with_suffix('.md.txt').write_text(
+            txt_header + '\n\n' + self.md)

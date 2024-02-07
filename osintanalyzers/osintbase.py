@@ -12,14 +12,14 @@ class OSINTAnalyzerBase:
 
     SOURCES = []
 
-    def __init__(self, 
-                 db_path=Path("tests/osintdb"), 
-                 selenium_webdriver_type="chrome", 
+    def __init__(self,
+                 db_path=Path("tests/osintdb"),
+                 selenium_webdriver_type="chrome",
                  webdriver_path="/Users/lucasfaudman/Documents/SANS/internship/chromedriver",
                  sources=[],
-                 max_errors: Union[int, dict]={}
+                 max_errors: Union[int, dict] = {}
                  ):
-        
+
         # Create db_path if it doesn't exist for saving data
         self.db_path = db_path
         if not self.db_path.exists():
@@ -39,56 +39,52 @@ class OSINTAnalyzerBase:
         else:
             self.max_errors = max_errors
 
-            
     @property
     def scraper(self):
         """SoupScraper object for scraping web pages"""
-        #Don't create scraper until needed
+        # Don't create scraper until needed
         if not self._scraper:
             self._scraper = SoupScraper(
-                selenium_webdriver_type=self.selenium_webdriver_type, 
-                selenium_service_kwargs={"executable_path":self.webdriver_path}, 
-                selenium_options_kwargs={}, 
+                selenium_webdriver_type=self.selenium_webdriver_type,
+                selenium_service_kwargs={
+                    "executable_path": self.webdriver_path},
+                selenium_options_kwargs={},
                 keep_alive=True)
-        
-        return self._scraper
 
+        return self._scraper
 
     def __del__(self):
         """Quit scraper if it exists when object is deleted or garbage collected"""
         if self._scraper:
             self._scraper.quit()
 
-
-    def get_output_template(self, sharing_link="", default_results: Union[dict,None]=None, default_error=""):
+    def get_output_template(self, sharing_link="", default_results: Union[dict, None] = None, default_error=""):
         """Returns empty output template with sharing_link, results, and error"""
         default_results = default_results if default_results is not None else {}
-        return {"sharing_link": sharing_link, 
-                "results": default_results, 
+        return {"sharing_link": sharing_link,
+                "results": default_results,
                 "error": default_error}
-
 
     def read_data_for_source(self, arg, source):
         """Reads data for arg from source if it exists or returns None"""
         # Replace / in arg with _ to avoid creating subdirectories
-        arg_source_file = self.db_path / f"{source}/{arg.replace('/','_')}.json"
+        arg_source_file = self.db_path / \
+            f"{source}/{arg.replace('/','_')}.json"
         if arg_source_file.exists():
             with arg_source_file.open() as f:
                 return json.loads(f.read())
-        
-
 
     def write_data_for_source(self, arg, source, data):
         """Writes data for arg from source to file"""
 
         # Replace / in arg with _ to avoid creating subdirectories
-        arg_source_file = self.db_path / f"{source}/{arg.replace('/','_')}.json"
+        arg_source_file = self.db_path / \
+            f"{source}/{arg.replace('/','_')}.json"
         if not arg_source_file.parent.exists():
             arg_source_file.parent.mkdir(parents=True)
-        
+
         with arg_source_file.open("w+") as f:
             json.dump(data, f, indent=2)
-
 
     def get_data(self, args, arg_type="ip", sources=[], update_counts=True):
         """
@@ -111,20 +107,20 @@ class OSINTAnalyzerBase:
             # Make sure arg is a hashable by converting to string
             if not isinstance(arg, str):
                 arg = str(arg)
-            
+
             # Create empty dict for arg in data
             data[arg] = {}
-            
+
             for source in sources:
-                
+
                 # Use saved data if it exists
                 saved_source_data = self.read_data_for_source(arg, source)
                 if saved_source_data:
                     print(f"Using saved {source} data {arg_type} for {arg}")
-                    source_data = saved_source_data                
-                
+                    source_data = saved_source_data
+
                 # Skip if max errors reached
-                elif error_counts[source] >= self.max_errors.get(source, 0):    
+                elif error_counts[source] >= self.max_errors.get(source, 0):
                     print(f"Max errors reached for {source} skipping {arg}")
                     continue
 
@@ -132,12 +128,12 @@ class OSINTAnalyzerBase:
                     # Otherwise try to get data from source using check_{source} method
                     try:
                         print(f"Getting data for {arg} from {source}")
-                        source_data = getattr(self, f"check_{source}")(arg, arg_type)
-                        
+                        source_data = getattr(
+                            self, f"check_{source}")(arg, arg_type)
+
                         # Write data to file if no errors occured when getting data
                         self.write_data_for_source(arg, source, source_data)
 
-    
                     except Exception as e:
                         err_msg = f"ERROR: Error caught while getting data for {arg} from {source}: {e}"
                         print(err_msg)
@@ -145,20 +141,15 @@ class OSINTAnalyzerBase:
                         # Set source data to empty output with only error message
                         error_counts[source] += 1
                         source_data = self.get_output_template("", {}, err_msg)
-                    
-                    
+
                 # Add source data for arg to data (output)
                 data[arg][source] = source_data
-                
+
                 # Update data['counts'] with count_{source} method if update_counts is True
                 if update_counts:
                     data = getattr(self, f"count_{source}")(data, arg)
-                
 
         return data
-    
-
-
 
     def get_reduced_data(self, args, arg_type="ip", sources=SOURCES,  update_counts=False, keep_errors=False):
         """
@@ -166,10 +157,10 @@ class OSINTAnalyzerBase:
         Used to minimize number of tokens when passing data to OpenAI API.
         Same iterface as get_data method but calls the reduce_{source} method for each source to reduce the data.
         """
-        
+
         data = self.get_data(args, arg_type, sources, update_counts)
         reduced = data
-        
+
         for arg in args:
             for source in sources:
 
@@ -177,13 +168,12 @@ class OSINTAnalyzerBase:
                     # Only leave results and reduce nesting by one level
                     reduced[arg][source] = data[arg][source]["results"]
                     # Reduce results for each source
-                    reduced[arg][source] = getattr(self, f"reduce_{source}")(reduced[arg][source])
+                    reduced[arg][source] = getattr(
+                        self, f"reduce_{source}")(reduced[arg][source])
 
-                else:                 
-                    #Only leave error message if keep_errors is True otherwise leave empty string
-                    reduced[arg][source] = data[arg][source].get('error') if keep_errors else ""
-
+                else:
+                    # Only leave error message if keep_errors is True otherwise leave empty string
+                    reduced[arg][source] = data[arg][source].get(
+                        'error') if keep_errors else ""
 
         return reduced
-
-

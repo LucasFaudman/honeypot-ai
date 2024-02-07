@@ -24,7 +24,6 @@ class OpenAICompletionsAnalyzer(OpenAIAnalyzerBase):
 
         return response, result
 
-
     def get_json_result(self, messages=[], n=1, retries=0, is_retry=False, **kwargs):
         message_hash = sha256hex(str(messages))
         db_file = self.db_path / f"{message_hash}.json"
@@ -68,7 +67,6 @@ class OpenAICompletionsAnalyzer(OpenAIAnalyzerBase):
 
         return response, result
 
-
     def make_few_shot_prompt(self, system_prompt, examples, user_input):
         """Makes list of message objects from system prompt, examples, and user input."""
 
@@ -95,7 +93,6 @@ class OpenAICompletionsAnalyzer(OpenAIAnalyzerBase):
         messages.append({"role": "user", "content": user_input})
 
         return messages
-
 
     def explain_commands(self, commands=[], n=1, retries=0, **kwargs):
         system_prompt = [
@@ -143,7 +140,6 @@ class OpenAICompletionsAnalyzer(OpenAIAnalyzerBase):
 
         return self.zip_command_explanations(commands, result)
 
-
     def zip_command_explanations(self, commands, result):
         if isinstance(result, list):
             if len(result) == len(commands):
@@ -183,7 +179,6 @@ class OpenAICompletionsAnalyzer(OpenAIAnalyzerBase):
 
         return result
 
-
     def explain_malware(self, malware_source_code, commands=[], n=1, retries=0, **kwargs):
         system_prompt = " ".join([
             "Your role is to throughly explain a piece of malware that was executed by an attacker on a Linux honeypot system.",
@@ -220,7 +215,6 @@ class OpenAICompletionsAnalyzer(OpenAIAnalyzerBase):
         response, result = self.get_json_result(
             messages, n=n, retries=retries, **kwargs)
         return result
-
 
     def comment_malware(self, malware_source_code, commands=[], n=1, retries=0, **kwargs):
         system_prompt = " ".join([
@@ -263,7 +257,7 @@ class OpenAICompletionsAnalyzer(OpenAIAnalyzerBase):
                 example_malware_lines_index = example_malware_lines.index(line)
                 example_response[example_malware_lines_index] = comment
                 comment = ""
-        
+
         examples = [{"input": example_input, "response": example_response}]
         messages = self.make_few_shot_prompt(
             system_prompt, examples,
@@ -284,7 +278,6 @@ class OpenAICompletionsAnalyzer(OpenAIAnalyzerBase):
                 lines[line_index] = comment + "\n" + lines[line_index]
 
         return "\n".join(lines)
-
 
     def explain_and_comment_malware(self, malware_source_code, commands=[], n=1, retries=0, **kwargs):
         system_prompt = " ".join([
@@ -329,7 +322,6 @@ class OpenAICompletionsAnalyzer(OpenAIAnalyzerBase):
         response, result = self.get_json_result(
             messages, n=n, retries=retries, **kwargs)
         return result
-
 
     def answer_attack_questions(self, questions: list, commands=[], malware_source_code=None, n=1, retries=0, **kwargs):
         # TODO an attack

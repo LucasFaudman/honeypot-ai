@@ -23,27 +23,26 @@ class CounterGrapher:
             self.total = 0
             self.percentages = ()
 
-    
     def bar(self):
         plt.clf()
         plt.bar(self.labels, self.values)
         plt.xlabel(self.xlabel)
         plt.ylabel(self.ylabel)
         plt.title(self.title)
-        
+
         if self.tight_layout:
             plt.tight_layout()
-        
+
         plt.savefig(self.outpath)
         plt.close()
 
         return self.outpath
 
-
     def pie(self):
         plt.clf()
-        plt.pie(self.values, labels=self.labels, autopct='%1.1f%%', shadow=True, startangle=90)
-        
+        plt.pie(self.values, labels=self.labels,
+                autopct='%1.1f%%', shadow=True, startangle=90)
+
         plt.title(self.title)
         if self.tight_layout:
             plt.tight_layout()
@@ -52,7 +51,6 @@ class CounterGrapher:
         plt.close()
 
         return self.outpath
-
 
     def hist(self):
         plt.clf()
@@ -60,22 +58,19 @@ class CounterGrapher:
         plt.xlabel('Values')
         plt.ylabel('Frequency')
         plt.title(self.title)
-        
+
         if self.tight_layout:
             plt.tight_layout()
 
         plt.savefig(self.outpath)
         plt.close()
-        
-        return self.outpath
 
+        return self.outpath
 
     def plot(self):
         print(self.bar())
         print(self.pie())
         print(self.hist())
-    
-
 
 
 if __name__ == "__main__":

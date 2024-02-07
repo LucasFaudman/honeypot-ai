@@ -8,4 +8,3 @@ from datetime import datetime
 from time import sleep, time
 from functools import partial
 from pprint import pprint
-
