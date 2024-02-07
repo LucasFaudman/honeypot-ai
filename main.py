@@ -640,6 +640,7 @@ def main(test_args=None):
                 data_object=attack,
             )
             REPORT_MARKDOWN_WRITER.update_md()
+            REPORT_MARKDOWN_WRITER.convert_report_md_to_txt_for_canvas(attack, report_filepath)
             print(f"Finished writing markdown report and for attack {attack.attack_id} to {report_filepath}")
 
             run_steps_filepath = attack.attack_dir / "run-steps.md"

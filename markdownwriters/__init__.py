@@ -30,3 +30,17 @@ class ReportMarkdownWriter(AttackMarkdownWriter, IPMarkdownWriter, DocsMarkdownW
         self.md_editors.append(self.add_threatfox)
         self.md_editors.append(self.add_isc)
         self.md_editors.append(self.add_whois)
+
+
+    def convert_report_md_to_txt_for_canvas(self, attack, report_filepath):
+        report_filename = report_filepath.name
+        txt_header = f"""
+NOTE: This is a .md file with GitHub formatting. 
+If you are viewing this in Canvas, please click the following link to view the formatted file on GitHub: 
+{self.GITHUB_BASE_URL}example-reports/{quote(attack.answers.get("title", f"Attack: {attack.attack_id}"))}/{report_filename}
+Alternatively, you can download the file and view it locally in your IDE.
+All relevant logs and scripts can also be found in this repository.
+""" 
+        report_filepath.with_suffix('.md.txt').write_text(txt_header + '\n\n' + self.md)
+
+        

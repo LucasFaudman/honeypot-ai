@@ -1,6 +1,6 @@
 from analyzerbase import *
 from pathlib import Path
-
+from urllib.parse import quote
 
 class MarkdownWriterBase:
     """Base class for writing markdown files."""

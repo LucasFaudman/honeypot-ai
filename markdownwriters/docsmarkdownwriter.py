@@ -1,5 +1,5 @@
 from .markdownwriterbase import *
-from urllib.parse import quote
+
 
 class DocsMarkdownWriter(MarkdownWriterBase):
     """Writes markdown for the honeypot-ai project documentation and README"""
@@ -136,7 +136,6 @@ class DocsMarkdownWriter(MarkdownWriterBase):
             "Currently supports Cowrie, DShield and Zeek logs. "
             )
         
-        description +=  blockquote("Built by Lucas Faudman for SANS ISC/DShield")
         md += description
         return md
     
