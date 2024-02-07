@@ -264,6 +264,10 @@ class AttackAnalyzer:
             
 
             question_run_logs = self.openai_analyzer.answer_attack_questions(questions, attack)
+            # update run_logs with questions from chat. Allows for overwriting answers to default questions.
+            chat_question_run_logs, question_num = self.openai_analyzer.read_attack_chat_run_logs(attack)
+            question_run_logs.update(chat_question_run_logs)
+            
             attack.questions = questions
             for question_key, question_run_log in question_run_logs.items():
                 attack.question_run_logs[question_key] = question_run_log
@@ -272,6 +276,8 @@ class AttackAnalyzer:
 
             attack.answers["title"] = attack.answers["title"].strip('"').strip("'")
             
+
+
         return assistant_answers
     
 

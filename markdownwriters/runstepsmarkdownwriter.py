@@ -12,13 +12,12 @@ class RunStepsMarkdownWriter(MarkdownWriterBase):
         self.md_editors.append(self.add_question_run_logs)
 
     
-    def add_question_run_logs(self, md, attack: Attack):
-        question_run_logs = dict(sorted(attack.question_run_logs.items(), 
-                   key=lambda item: item[1].get("data", [{"created_at": 0}])[0]["created_at"]
-        ))
+    def add_question_run_logs(self, md, attack: Attack):        
+        sorted_run_logs = sorted(attack.question_run_logs.values(), 
+                   key=lambda run_log: run_log["run_steps"].get("data", [{"created_at": 0}])[0]["created_at"]
+        )
         
-
-        for n, run_log in enumerate(question_run_logs.values()):
+        for n, run_log in enumerate(sorted_run_logs):
             if n == 0:
                 md += f"{bold('Assistant ID:')} {code(run_log['ass_id'])}\n\n"
                 md += f"{bold('Thread ID:')} {code(run_log['thread_id'])}\n\n"

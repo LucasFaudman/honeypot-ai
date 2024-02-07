@@ -384,6 +384,18 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
                 f.write(thread_id + '\n')
         
         return thread_id
+    
+
+    def read_attack_chat_run_logs(self, attack):
+        question_run_logs = {}
+        question_num = 0
+        for qfile in (attack.attack_dir / "ai-chat").glob("question_*.json"):
+            with qfile.open() as f:
+                question_run_logs[qfile.name.rsplit(".", 1)[0]] = json.loads(f.read())
+            question_num  = max(int(qfile.name.split("_")[1].replace(".json", "")), question_num)
+        
+        question_num += 1
+        return question_run_logs, question_num
 
 
     def answer_attack_questions(self, questions, attack: Attack, interactive_chat=False):
@@ -505,16 +517,10 @@ class OpenAIAssistantAnalyzer(OpenAIAnalyzerBase):
 
     def interactive_chat_about_attack(self, attack):
         print(f"\nEntering honeypot-ai Chat Mode...")
-        question_run_logs = {}
+        
         questions_to_ask = {}
-        
-        question_num = 0
-        for qfile in (attack.attack_dir / "ai-chat").glob("question_*.json"):
-            with qfile.open() as f:
-                question_run_logs[qfile.name.rsplit(".", 1)[0]] = json.loads(f.read())
-            question_num  = max(int(qfile.name.split("_")[1].replace(".json", "")), question_num)
-        
-        question_num += 1
+        question_run_logs, question_num = self.read_attack_chat_run_logs(attack)
+
 
         choice = ""
         quit_strings = ("q", "quit", "exit", "exit()")
